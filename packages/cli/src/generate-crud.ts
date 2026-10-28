@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import {
 	access,
 	mkdir,
@@ -412,13 +413,6 @@ const update${entityPascal}InputSchema = z.object({
 ${updateFields}
 });
 
-const notFoundError = {
-	NOT_FOUND: {
-		status: 404,
-		message: "${entityPascal} not found",
-	},
-} as const;
-
 export const ${featureCamel}Contract = {
 	list: oc
 		.meta(
@@ -463,7 +457,6 @@ export const ${featureCamel}Contract = {
 			}),
 		)
 		.input(z.object({ id: z.uuid() }))
-		.errors(notFoundError)
 		.output(${entityCamel}Schema),
 	create: oc
 		.meta(
@@ -485,7 +478,6 @@ export const ${featureCamel}Contract = {
 			}),
 		)
 		.input(update${entityPascal}InputSchema)
-		.errors(notFoundError)
 		.output(${entityCamel}Schema),
 	remove: oc
 		.meta(
@@ -496,7 +488,6 @@ export const ${featureCamel}Contract = {
 			}),
 		)
 		.input(z.object({ id: z.uuid() }))
-		.errors(notFoundError)
 		.output(z.object({ id: z.uuid() })),
 };
 `;
@@ -599,7 +590,7 @@ function renderController(
 ): string {
 	return `import { Controller } from "@nestjs/common";
 import { Implement } from "@orpc/nest";
-import { implement } from "@orpc/server";
+import { implement, ORPCError } from "@orpc/server";
 import { contract } from "@petshop/api-contract";
 
 // biome-ignore lint/style/useImportType: NestJS needs the runtime class for dependency injection metadata.
@@ -628,9 +619,11 @@ export class ${featurePascal}Controller {
 	@Implement(contract.${featureCamel}.get)
 	get() {
 		return implement(contract.${featureCamel}.get).handler(
-			async ({ input, errors }) => {
+			async ({ input }) => {
 				const item = await this.${featureCamel}Service.get(input.id);
-				if (!item) throw errors.NOT_FOUND();
+				if (!item) {
+					throw new ORPCError("NOT_FOUND");
+				}
 				return item;
 			},
 		);
@@ -646,9 +639,11 @@ export class ${featurePascal}Controller {
 	@Implement(contract.${featureCamel}.update)
 	update() {
 		return implement(contract.${featureCamel}.update).handler(
-			async ({ input, errors }) => {
+			async ({ input }) => {
 				const item = await this.${featureCamel}Service.update(input);
-				if (!item) throw errors.NOT_FOUND();
+				if (!item) {
+					throw new ORPCError("NOT_FOUND");
+				}
 				return item;
 			},
 		);
@@ -657,9 +652,11 @@ export class ${featurePascal}Controller {
 	@Implement(contract.${featureCamel}.remove)
 	remove() {
 		return implement(contract.${featureCamel}.remove).handler(
-			async ({ input, errors }) => {
+			async ({ input }) => {
 				const item = await this.${featureCamel}Service.remove(input.id);
-				if (!item) throw errors.NOT_FOUND();
+				if (!item) {
+					throw new ORPCError("NOT_FOUND");
+				}
 				return item;
 			},
 		);
@@ -911,6 +908,26 @@ async function applyChanges(changes: Change[]): Promise<void> {
 	}
 }
 
+async function formatChanges(root: string, changes: Change[]): Promise<void> {
+	const biomePath = resolve(root, "node_modules/.bin/biome");
+	if (!(await pathExists(biomePath))) {
+		console.warn("Biome was not found; generated files were not formatted.");
+		return;
+	}
+
+	const files = changes
+		.map((change) => change.path)
+		.filter((path) => path.endsWith(".ts"));
+	const result = spawnSync(biomePath, ["format", "--write", ...files], {
+		cwd: root,
+		stdio: "inherit",
+	});
+	if (result.error) throw result.error;
+	if (result.status !== 0) {
+		throw new Error(`Biome formatting failed with exit code ${result.status}`);
+	}
+}
+
 export async function runGenerateCrud(argv: string[]): Promise<void> {
 	const parsedOptions = parseOptions(argv);
 	if (parsedOptions.help) {
@@ -929,6 +946,7 @@ export async function runGenerateCrud(argv: string[]): Promise<void> {
 
 	if (options.dryRun) return;
 	await applyChanges(changes);
+	await formatChanges(root, changes);
 	console.log("\nNext steps:");
 	console.log("  pnpm db:generate");
 	console.log("  pnpm db:migrate");
