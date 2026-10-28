@@ -282,6 +282,7 @@ function RouteComponent() {
 				<Typography.Text type="danger">{error.message}</Typography.Text>
 			)}
 			<Table<AdminUser>
+				bordered
 				rowKey="id"
 				columns={visibleColumns}
 				dataSource={data?.users ?? []}
@@ -305,7 +306,7 @@ function RouteComponent() {
 					showTotal: (total) => `${total} người dùng`,
 				}}
 				showSorterTooltip={false}
-				size="small"
+				size="medium"
 			/>
 			<UserFormModal
 				open={modal.open}

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import z from "zod";
 
 import { FormField } from "@/components/form/form-field";
+import { MIN_PASSWORD } from "@/constants/auth";
 import { useZodForm } from "@/hooks/use-zod-form";
 
 import {
@@ -12,8 +13,6 @@ import {
 	useCreateUser,
 	useUpdateUser,
 } from "../_hooks/use-admin-users";
-
-const MIN_PASSWORD = 8;
 
 const baseSchema = z.object({
 	name: z.string().trim().min(1, "Vui lòng nhập tên"),

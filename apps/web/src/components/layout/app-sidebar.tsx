@@ -6,12 +6,13 @@ import {
 } from "@tanstack/react-router";
 import type { MenuProps } from "antd";
 import { Layout, Menu, Typography } from "antd";
-import { Boxes, LayoutDashboard, LogOut, Users } from "lucide-react";
+import { Boxes, LayoutDashboard, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { useSignOut } from "@/hooks/use-sign-out";
-import { authClient, isAdmin } from "@/lib/auth-client";
+import { isAdmin } from "@/lib/auth-client";
 import { useSidebarCollapsed, useSidebarStore } from "@/stores/sidebar-store";
+
+import { SidebarUser } from "./sidebar-user";
 
 type NavItem = {
 	to: NonNullable<LinkProps["to"]>;
@@ -40,7 +41,6 @@ export function AppSidebar() {
 		from: "__root__",
 	});
 	const admin = isAdmin(session?.user);
-	const signOut = useSignOut();
 
 	const items: MenuProps["items"] = navItems
 		.filter((item) => !item.adminOnly || admin)
@@ -89,20 +89,7 @@ export function AppSidebar() {
 					}
 				}}
 			/>
-			<Menu
-				theme="light"
-				mode="inline"
-				selectable={false}
-				items={[
-					{
-						key: "sign-out",
-						icon: <LogOut size={16} />,
-						label: "Đăng xuất",
-						danger: true,
-						onClick: signOut,
-					},
-				]}
-			/>
+			<SidebarUser collapsed={collapsed} />
 		</Layout.Sider>
 	);
 }

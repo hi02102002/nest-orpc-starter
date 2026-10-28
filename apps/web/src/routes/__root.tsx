@@ -69,7 +69,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 	return (
-		<html lang="en" className="bg-slate-50">
+		<html lang="en" className="bg-gray-50">
 			<head>
 				<HeadContent />
 			</head>
