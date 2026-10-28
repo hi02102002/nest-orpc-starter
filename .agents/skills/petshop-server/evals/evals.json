@@ -1,0 +1,23 @@
+{
+	"skill_name": "petshop-server",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Add a pets feature to apps/server for contract.pets.get. Use Nest dependency injection, keep the controller thin, and fetch the pet from the database without putting the controller in the src root.",
+			"expected_output": "Creates a feature-local module, controller, and service; imports the module from AppModule; implements the matching oRPC contract node; and keeps database/business logic out of the controller.",
+			"files": []
+		},
+		{
+			"id": 2,
+			"prompt": "Move the existing privateData endpoint into a feature-based NestJS structure without changing its public route, contract key, response, or authentication behavior.",
+			"expected_output": "Moves the controller into features/private-data with its own module, imports that module from AppModule, preserves context.session authentication and typed UNAUTHORIZED handling, and removes stale root controller wiring.",
+			"files": []
+		},
+		{
+			"id": 3,
+			"prompt": "Add an authenticated endpoint that updates a pet and writes an audit record in one transaction. Organize the server code by feature and do not duplicate the contract schemas in apps/server.",
+			"expected_output": "Keeps schemas in the shared contract, adds feature-local controller and service code, reads auth from oRPC context, places the transaction around the complete update and audit operation, and returns only the contract output shape.",
+			"files": []
+		}
+	]
+}

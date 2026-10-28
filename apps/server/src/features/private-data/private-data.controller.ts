@@ -4,12 +4,7 @@ import { implement } from "@orpc/server";
 import { contract } from "@petshop/api-contract";
 
 @Controller()
-export class ApiController {
-	@Implement(contract.healthCheck)
-	healthCheck() {
-		return implement(contract.healthCheck).handler(() => "OK");
-	}
-
+export class PrivateDataController {
 	@Implement(contract.privateData)
 	privateData() {
 		return implement(contract.privateData).handler(({ context, errors }) => {

@@ -2,8 +2,8 @@ import { Module } from "@nestjs/common";
 import { ORPCModule } from "@orpc/nest";
 import { onError } from "@orpc/server";
 
-import { ApiController } from "./api.controller";
-import { AppController } from "./app.controller";
+import { HealthModule } from "./features/health/health.module";
+import { PrivateDataModule } from "./features/private-data/private-data.module";
 import { createORPCContext } from "./orpc-context";
 
 @Module({
@@ -16,7 +16,8 @@ import { createORPCContext } from "./orpc-context";
 				}),
 			],
 		}),
+		HealthModule,
+		PrivateDataModule,
 	],
-	controllers: [AppController, ApiController],
 })
 export class AppModule {}
