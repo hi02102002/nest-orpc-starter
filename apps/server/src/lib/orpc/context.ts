@@ -1,6 +1,10 @@
 import type { IncomingHttpHeaders } from "node:http";
 import type { Database } from "@app/db";
 import type { ExecutionContext } from "@nestjs/common";
+import type {
+	RequestHeadersHandlerPluginContext,
+	ResponseHeadersHandlerPluginContext,
+} from "@orpc/server/plugins";
 import { fromNodeHeaders } from "better-auth/node";
 import { identifyUser } from "evlog/better-auth";
 import { useLogger } from "evlog/nestjs";
@@ -13,7 +17,9 @@ type ORPCContextDependencies = {
 };
 
 declare module "@orpc/server" {
-	interface DefaultInitialContext {
+	interface DefaultInitialContext
+		extends RequestHeadersHandlerPluginContext,
+		ResponseHeadersHandlerPluginContext {
 		db: Database;
 		session: Auth["$Infer"]["Session"] | null;
 	}

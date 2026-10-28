@@ -9,10 +9,12 @@ catalog:
   varlock: 1.23.0
   "@orpc/client": 2.0.0-beta.47
   "@orpc/contract": 2.0.0-beta.47
+  "@orpc/json-schema": 2.0.0-beta.47
   "@orpc/nest": 2.0.0-beta.47
   "@orpc/openapi": 2.0.0-beta.47
   "@orpc/server": 2.0.0-beta.47
   "@orpc/tanstack-query": 2.0.0-beta.47
+  "@orpc/zod": 2.0.0-beta.47
   "@nestjs/common": ^12.3.2
   "@nestjs/core": ^12.3.2
   "@nestjs/platform-express": ^12.3.2
@@ -34,3 +36,4 @@ minimumReleaseAgeExclude:
   - "@orpc/server@2.0.0-beta.47"
   - "@orpc/shared@2.0.0-beta.47"
   - "@orpc/tanstack-query@2.0.0-beta.47"
+  - "@orpc/zod@2.0.0-beta.47"

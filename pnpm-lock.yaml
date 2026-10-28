@@ -21,6 +21,9 @@ catalogs:
     '@orpc/contract':
       specifier: 2.0.0-beta.47
       version: 2.0.0-beta.47
+    '@orpc/json-schema':
+      specifier: 2.0.0-beta.47
+      version: 2.0.0-beta.47
     '@orpc/nest':
       specifier: 2.0.0-beta.47
       version: 2.0.0-beta.47
@@ -31,6 +34,9 @@ catalogs:
       specifier: 2.0.0-beta.47
       version: 2.0.0-beta.47
     '@orpc/tanstack-query':
+      specifier: 2.0.0-beta.47
+      version: 2.0.0-beta.47
+    '@orpc/zod':
       specifier: 2.0.0-beta.47
       version: 2.0.0-beta.47
     antd:
@@ -187,12 +193,18 @@ importers:
       '@orpc/client':
         specifier: 'catalog:'
         version: 2.0.0-beta.47
+      '@orpc/json-schema':
+        specifier: 'catalog:'
+        version: 2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))
       '@orpc/openapi':
         specifier: 'catalog:'
         version: 2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))
       '@orpc/tanstack-query':
         specifier: 'catalog:'
         version: 2.0.0-beta.47(@tanstack/query-core@5.105.0)(crossws@0.4.16(srvx@1.0.8))
+      '@orpc/zod':
+        specifier: 'catalog:'
+        version: 2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))(zod@4.6.7)
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
@@ -1093,6 +1105,11 @@ packages:
     resolution: {integrity: sha512-DyR5G82bUzH+BfdkRobIVXNapwWek/650ANgFTosZhzXprOUzgAzM3GFhz+KmlPkhKKsnHeV8JukKvAnS+T52w==}
     peerDependencies:
       '@tanstack/query-core': '>=5.89.0'
+
+  '@orpc/zod@2.0.0-beta.47':
+    resolution: {integrity: sha512-IWu5PsJKH+D5G/ih/zZ2fO/AQWoI3VqMmJRCOIZ5gwX1Reznn4YK2OC5Hy/CVx+T8YJiXAJ0BH7185BJaK2S+Q==}
+    peerDependencies:
+      zod: '>=4.5.0'
 
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
@@ -4253,6 +4270,15 @@ snapshots:
       - crossws
       - fastify
       - swagger-ui
+
+  '@orpc/zod@2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))(zod@4.6.7)':
+    dependencies:
+      '@openapi-spec/types': 0.4.0
+      '@orpc/json-schema': 2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))
+      zod: 4.6.7
+    transitivePeerDependencies:
+      - crossws
+      - fastify
 
   '@oxc-project/types@0.155.0': {}
 

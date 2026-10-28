@@ -4,10 +4,14 @@ import { getDrizzleToken } from "@nestjs/drizzle";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ORPCModule } from "@orpc/nest";
 import { onError } from "@orpc/server";
+import {
+	RequestHeadersHandlerPlugin,
+	ResponseCompressionHandlerPlugin,
+	ResponseHeadersHandlerPlugin,
+} from "@orpc/server/plugins";
 import { AuthService } from "@thallesp/nestjs-better-auth";
 import { toMiddlewareOptions } from "evlog";
 import { EvlogModule, useLogger } from "evlog/nestjs";
-
 import evlogConfig from "../evlog.config";
 import { CrudModule } from "./features/crud/crud.module";
 import { DocsModule } from "./features/docs/docs.module";
@@ -37,6 +41,11 @@ import { type Auth, ServicesModule } from "./services.module";
 							console.error(normalizedError);
 						}
 					}),
+				],
+				plugins: [
+					new RequestHeadersHandlerPlugin(),
+					new ResponseHeadersHandlerPlugin(),
+					new ResponseCompressionHandlerPlugin(),
 				],
 			}),
 		}),
