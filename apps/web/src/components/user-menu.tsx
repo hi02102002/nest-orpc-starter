@@ -10,13 +10,13 @@ export default function UserMenu() {
 	const { data: session, isPending } = authClient.useSession();
 
 	if (isPending) {
-		return <Skeleton.Button active size="small" />;
+		return <Skeleton.Button active block />;
 	}
 
 	if (!session) {
 		return (
-			<Link to="/login">
-				<Button>Sign In</Button>
+			<Link to="/login" className="block">
+				<Button block>Sign In</Button>
 			</Link>
 		);
 	}
@@ -53,7 +53,9 @@ export default function UserMenu() {
 				},
 			}}
 		>
-			<Button>{session.user.name}</Button>
+			<Button block>
+				<span className="block truncate">{session.user.name}</span>
+			</Button>
 		</Dropdown>
 	);
 }

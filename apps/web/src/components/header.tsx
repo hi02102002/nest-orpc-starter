@@ -14,7 +14,10 @@ export default function Header() {
 		<header className="app-header">
 			<Flex align="center" justify="space-between" gap="large">
 				<Space size="large" align="center">
-					<Typography.Text strong className="brand-mark">
+					<Typography.Text
+						strong
+						className="inline-block! text-[1.1rem]! leading-none! font-semibold! tracking-[0.08em]! whitespace-nowrap uppercase max-sm:hidden!"
+					>
 						Petshop
 					</Typography.Text>
 					<nav className="app-nav" aria-label="Primary navigation">
@@ -29,7 +32,9 @@ export default function Header() {
 				</Space>
 				<Space>
 					<ModeToggle />
-					<UserMenu />
+					<div className="w-32">
+						<UserMenu />
+					</div>
 				</Space>
 			</Flex>
 		</header>
