@@ -7,8 +7,11 @@ import { contract } from "@petshop/api-contract";
 import { ENV } from "../env";
 
 export function createOrpc() {
+	const origin = import.meta.env.SSR
+		? (ENV.SERVER_URL ?? ENV.VITE_SERVER_URL)
+		: ENV.VITE_SERVER_URL;
 	const link = new OpenAPILink(contract, {
-		origin: ENV.VITE_SERVER_URL.replace(/\/$/, ""),
+		origin: origin.replace(/\/$/, ""),
 		fetch(url, options) {
 			return fetch(url, {
 				...options,

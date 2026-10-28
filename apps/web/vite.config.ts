@@ -15,7 +15,7 @@ export default defineConfig({
 	plugins: [
 		varlockVitePlugin({
 			rootDir: import.meta.dirname,
-			ssrInjectMode: "auto-load",
+			ssrInjectMode: "resolved-env",
 		}),
 		tailwindcss(),
 		tanstackStart(),

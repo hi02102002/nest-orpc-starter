@@ -47,6 +47,42 @@ pnpm run dev
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 
+## Docker
+
+Both applications use multi-stage images. The API runs the bundled NestJS
+server, while the web image runs the TanStack Start Nitro output. PostgreSQL is
+external to this Compose stack.
+
+Create the Docker environment file and update the database URL and auth secret:
+
+```bash
+cp .env.docker.example .env
+```
+
+Apply the database migrations against that external PostgreSQL database before
+starting the applications:
+
+```bash
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/petshop pnpm run db:migrate
+```
+
+Use the host-accessible database URL for this command. The example Docker env
+uses `host.docker.internal` because the API resolves PostgreSQL from inside its
+container.
+
+Build and start both applications:
+
+```bash
+docker compose up --build
+```
+
+The web application is available at `http://localhost:3001`, the API at
+`http://localhost:3000`, and the API reference at `http://localhost:3000/docs`.
+
+`VITE_SERVER_URL` is embedded into the browser bundle during the web image
+build. Rebuild the web image after changing this URL. TanStack Start uses the
+internal Compose URL `http://server:3000` for SSR requests.
+
 ## UI Customization
 
 React web apps in this stack share shadcn/ui primitives through `packages/ui`.
