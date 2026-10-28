@@ -1,34 +1,37 @@
 {
-  "name": "server",
-  "type": "module",
-  "main": "src/index.ts",
-  "scripts": {
-    "build": "tsc -b ../../packages/api && tsdown",
-    "check-types": "tsc -b ../../packages/api && tsc --noEmit",
-    "compile": "bun build --compile --no-compile-autoload-dotenv --minify --sourcemap --bytecode ./src/index.ts --outfile server",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.mjs",
-    "env:generate": "varlock codegen",
-    "auth:generate": "varlock run -- pnpm dlx auth@latest generate --config src/services.ts --output ../../packages/db/src/schema/auth.ts --yes"
-  },
-  "dependencies": {
-    "@hono/node-server": "^2.1.1",
-    "@orpc/openapi": "catalog:",
-    "@orpc/server": "catalog:",
-    "@orpc/zod": "catalog:",
-    "@petshop/api": "workspace:*",
-    "@petshop/auth": "workspace:*",
-    "@petshop/db": "workspace:*",
-    "better-auth": "catalog:",
-    "hono": "^4.13.7",
-    "varlock": "catalog:",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@petshop/config": "workspace:*",
-    "@types/node": "^26.4.1",
-    "tsdown": "^0.23.0",
-    "tsx": "^4.23.13",
-    "typescript": "catalog:"
-  }
+	"name": "server",
+	"type": "module",
+	"main": "src/main.ts",
+	"scripts": {
+		"build": "tsc -b ../../packages/api-contract && tsdown",
+		"check-types": "tsc -b ../../packages/api-contract && tsc --noEmit",
+		"compile": "bun build --compile --no-compile-autoload-dotenv --minify --sourcemap --bytecode ./src/main.ts --outfile server",
+		"dev": "tsx watch src/main.ts",
+		"start": "node dist/main.mjs",
+		"env:generate": "varlock codegen",
+		"auth:generate": "varlock run -- pnpm dlx auth@latest generate --config src/services.ts --output ../../packages/db/src/schema/auth.ts --yes"
+	},
+	"dependencies": {
+		"@nestjs/common": "catalog:",
+		"@nestjs/core": "catalog:",
+		"@nestjs/platform-express": "catalog:",
+		"@orpc/nest": "catalog:",
+		"@orpc/server": "catalog:",
+		"@petshop/api-contract": "workspace:*",
+		"@petshop/auth": "workspace:*",
+		"@petshop/db": "workspace:*",
+		"better-auth": "catalog:",
+		"reflect-metadata": "^0.2.2",
+		"rxjs": "^7.8.2",
+		"varlock": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@petshop/config": "workspace:*",
+		"@types/express": "^5.0.6",
+		"@types/node": "^26.4.1",
+		"tsdown": "^0.23.0",
+		"tsx": "^4.23.13",
+		"typescript": "catalog:"
+	}
 }

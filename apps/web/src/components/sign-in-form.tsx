@@ -1,135 +1,161 @@
-import { Button } from "@petshop/ui/components/button";
-import { Input } from "@petshop/ui/components/input";
-import { Label } from "@petshop/ui/components/label";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { App, Button, Card, Form, Input, Space, Typography } from "antd";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
 
 import Loader from "./loader";
 
-export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
-  const navigate = useNavigate({
-    from: "/",
-  });
-  const { isPending } = authClient.useSession();
+export default function SignInForm({
+	onSwitchToSignUp,
+}: {
+	onSwitchToSignUp: () => void;
+}) {
+	const { message } = App.useApp();
+	const navigate = useNavigate({
+		from: "/",
+	});
+	const { isPending } = authClient.useSession();
 
-  const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
-        {
-          email: value.email,
-          password: value.password,
-        },
-        {
-          onSuccess: () => {
-            navigate({
-              to: "/dashboard",
-            });
-            toast.success("Sign in successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
-    },
-    validators: {
-      onSubmit: z.object({
-        email: z.email("Invalid email address"),
-        password: z.string().min(8, "Password must be at least 8 characters"),
-      }),
-    },
-  });
+	const form = useForm({
+		defaultValues: {
+			email: "",
+			password: "",
+		},
+		onSubmit: async ({ value }) => {
+			await authClient.signIn.email(
+				{
+					email: value.email,
+					password: value.password,
+				},
+				{
+					onSuccess: () => {
+						navigate({
+							to: "/dashboard",
+						});
+						message.success("Sign in successful");
+					},
+					onError: (error) => {
+						message.error(error.error.message || error.error.statusText);
+					},
+				},
+			);
+		},
+		validators: {
+			onSubmit: z.object({
+				email: z.email("Invalid email address"),
+				password: z.string().min(8, "Password must be at least 8 characters"),
+			}),
+		},
+	});
 
-  if (isPending) {
-    return <Loader />;
-  }
+	if (isPending) {
+		return <Loader />;
+	}
 
-  return (
-    <div className="mx-auto w-full mt-10 max-w-md p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold">Welcome Back</h1>
+	return (
+		<Card className="auth-card">
+			<Space orientation="vertical" size="large" style={{ width: "100%" }}>
+				<div>
+					<Typography.Title level={2} style={{ marginBottom: 4 }}>
+						Welcome back
+					</Typography.Title>
+					<Typography.Text type="secondary">
+						Sign in to manage your petshop.
+					</Typography.Text>
+				</div>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
+					}}
+				>
+					<Form component={false} layout="vertical">
+						<form.Field name="email">
+							{(field) => {
+								const error = field.state.meta.errors[0];
+								const help =
+									error && typeof error === "object" && "message" in error
+										? String(error.message)
+										: error
+											? String(error)
+											: undefined;
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}
-        className="space-y-4"
-      >
-        <div>
-          <form.Field name="email">
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Email</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="email"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-500">
-                    {error?.message}
-                  </p>
-                ))}
-              </div>
-            )}
-          </form.Field>
-        </div>
+								return (
+									<Form.Item
+										label="Email"
+										validateStatus={help ? "error" : undefined}
+										help={help}
+									>
+										<Input
+											id={field.name}
+											name={field.name}
+											type="email"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</Form.Item>
+								);
+							}}
+						</form.Field>
+						<form.Field name="password">
+							{(field) => {
+								const error = field.state.meta.errors[0];
+								const help =
+									error && typeof error === "object" && "message" in error
+										? String(error.message)
+										: error
+											? String(error)
+											: undefined;
 
-        <div>
-          <form.Field name="password">
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Password</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-500">
-                    {error?.message}
-                  </p>
-                ))}
-              </div>
-            )}
-          </form.Field>
-        </div>
+								return (
+									<Form.Item
+										label="Password"
+										validateStatus={help ? "error" : undefined}
+										help={help}
+									>
+										<Input.Password
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</Form.Item>
+								);
+							}}
+						</form.Field>
 
-        <form.Subscribe
-          selector={(state) => ({ canSubmit: state.canSubmit, isSubmitting: state.isSubmitting })}
-        >
-          {({ canSubmit, isSubmitting }) => (
-            <Button type="submit" className="w-full" disabled={!canSubmit || isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Sign In"}
-            </Button>
-          )}
-        </form.Subscribe>
-      </form>
+						<form.Subscribe
+							selector={(state) => ({
+								canSubmit: state.canSubmit,
+								isSubmitting: state.isSubmitting,
+							})}
+						>
+							{({ canSubmit, isSubmitting }) => (
+								<Button
+									block
+									type="primary"
+									htmlType="submit"
+									disabled={!canSubmit}
+									loading={isSubmitting}
+								>
+									Sign in
+								</Button>
+							)}
+						</form.Subscribe>
+					</Form>
+				</form>
 
-      <div className="mt-4 text-center">
-        <Button
-          variant="link"
-          onClick={onSwitchToSignUp}
-          className="text-indigo-600 hover:text-indigo-800"
-        >
-          Need an account? Sign Up
-        </Button>
-      </div>
-    </div>
-  );
+				<div style={{ textAlign: "center" }}>
+					<Button type="link" onClick={onSwitchToSignUp}>
+						Need an account? Sign up
+					</Button>
+				</div>
+			</Space>
+		</Card>
+	);
 }

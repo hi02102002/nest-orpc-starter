@@ -1,29 +1,29 @@
-import { Button } from "@petshop/ui/components/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@petshop/ui/components/dropdown-menu";
+import { Button, Dropdown } from "antd";
 import { Moon, Sun } from "lucide-react";
 
 import { useTheme } from "@/components/theme-provider";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" size="icon" />}>
-        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-        <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-        <span className="sr-only">Toggle theme</span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+	return (
+		<Dropdown
+			placement="bottomRight"
+			trigger={["click"]}
+			menu={{
+				selectedKeys: [resolvedTheme ?? "system"],
+				items: [
+					{ key: "light", label: "Light" },
+					{ key: "dark", label: "Dark" },
+					{ key: "system", label: "System" },
+				],
+				onClick: ({ key }) => setTheme(key),
+			}}
+		>
+			<Button
+				aria-label="Toggle color theme"
+				icon={resolvedTheme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
+			/>
+		</Dropdown>
+	);
 }

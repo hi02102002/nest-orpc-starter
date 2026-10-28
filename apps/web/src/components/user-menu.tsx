@@ -1,62 +1,59 @@
-import { Button } from "@petshop/ui/components/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@petshop/ui/components/dropdown-menu";
-import { Skeleton } from "@petshop/ui/components/skeleton";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { MenuProps } from "antd";
+import { App, Button, Dropdown, Skeleton } from "antd";
 
 import { authClient } from "@/lib/auth-client";
 
 export default function UserMenu() {
-  const navigate = useNavigate();
-  const { data: session, isPending } = authClient.useSession();
+	const { message } = App.useApp();
+	const navigate = useNavigate();
+	const { data: session, isPending } = authClient.useSession();
 
-  if (isPending) {
-    return <Skeleton className="h-9 w-24" />;
-  }
+	if (isPending) {
+		return <Skeleton.Button active size="small" />;
+	}
 
-  if (!session) {
-    return (
-      <Link to="/login">
-        <Button variant="outline">Sign In</Button>
-      </Link>
-    );
-  }
+	if (!session) {
+		return (
+			<Link to="/login">
+				<Button>Sign In</Button>
+			</Link>
+		);
+	}
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" />}>
-        {session.user.name}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-card">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => {
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    navigate({
-                      to: "/",
-                    });
-                  },
-                },
-              });
-            }}
-          >
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+	const items: MenuProps["items"] = [
+		{ key: "account", label: "My account", type: "group" },
+		{ key: "email", label: session.user.email, disabled: true },
+		{ type: "divider" },
+		{ key: "sign-out", label: "Sign out", danger: true },
+	];
+
+	return (
+		<Dropdown
+			placement="bottomRight"
+			trigger={["click"]}
+			menu={{
+				items,
+				onClick: ({ key }) => {
+					if (key !== "sign-out") {
+						return;
+					}
+
+					authClient.signOut({
+						fetchOptions: {
+							onSuccess: () => {
+								message.success("Signed out");
+								navigate({ to: "/" });
+							},
+							onError: () => {
+								message.error("Unable to sign out");
+							},
+						},
+					});
+				},
+			}}
+		>
+			<Button>{session.user.name}</Button>
+		</Dropdown>
+	);
 }
