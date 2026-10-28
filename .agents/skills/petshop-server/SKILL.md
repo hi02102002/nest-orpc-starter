@@ -24,10 +24,15 @@ apps/server/
     │       ├── <feature>.controller.ts
     │       ├── <feature>.service.ts       # when business logic exists
     │       └── <feature>.repository.ts    # only when data access warrants it
+    ├── lib/
+    │   └── orpc/
+    │       ├── context.ts                 # request context + oRPC context types
+    │       ├── procedures.ts              # `pub` and `authed` implementers
+    │       └── middlewares/
+    │           └── <name>.middleware.ts
     ├── app.module.ts
     ├── main.ts
-    ├── orpc-context.ts
-    ├── services.ts
+    ├── services.module.ts
     └── env.server.ts
 ```
 
@@ -56,6 +61,8 @@ Import feature modules from `app.module.ts`. Keep `AppModule` focused on applica
 
 Avoid barrel files unless they simplify a real external import surface. Direct imports make feature ownership and dependency direction clearer in this small server.
 
+Import across folders inside `src` with the `@/` alias (`@/lib/orpc/procedures`, `@/services.module`); keep `./` for files in the same folder. `tsx`, `tsdown`, and `bun build` all resolve it from `tsconfig.json`.
+
 ## Controllers and oRPC handlers
 
 Controllers adapt the transport to feature logic. For an oRPC procedure, the decorator and implementer must reference the exact same contract node:
@@ -67,7 +74,7 @@ export class PetsController {
 
 	@Implement(contract.pets.get)
 	getPet() {
-		return implement(contract.pets.get).handler(async ({ input, errors }) => {
+		return pub.pets.get.handler(async ({ input, errors }) => {
 			const pet = await this.petsService.findById(input.id);
 
 			if (!pet) {
@@ -83,7 +90,7 @@ export class PetsController {
 Apply these rules:
 
 - Keep request validation, output schemas, routes, and typed error declarations in `@petshop/api-contract`; do not redeclare DTOs in the server.
-- Use `@Implement(contract.x)` and `implement(contract.x)` with the same node so TypeScript catches drift.
+- Use `@Implement(contract.x)` with `pub.x` or `authed.x` from `lib/orpc/procedures.ts`, on the same contract node, so TypeScript catches drift.
 - Keep small mapping and authorization checks in the handler, but move reusable business logic and database operations into a feature service.
 - Return only the public output shape. Do not return raw database rows when they contain internal fields.
 - Throw declared errors through `errors.CODE()`. Do not replace expected business failures with generic exceptions.
@@ -103,20 +110,23 @@ Keep transaction boundaries around the complete business operation, usually in t
 
 ## Authentication and request context
 
-`orpc-context.ts` is the request-scoped boundary for shared oRPC context. It currently provides:
+`lib/orpc/context.ts` is the request-scoped boundary for shared oRPC context. It currently provides:
 
 - `db`: the configured database instance.
 - `session`: the Better Auth session or `null`.
 
-Read authentication state through `context.session` in oRPC handlers:
+For procedures that require a signed-in user, build the contract from `authedContract` (`@petshop/api-contract`, declares `UNAUTHORIZED`) and implement it with `authed` from `lib/orpc/procedures.ts`. The `authed` middleware rejects requests without a session and gives the handler a non-null `context.session`:
 
 ```ts
-if (!context.session?.user) {
-	throw errors.UNAUTHORIZED();
+@Implement(contract.pets.list)
+listPets() {
+	return authed.pets.list.handler(({ context }) => {
+		return this.petsService.listForUser(context.session.user.id);
+	});
 }
 ```
 
-Declare `UNAUTHORIZED` in the shared contract before throwing it. Do not parse cookies or call Better Auth separately inside each feature.
+Use `pub` for public procedures, and read the optional `context.session` there. Do not parse cookies or call Better Auth separately inside each feature.
 
 Keep Better Auth's `/api/auth` Node handler in `main.ts`. Preserve `credentials: true` and the configured CORS origin because the web client uses cookie authentication.
 
@@ -173,7 +183,7 @@ Use `log.fork(label, fn)` for background work that must emit a separate child wi
 
 Use `evlog/better-auth` to associate authenticated requests with safe user and session fields. Verify the installed Better Auth version first; EVLog documents compatibility with Better Auth `>=1.6.9`.
 
-This server already resolves the Better Auth session in `orpc-context.ts`. Reuse that session with `identifyUser(...)` instead of adding `createAuthMiddleware(auth)` to the same oRPC request and resolving the session twice:
+This server already resolves the Better Auth session in `lib/orpc/context.ts`. Reuse that session with `identifyUser(...)` instead of adding `createAuthMiddleware(auth)` to the same oRPC request and resolving the session twice:
 
 ```ts
 import { identifyUser } from "evlog/better-auth";
@@ -215,8 +225,10 @@ References:
 - `main.ts`: bootstrap Nest, configure process-wide HTTP behavior, mount Better Auth, and listen.
 - `app.module.ts`: configure global Nest modules, including EVLog and oRPC, and import feature modules.
 - `evlog.config.ts`: define service-wide logging, sampling, enrichment, route filtering, and drain behavior.
-- `orpc-context.ts`: build request context and augment oRPC context types.
-- `services.ts`: create process-wide database and authentication instances.
+- `lib/orpc/context.ts`: build request context and augment oRPC context types.
+- `lib/orpc/procedures.ts`: the `pub` and `authed` implementers every controller builds handlers from.
+- `lib/orpc/middlewares/`: shared oRPC middlewares, one per file, defined with `implement(contract).middleware(...)`.
+- `services.module.ts`: create process-wide database and authentication instances.
 - `env.server.ts`: expose validated server environment values.
 
 Do not move feature behavior into these files. Conversely, do not duplicate global CORS, auth mounting, database creation, or ORPC initialization inside a feature.
@@ -256,7 +268,7 @@ Static checks do not prove Nest discovery, middleware behavior, cookies, or data
 - Controllers remain thin; business and data logic live in a service when warranted.
 - Authentication comes from `context.session`, and expected failures use typed errors.
 - EVLog uses the NestJS request scope; feature code enriches the wide event with safe business context.
-- Better Auth identity reuses the session resolved by `orpc-context.ts` instead of performing duplicate session lookups.
+- Better Auth identity reuses the session resolved by `lib/orpc/context.ts` instead of performing duplicate session lookups.
 - oRPC failures are attached to the request logger without replacing typed contract errors or double-logging requests.
 - Responses match the public contract without exposing internal fields.
 - Focused type and formatting checks pass, or remaining runtime/environment gaps are reported.

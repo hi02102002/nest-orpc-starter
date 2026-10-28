@@ -1,14 +1,10 @@
-import { oc } from "@orpc/contract";
 import { openapi } from "@orpc/openapi";
 import { z } from "zod";
 
-export const privateDataContract = oc
+import { authedContract } from "./authed.contract";
+
+export const privateDataContract = authedContract
 	.meta(openapi({ method: "GET", path: "/api/private-data" }))
-	.errors({
-		UNAUTHORIZED: {
-			message: "Authentication required",
-		},
-	})
 	.output(
 		z.object({
 			message: z.string(),

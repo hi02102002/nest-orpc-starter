@@ -11,7 +11,7 @@ import evlogConfig from "../evlog.config";
 import { DocsModule } from "./features/docs/docs.module";
 import { HealthModule } from "./features/health/health.module";
 import { PrivateDataModule } from "./features/private-data/private-data.module";
-import { createORPCContext } from "./lib/orpc";
+import { createORPCContext } from "./lib/orpc/context";
 import { type Auth, ServicesModule } from "./services.module";
 
 @Module({

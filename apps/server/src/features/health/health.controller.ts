@@ -1,7 +1,8 @@
 import { Controller, Get } from "@nestjs/common";
 import { Implement } from "@orpc/nest";
-import { implement } from "@orpc/server";
 import { contract } from "@petshop/api-contract";
+
+import { pub } from "@/lib/orpc/procedures";
 
 @Controller()
 export class HealthController {
@@ -12,6 +13,6 @@ export class HealthController {
 
 	@Implement(contract.healthCheck)
 	healthCheck() {
-		return implement(contract.healthCheck).handler(() => "OK");
+		return pub.healthCheck.handler(() => "OK");
 	}
 }

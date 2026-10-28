@@ -5,7 +5,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import { identifyUser } from "evlog/better-auth";
 import { useLogger } from "evlog/nestjs";
 
-import type { Auth } from "../services.module";
+import type { Auth } from "@/services.module";
 
 type ORPCContextDependencies = {
 	auth: Auth;

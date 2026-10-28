@@ -1,17 +1,14 @@
 import { Controller } from "@nestjs/common";
 import { Implement } from "@orpc/nest";
-import { implement } from "@orpc/server";
 import { contract } from "@petshop/api-contract";
+
+import { authed } from "@/lib/orpc/procedures";
 
 @Controller()
 export class PrivateDataController {
 	@Implement(contract.privateData)
 	privateData() {
-		return implement(contract.privateData).handler(({ context, errors }) => {
-			if (!context.session?.user) {
-				throw errors.UNAUTHORIZED();
-			}
-
+		return authed.privateData.handler(({ context }) => {
 			const { email, id, image, name } = context.session.user;
 
 			return {
