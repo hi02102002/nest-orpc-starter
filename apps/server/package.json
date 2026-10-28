@@ -16,6 +16,7 @@
 		"@nestjs/core": "catalog:",
 		"@nestjs/drizzle": "^0.0.2",
 		"@nestjs/platform-express": "catalog:",
+		"@nestjs/schedule": "^12.0.2",
 		"@orpc/contract": "catalog:",
 		"@orpc/nest": "catalog:",
 		"@orpc/openapi": "catalog:",

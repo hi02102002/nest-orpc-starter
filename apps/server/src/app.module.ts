@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { getDrizzleToken } from "@nestjs/drizzle";
+import { ScheduleModule } from "@nestjs/schedule";
 import { ORPCModule } from "@orpc/nest";
 import { onError } from "@orpc/server";
 import type { Database } from "@petshop/db";
@@ -18,6 +19,7 @@ import { type Auth, ServicesModule } from "./services.module";
 	imports: [
 		EvlogModule.forRoot(toMiddlewareOptions(evlogConfig)),
 		ServicesModule,
+		ScheduleModule.forRoot(),
 		ORPCModule.forRootAsync({
 			imports: [ServicesModule],
 			inject: [AuthService, getDrizzleToken()],
