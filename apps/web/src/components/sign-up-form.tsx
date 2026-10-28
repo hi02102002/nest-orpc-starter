@@ -1,11 +1,20 @@
-import { useForm } from "@tanstack/react-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { App, Button, Card, Form, Input, Space, Typography } from "antd";
+import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
 
 import Loader from "./loader";
+
+const signUpSchema = z.object({
+	name: z.string().min(2, "Name must be at least 2 characters"),
+	email: z.email("Invalid email address"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type SignUpValues = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm({
 	onSwitchToSignIn,
@@ -18,40 +27,40 @@ export default function SignUpForm({
 	});
 	const { isPending } = authClient.useSession();
 
-	const form = useForm({
+	const {
+		control,
+		handleSubmit,
+		formState: { isSubmitting, isValid },
+	} = useForm<SignUpValues>({
 		defaultValues: {
 			email: "",
 			password: "",
 			name: "",
 		},
-		onSubmit: async ({ value }) => {
-			await authClient.signUp.email(
-				{
-					email: value.email,
-					password: value.password,
-					name: value.name,
-				},
-				{
-					onSuccess: () => {
-						navigate({
-							to: "/dashboard",
-						});
-						message.success("Account created");
-					},
-					onError: (error) => {
-						message.error(error.error.message || error.error.statusText);
-					},
-				},
-			);
-		},
-		validators: {
-			onSubmit: z.object({
-				name: z.string().min(2, "Name must be at least 2 characters"),
-				email: z.email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
-			}),
-		},
+		mode: "onChange",
+		resolver: zodResolver(signUpSchema),
 	});
+
+	const onSubmit = async (value: SignUpValues) => {
+		await authClient.signUp.email(
+			{
+				email: value.email,
+				password: value.password,
+				name: value.name,
+			},
+			{
+				onSuccess: () => {
+					navigate({
+						to: "/dashboard",
+					});
+					message.success("Account created");
+				},
+				onError: (error) => {
+					message.error(error.error.message || error.error.statusText);
+				},
+			},
+		);
+	};
 
 	if (isPending) {
 		return <Loader />;
@@ -68,115 +77,69 @@ export default function SignUpForm({
 						Start managing your petshop workspace.
 					</Typography.Text>
 				</div>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						form.handleSubmit();
-					}}
-				>
+				<form onSubmit={handleSubmit(onSubmit)}>
 					<Form component={false} layout="vertical">
-						<form.Field name="name">
-							{(field) => {
-								const error = field.state.meta.errors[0];
-								const help =
-									error && typeof error === "object" && "message" in error
-										? String(error.message)
-										: error
-											? String(error)
-											: undefined;
-
-								return (
-									<Form.Item
-										label="Name"
-										validateStatus={help ? "error" : undefined}
-										help={help}
-									>
-										<Input
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</Form.Item>
-								);
-							}}
-						</form.Field>
-						<form.Field name="email">
-							{(field) => {
-								const error = field.state.meta.errors[0];
-								const help =
-									error && typeof error === "object" && "message" in error
-										? String(error.message)
-										: error
-											? String(error)
-											: undefined;
-
-								return (
-									<Form.Item
-										label="Email"
-										validateStatus={help ? "error" : undefined}
-										help={help}
-									>
-										<Input
-											id={field.name}
-											name={field.name}
-											type="email"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</Form.Item>
-								);
-							}}
-						</form.Field>
-						<form.Field name="password">
-							{(field) => {
-								const error = field.state.meta.errors[0];
-								const help =
-									error && typeof error === "object" && "message" in error
-										? String(error.message)
-										: error
-											? String(error)
-											: undefined;
-
-								return (
-									<Form.Item
-										label="Password"
-										validateStatus={help ? "error" : undefined}
-										help={help}
-									>
-										<Input.Password
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</Form.Item>
-								);
-							}}
-						</form.Field>
-
-						<form.Subscribe
-							selector={(state) => ({
-								canSubmit: state.canSubmit,
-								isSubmitting: state.isSubmitting,
-							})}
-						>
-							{({ canSubmit, isSubmitting }) => (
-								<Button
-									block
-									type="primary"
-									htmlType="submit"
-									disabled={!canSubmit}
-									loading={isSubmitting}
+						<Controller
+							control={control}
+							name="name"
+							render={({ field, fieldState }) => (
+								<Form.Item
+									label="Name"
+									htmlFor={field.name}
+									validateStatus={fieldState.error ? "error" : undefined}
+									help={fieldState.error?.message}
 								>
-									Create account
-								</Button>
+									<Input {...field} autoComplete="name" id={field.name} />
+								</Form.Item>
 							)}
-						</form.Subscribe>
+						/>
+						<Controller
+							control={control}
+							name="email"
+							render={({ field, fieldState }) => (
+								<Form.Item
+									label="Email"
+									htmlFor={field.name}
+									validateStatus={fieldState.error ? "error" : undefined}
+									help={fieldState.error?.message}
+								>
+									<Input
+										{...field}
+										autoComplete="email"
+										id={field.name}
+										type="email"
+									/>
+								</Form.Item>
+							)}
+						/>
+						<Controller
+							control={control}
+							name="password"
+							render={({ field, fieldState }) => (
+								<Form.Item
+									label="Password"
+									htmlFor={field.name}
+									validateStatus={fieldState.error ? "error" : undefined}
+									help={fieldState.error?.message}
+								>
+									<Input.Password
+										{...field}
+										autoComplete="new-password"
+										id={field.name}
+									/>
+								</Form.Item>
+							)}
+						/>
+
+						<Button
+							block
+							type="primary"
+							htmlType="submit"
+							disabled={!isValid}
+							loading={isSubmitting}
+						>
+							Create account
+						</Button>
 					</Form>
 				</form>
 

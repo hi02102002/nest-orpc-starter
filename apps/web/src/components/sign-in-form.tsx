@@ -1,11 +1,19 @@
-import { useForm } from "@tanstack/react-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { App, Button, Card, Form, Input, Space, Typography } from "antd";
+import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
 
 import Loader from "./loader";
+
+const signInSchema = z.object({
+	email: z.email("Invalid email address"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type SignInValues = z.infer<typeof signInSchema>;
 
 export default function SignInForm({
 	onSwitchToSignUp,
@@ -18,37 +26,38 @@ export default function SignInForm({
 	});
 	const { isPending } = authClient.useSession();
 
-	const form = useForm({
+	const {
+		control,
+		handleSubmit,
+		formState: { isSubmitting, isValid },
+	} = useForm<SignInValues>({
 		defaultValues: {
 			email: "",
 			password: "",
 		},
-		onSubmit: async ({ value }) => {
-			await authClient.signIn.email(
-				{
-					email: value.email,
-					password: value.password,
-				},
-				{
-					onSuccess: () => {
-						navigate({
-							to: "/dashboard",
-						});
-						message.success("Sign in successful");
-					},
-					onError: (error) => {
-						message.error(error.error.message || error.error.statusText);
-					},
-				},
-			);
-		},
-		validators: {
-			onSubmit: z.object({
-				email: z.email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
-			}),
-		},
+		mode: "onChange",
+		resolver: zodResolver(signInSchema),
 	});
+
+	const onSubmit = async (value: SignInValues) => {
+		await authClient.signIn.email(
+			{
+				email: value.email,
+				password: value.password,
+			},
+			{
+				onSuccess: () => {
+					navigate({
+						to: "/dashboard",
+					});
+					message.success("Sign in successful");
+				},
+				onError: (error) => {
+					message.error(error.error.message || error.error.statusText);
+				},
+			},
+		);
+	};
 
 	if (isPending) {
 		return <Loader />;
@@ -65,88 +74,55 @@ export default function SignInForm({
 						Sign in to manage your petshop.
 					</Typography.Text>
 				</div>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						form.handleSubmit();
-					}}
-				>
+				<form onSubmit={handleSubmit(onSubmit)}>
 					<Form component={false} layout="vertical">
-						<form.Field name="email">
-							{(field) => {
-								const error = field.state.meta.errors[0];
-								const help =
-									error && typeof error === "object" && "message" in error
-										? String(error.message)
-										: error
-											? String(error)
-											: undefined;
-
-								return (
-									<Form.Item
-										label="Email"
-										validateStatus={help ? "error" : undefined}
-										help={help}
-									>
-										<Input
-											id={field.name}
-											name={field.name}
-											type="email"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</Form.Item>
-								);
-							}}
-						</form.Field>
-						<form.Field name="password">
-							{(field) => {
-								const error = field.state.meta.errors[0];
-								const help =
-									error && typeof error === "object" && "message" in error
-										? String(error.message)
-										: error
-											? String(error)
-											: undefined;
-
-								return (
-									<Form.Item
-										label="Password"
-										validateStatus={help ? "error" : undefined}
-										help={help}
-									>
-										<Input.Password
-											id={field.name}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</Form.Item>
-								);
-							}}
-						</form.Field>
-
-						<form.Subscribe
-							selector={(state) => ({
-								canSubmit: state.canSubmit,
-								isSubmitting: state.isSubmitting,
-							})}
-						>
-							{({ canSubmit, isSubmitting }) => (
-								<Button
-									block
-									type="primary"
-									htmlType="submit"
-									disabled={!canSubmit}
-									loading={isSubmitting}
+						<Controller
+							control={control}
+							name="email"
+							render={({ field, fieldState }) => (
+								<Form.Item
+									label="Email"
+									htmlFor={field.name}
+									validateStatus={fieldState.error ? "error" : undefined}
+									help={fieldState.error?.message}
 								>
-									Sign in
-								</Button>
+									<Input
+										{...field}
+										autoComplete="email"
+										id={field.name}
+										type="email"
+									/>
+								</Form.Item>
 							)}
-						</form.Subscribe>
+						/>
+						<Controller
+							control={control}
+							name="password"
+							render={({ field, fieldState }) => (
+								<Form.Item
+									label="Password"
+									htmlFor={field.name}
+									validateStatus={fieldState.error ? "error" : undefined}
+									help={fieldState.error?.message}
+								>
+									<Input.Password
+										{...field}
+										autoComplete="current-password"
+										id={field.name}
+									/>
+								</Form.Item>
+							)}
+						/>
+
+						<Button
+							block
+							type="primary"
+							htmlType="submit"
+							disabled={!isValid}
+							loading={isSubmitting}
+						>
+							Sign in
+						</Button>
 					</Form>
 				</form>
 

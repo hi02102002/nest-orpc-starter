@@ -1,32 +1,43 @@
 import { Module } from "@nestjs/common";
+import { getDrizzleToken } from "@nestjs/drizzle";
 import { ORPCModule } from "@orpc/nest";
 import { onError } from "@orpc/server";
+import type { Database } from "@petshop/db";
+import { AuthService } from "@thallesp/nestjs-better-auth";
 import { toMiddlewareOptions } from "evlog";
 import { EvlogModule, useLogger } from "evlog/nestjs";
 
 import evlogConfig from "../evlog.config";
+import { DocsModule } from "./features/docs/docs.module";
 import { HealthModule } from "./features/health/health.module";
 import { PrivateDataModule } from "./features/private-data/private-data.module";
-import { createORPCContext } from "./orpc-context";
+import { createORPCContext } from "./lib/orpc";
+import { type Auth, ServicesModule } from "./services.module";
 
 @Module({
 	imports: [
 		EvlogModule.forRoot(toMiddlewareOptions(evlogConfig)),
-		ORPCModule.forRoot({
-			context: createORPCContext,
-			interceptors: [
-				onError((error) => {
-					const normalizedError =
-						error instanceof Error ? error : new Error(String(error));
+		ServicesModule,
+		ORPCModule.forRootAsync({
+			imports: [ServicesModule],
+			inject: [AuthService, getDrizzleToken()],
+			useFactory: (authService: AuthService<Auth>, db: Database) => ({
+				context: createORPCContext({ auth: authService.instance, db }),
+				interceptors: [
+					onError((error) => {
+						const normalizedError =
+							error instanceof Error ? error : new Error(String(error));
 
-					try {
-						useLogger().error(normalizedError);
-					} catch {
-						console.error(normalizedError);
-					}
-				}),
-			],
+						try {
+							useLogger().error(normalizedError);
+						} catch {
+							console.error(normalizedError);
+						}
+					}),
+				],
+			}),
 		}),
+		DocsModule,
 		HealthModule,
 		PrivateDataModule,
 	],
