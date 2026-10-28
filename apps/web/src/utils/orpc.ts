@@ -1,11 +1,18 @@
 import { createORPCClient } from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import type { AppRouterClient } from "@petshop/api-contract";
+import type { AppRouterClient, CrudResources } from "@petshop/api-contract";
 import { contract } from "@petshop/api-contract";
+import { createCrudUtils } from "@petshop/crud/client";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
 import { ENV } from "../env";
+
+function createUtils(client: AppRouterClient) {
+	const utils = createTanstackQueryUtils(client);
+
+	return { ...utils, crud: createCrudUtils<CrudResources>(utils.crud) };
+}
 
 export const getOrpc = createIsomorphicFn()
 	.client(() => {
@@ -20,7 +27,7 @@ export const getOrpc = createIsomorphicFn()
 		});
 		const client: AppRouterClient = createORPCClient(link);
 
-		return createTanstackQueryUtils(client);
+		return createUtils(client);
 	})
 	.server(() => {
 		const origin = ENV.SERVER_URL ?? ENV.VITE_SERVER_URL;
@@ -39,7 +46,7 @@ export const getOrpc = createIsomorphicFn()
 		});
 		const client: AppRouterClient = createORPCClient(link);
 
-		return createTanstackQueryUtils(client);
+		return createUtils(client);
 	});
 
 export type OrpcUtils = ReturnType<typeof getOrpc>;

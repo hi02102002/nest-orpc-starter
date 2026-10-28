@@ -9,6 +9,7 @@ import { toMiddlewareOptions } from "evlog";
 import { EvlogModule, useLogger } from "evlog/nestjs";
 
 import evlogConfig from "../evlog.config";
+import { CrudModule } from "./features/crud/crud.module";
 import { DocsModule } from "./features/docs/docs.module";
 import { HealthModule } from "./features/health/health.module";
 import { PrivateDataModule } from "./features/private-data/private-data.module";
@@ -39,6 +40,7 @@ import { type Auth, ServicesModule } from "./services.module";
 				],
 			}),
 		}),
+		CrudModule,
 		DocsModule,
 		HealthModule,
 		PrivateDataModule,
