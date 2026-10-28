@@ -10,11 +10,10 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { ReactNode } from "react";
 
 import { AntdProvider } from "@/components/antd-provider";
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { OrpcUtils } from "@/utils/orpc";
 
-import "../index.css";
+import appCss from "../index.css?url";
 
 export interface RouterAppContext {
 	orpc: OrpcUtils;
@@ -42,6 +41,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 		],
 		links: [
 			{
+				rel: "stylesheet",
+				href: appCss,
+			},
+			{
 				rel: "icon",
 				href: "/favicon.ico",
 			},
@@ -59,12 +62,7 @@ function RootComponent() {
 				storageKey="vite-ui-theme"
 			>
 				<AntdProvider>
-					<div className="app-shell">
-						<Header />
-						<main className="app-content">
-							<Outlet />
-						</main>
-					</div>
+					<Outlet />
 				</AntdProvider>
 			</ThemeProvider>
 			<TanStackRouterDevtools position="bottom-left" />
@@ -75,11 +73,15 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html
+			lang="en"
+			suppressHydrationWarning
+			className="bg-[#f4efe7] scheme-light dark:bg-[#15120f] dark:scheme-dark"
+		>
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className="min-h-screen min-w-80 bg-[image:radial-gradient(circle_at_15%_0%,rgb(196_102_47/14%),transparent_34rem),linear-gradient(180deg,rgb(255_255_255/40%),transparent_28rem)]">
 				{children}
 				<Scripts />
 			</body>

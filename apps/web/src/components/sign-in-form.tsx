@@ -1,42 +1,31 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
-import { App, Button, Card, Form, Input, Space, Typography } from "antd";
-import { Controller, useForm } from "react-hook-form";
+import { App, Button, Form, Input } from "antd";
+import { Controller } from "react-hook-form";
 import z from "zod";
 
+import { useZodForm } from "@/hooks/use-zod-form";
 import { authClient } from "@/lib/auth-client";
 
-import Loader from "./loader";
-
 const signInSchema = z.object({
-	email: z.email("Invalid email address"),
-	password: z.string().min(8, "Password must be at least 8 characters"),
+	email: z.email("Email không hợp lệ"),
+	password: z.string().min(1, "Vui lòng nhập mật khẩu"),
 });
 
 type SignInValues = z.infer<typeof signInSchema>;
 
-export default function SignInForm({
-	onSwitchToSignUp,
-}: {
-	onSwitchToSignUp: () => void;
-}) {
+export default function SignInForm({ redirectTo }: { redirectTo?: string }) {
 	const { message } = App.useApp();
-	const navigate = useNavigate({
-		from: "/",
-	});
-	const { isPending } = authClient.useSession();
+	const navigate = useNavigate();
 
 	const {
 		control,
 		handleSubmit,
-		formState: { isSubmitting, isValid },
-	} = useForm<SignInValues>({
+		formState: { isSubmitting },
+	} = useZodForm(signInSchema, {
 		defaultValues: {
 			email: "",
 			password: "",
 		},
-		mode: "onChange",
-		resolver: zodResolver(signInSchema),
 	});
 
 	const onSubmit = async (value: SignInValues) => {
@@ -47,10 +36,13 @@ export default function SignInForm({
 			},
 			{
 				onSuccess: () => {
-					navigate({
-						to: "/dashboard",
-					});
-					message.success("Sign in successful");
+					// Only follow same-origin paths to avoid open redirects.
+					if (redirectTo?.startsWith("/") && !redirectTo.startsWith("//")) {
+						navigate({ href: redirectTo });
+					} else {
+						navigate({ to: "/dashboard" });
+					}
+					message.success("Đăng nhập thành công");
 				},
 				onError: (error) => {
 					message.error(error.error.message || error.error.statusText);
@@ -59,79 +51,56 @@ export default function SignInForm({
 		);
 	};
 
-	if (isPending) {
-		return <Loader />;
-	}
-
 	return (
-		<Card className="auth-card">
-			<Space orientation="vertical" size="large" style={{ width: "100%" }}>
-				<div>
-					<Typography.Title level={2} style={{ marginBottom: 4 }}>
-						Welcome back
-					</Typography.Title>
-					<Typography.Text type="secondary">
-						Sign in to manage your petshop.
-					</Typography.Text>
-				</div>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<Form component={false} layout="vertical">
-						<Controller
-							control={control}
-							name="email"
-							render={({ field, fieldState }) => (
-								<Form.Item
-									label="Email"
-									htmlFor={field.name}
-									validateStatus={fieldState.error ? "error" : undefined}
-									help={fieldState.error?.message}
-								>
-									<Input
-										{...field}
-										autoComplete="email"
-										id={field.name}
-										type="email"
-									/>
-								</Form.Item>
-							)}
-						/>
-						<Controller
-							control={control}
-							name="password"
-							render={({ field, fieldState }) => (
-								<Form.Item
-									label="Password"
-									htmlFor={field.name}
-									validateStatus={fieldState.error ? "error" : undefined}
-									help={fieldState.error?.message}
-								>
-									<Input.Password
-										{...field}
-										autoComplete="current-password"
-										id={field.name}
-									/>
-								</Form.Item>
-							)}
-						/>
+		<div className="w-full max-w-[432px] bg-white px-6 pt-8 pb-6 shadow-[0_24px_80px_rgb(0_0_0/25%)] dark:bg-[#1f1f1f] [&_.ant-form-item]:mb-4!">
+			<div className="mb-8 text-center text-4xl leading-none font-semibold tracking-[0.02em] text-[#a50e3a] uppercase">
+				Petshop
+			</div>
+			<form onSubmit={handleSubmit(onSubmit)} noValidate>
+				<Form component={false} layout="vertical">
+					<Controller
+						control={control}
+						name="email"
+						render={({ field, fieldState }) => (
+							<Form.Item
+								label="Email"
+								htmlFor={field.name}
+								validateStatus={fieldState.error ? "error" : undefined}
+								help={fieldState.error?.message}
+							>
+								<Input
+									{...field}
+									autoComplete="email"
+									id={field.name}
+									type="email"
+								/>
+							</Form.Item>
+						)}
+					/>
+					<Controller
+						control={control}
+						name="password"
+						render={({ field, fieldState }) => (
+							<Form.Item
+								label="Password"
+								htmlFor={field.name}
+								validateStatus={fieldState.error ? "error" : undefined}
+								help={fieldState.error?.message}
+							>
+								<Input.Password
+									{...field}
+									autoComplete="current-password"
+									id={field.name}
+								/>
+							</Form.Item>
+						)}
+					/>
 
-						<Button
-							block
-							type="primary"
-							htmlType="submit"
-							disabled={!isValid}
-							loading={isSubmitting}
-						>
-							Sign in
-						</Button>
-					</Form>
-				</form>
-
-				<div style={{ textAlign: "center" }}>
-					<Button type="link" onClick={onSwitchToSignUp}>
-						Need an account? Sign up
+					<Button block type="primary" htmlType="submit" loading={isSubmitting}>
+						Đăng nhập
 					</Button>
-				</div>
-			</Space>
-		</Card>
+				</Form>
+			</form>
+		</div>
 	);
 }

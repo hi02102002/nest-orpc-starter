@@ -11,7 +11,7 @@ export default function Header() {
 	] as const;
 
 	return (
-		<header className="app-header">
+		<header className="sticky top-0 z-20 border-b border-[rgb(128_102_80/20%)] bg-[color-mix(in_srgb,Canvas_88%,transparent)] px-[clamp(18px,4vw,56px)] py-3.5 backdrop-blur-[18px] max-sm:px-4 max-sm:py-3">
 			<Flex align="center" justify="space-between" gap="large">
 				<Space size="large" align="center">
 					<Typography.Text
@@ -20,10 +20,14 @@ export default function Header() {
 					>
 						Petshop
 					</Typography.Text>
-					<nav className="app-nav" aria-label="Primary navigation">
+					<nav className="flex gap-[18px]" aria-label="Primary navigation">
 						{links.map(({ to, label }) => {
 							return (
-								<Link key={to} to={to} activeProps={{ className: "active" }}>
+								<Link
+									key={to}
+									to={to}
+									className="text-inherit no-underline opacity-62 hover:opacity-100 data-[status=active]:opacity-100"
+								>
 									{label}
 								</Link>
 							);

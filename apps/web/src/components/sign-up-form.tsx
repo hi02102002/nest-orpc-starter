@@ -1,9 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { App, Button, Card, Form, Input, Space, Typography } from "antd";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import z from "zod";
 
+import { useZodForm } from "@/hooks/use-zod-form";
 import { authClient } from "@/lib/auth-client";
 
 import Loader from "./loader";
@@ -31,14 +31,13 @@ export default function SignUpForm({
 		control,
 		handleSubmit,
 		formState: { isSubmitting, isValid },
-	} = useForm<SignUpValues>({
+	} = useZodForm(signUpSchema, {
 		defaultValues: {
 			email: "",
 			password: "",
 			name: "",
 		},
 		mode: "onChange",
-		resolver: zodResolver(signUpSchema),
 	});
 
 	const onSubmit = async (value: SignUpValues) => {
@@ -67,7 +66,7 @@ export default function SignUpForm({
 	}
 
 	return (
-		<Card className="auth-card">
+		<Card className="mx-auto w-full max-w-[460px] shadow-[0_24px_80px_rgb(70_40_20/12%)]">
 			<Space orientation="vertical" size="large" style={{ width: "100%" }}>
 				<div>
 					<Typography.Title level={2} style={{ marginBottom: 4 }}>
