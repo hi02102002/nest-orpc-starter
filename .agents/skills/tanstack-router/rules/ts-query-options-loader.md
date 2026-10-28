@@ -10,23 +10,23 @@ Define query configurations with `queryOptions()` and share them between route l
 
 ```tsx
 // Inline query config — duplicated between loader and component, easy to desync
-export const Route = createFileRoute('/posts/$postId')({
-  loader: ({ params, context: { queryClient } }) =>
-    queryClient.ensureQueryData({
-      queryKey: ['posts', params.postId],
-      queryFn: () => fetchPost(params.postId),
-    }),
-  component: PostPage,
-})
+export const Route = createFileRoute("/posts/$postId")({
+	loader: ({ params, context: { queryClient } }) =>
+		queryClient.ensureQueryData({
+			queryKey: ["posts", params.postId],
+			queryFn: () => fetchPost(params.postId),
+		}),
+	component: PostPage,
+});
 
 function PostPage() {
-  const { postId } = Route.useParams()
-  // Different query key or staleTime here would cause a cache miss
-  const { data } = useSuspenseQuery({
-    queryKey: ['post', postId], // Bug: 'post' vs 'posts'
-    queryFn: () => fetchPost(postId),
-  })
-  return <div>{data.title}</div>
+	const { postId } = Route.useParams();
+	// Different query key or staleTime here would cause a cache miss
+	const { data } = useSuspenseQuery({
+		queryKey: ["post", postId], // Bug: 'post' vs 'posts'
+		queryFn: () => fetchPost(postId),
+	});
+	return <div>{data.title}</div>;
 }
 ```
 
@@ -34,28 +34,28 @@ function PostPage() {
 
 ```tsx
 // Shared queryOptions — single source of truth
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions } from "@tanstack/react-query";
 
 const postQueryOptions = (postId: string) =>
-  queryOptions({
-    queryKey: ['posts', postId],
-    queryFn: () => fetchPost(postId),
-    staleTime: 5 * 60 * 1000,
-  })
+	queryOptions({
+		queryKey: ["posts", postId],
+		queryFn: () => fetchPost(postId),
+		staleTime: 5 * 60 * 1000,
+	});
 
-export const Route = createFileRoute('/posts/$postId')({
-  loader: async ({ params, context: { queryClient } }) => {
-    // Return void — avoids unnecessary type inference on loader return
-    await queryClient.ensureQueryData(postQueryOptions(params.postId))
-  },
-  component: PostPage,
-})
+export const Route = createFileRoute("/posts/$postId")({
+	loader: async ({ params, context: { queryClient } }) => {
+		// Return void — avoids unnecessary type inference on loader return
+		await queryClient.ensureQueryData(postQueryOptions(params.postId));
+	},
+	component: PostPage,
+});
 
 function PostPage() {
-  const { postId } = Route.useParams()
-  // Same queryOptions — guaranteed cache hit, fully typed
-  const { data: post } = useSuspenseQuery(postQueryOptions(postId))
-  return <div>{post.title}</div>
+	const { postId } = Route.useParams();
+	// Same queryOptions — guaranteed cache hit, fully typed
+	const { data: post } = useSuspenseQuery(postQueryOptions(postId));
+	return <div>{post.title}</div>;
 }
 ```
 
@@ -63,25 +63,25 @@ function PostPage() {
 
 ```tsx
 // api/posts.ts — centralized query option factories
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions } from "@tanstack/react-query";
 
 export const postsQueryOptions = () =>
-  queryOptions({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-  })
+	queryOptions({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+	});
 
 export const postQueryOptions = (postId: string) =>
-  queryOptions({
-    queryKey: ['posts', postId],
-    queryFn: () => fetchPost(postId),
-  })
+	queryOptions({
+		queryKey: ["posts", postId],
+		queryFn: () => fetchPost(postId),
+	});
 
 export const postCommentsQueryOptions = (postId: string) =>
-  queryOptions({
-    queryKey: ['posts', postId, 'comments'],
-    queryFn: () => fetchPostComments(postId),
-  })
+	queryOptions({
+		queryKey: ["posts", postId, "comments"],
+		queryFn: () => fetchPostComments(postId),
+	});
 ```
 
 ## Context

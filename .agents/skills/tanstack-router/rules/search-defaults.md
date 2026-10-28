@@ -11,14 +11,14 @@ Always provide default values for search params so the app works when users visi
 ```tsx
 // No defaults — crashes or shows errors on bare URL visit
 const searchSchema = z.object({
-  page: z.number(),           // Required — /products without ?page= throws
-  sort: z.enum(['name', 'price']),  // Required — no fallback
-})
+	page: z.number(), // Required — /products without ?page= throws
+	sort: z.enum(["name", "price"]), // Required — no fallback
+});
 
-export const Route = createFileRoute('/products')({
-  validateSearch: searchSchema,
-  // Visiting /products without search params triggers errorComponent
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: searchSchema,
+	// Visiting /products without search params triggers errorComponent
+});
 ```
 
 ```tsx
@@ -40,19 +40,19 @@ export const Route = createFileRoute('/products')({
 ## Good Example: With .catch()
 
 ```tsx
-import { z } from 'zod'
+import { z } from "zod";
 
 // .catch() provides fallbacks AND makes validation never throw
 const searchSchema = z.object({
-  page: z.number().min(1).catch(1),
-  sort: z.enum(['name', 'price', 'date']).catch('name'),
-  order: z.enum(['asc', 'desc']).catch('asc'),
-  query: z.string().catch(''),
-})
+	page: z.number().min(1).catch(1),
+	sort: z.enum(["name", "price", "date"]).catch("name"),
+	order: z.enum(["asc", "desc"]).catch("asc"),
+	query: z.string().catch(""),
+});
 
-export const Route = createFileRoute('/products')({
-  validateSearch: (search) => searchSchema.parse(search),
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: (search) => searchSchema.parse(search),
+});
 
 // /products → { page: 1, sort: 'name', order: 'asc', query: '' }
 // /products?page=abc → { page: 1, sort: 'name', order: 'asc', query: '' }
@@ -86,17 +86,20 @@ export const Route = createFileRoute('/products')({
 ## Good Example: With Valibot (Standard Schema — No Adapter Needed)
 
 ```tsx
-import * as v from 'valibot'
+import * as v from "valibot";
 
 const searchSchema = v.object({
-  page: v.optional(v.fallback(v.number(), 1), 1),
-  sort: v.optional(v.fallback(v.picklist(['name', 'price', 'date']), 'name'), 'name'),
-  query: v.optional(v.fallback(v.string(), ''), ''),
-})
+	page: v.optional(v.fallback(v.number(), 1), 1),
+	sort: v.optional(
+		v.fallback(v.picklist(["name", "price", "date"]), "name"),
+		"name",
+	),
+	query: v.optional(v.fallback(v.string(), ""), ""),
+});
 
-export const Route = createFileRoute('/products')({
-  validateSearch: searchSchema, // Valibot implements Standard Schema
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: searchSchema, // Valibot implements Standard Schema
+});
 ```
 
 ## Context

@@ -11,44 +11,48 @@ Search params defined on a parent route are automatically inherited by all child
 ```tsx
 // Duplicating search param validation in every child route
 // routes/posts.tsx
-export const Route = createFileRoute('/posts')({
-  validateSearch: z.object({ view: z.enum(['grid', 'list']).catch('grid') }),
-})
+export const Route = createFileRoute("/posts")({
+	validateSearch: z.object({ view: z.enum(["grid", "list"]).catch("grid") }),
+});
 
 // routes/posts.$postId.tsx
-export const Route = createFileRoute('/posts/$postId')({
-  // Re-declaring parent's search params — redundant, can go out of sync
-  validateSearch: z.object({
-    view: z.enum(['grid', 'list']).catch('grid'),
-    tab: z.enum(['content', 'comments']).catch('content'),
-  }),
-})
+export const Route = createFileRoute("/posts/$postId")({
+	// Re-declaring parent's search params — redundant, can go out of sync
+	validateSearch: z.object({
+		view: z.enum(["grid", "list"]).catch("grid"),
+		tab: z.enum(["content", "comments"]).catch("content"),
+	}),
+});
 ```
 
 ## Good Example
 
 ```tsx
 // routes/posts.tsx — defines shared search params once
-export const Route = createFileRoute('/posts')({
-  validateSearch: z.object({
-    view: z.enum(['grid', 'list']).catch('grid'),
-  }),
-})
+export const Route = createFileRoute("/posts")({
+	validateSearch: z.object({
+		view: z.enum(["grid", "list"]).catch("grid"),
+	}),
+});
 
 // routes/posts.$postId.tsx — only defines its own search params
-export const Route = createFileRoute('/posts/$postId')({
-  validateSearch: z.object({
-    tab: z.enum(['content', 'comments']).catch('content'),
-  }),
-  component: PostPage,
-})
+export const Route = createFileRoute("/posts/$postId")({
+	validateSearch: z.object({
+		tab: z.enum(["content", "comments"]).catch("content"),
+	}),
+	component: PostPage,
+});
 
 function PostPage() {
-  // Child automatically inherits parent search params
-  const { tab } = Route.useSearch()     // tab from this route
-  const { view } = useSearch({ from: '/posts' }) // view from parent
+	// Child automatically inherits parent search params
+	const { tab } = Route.useSearch(); // tab from this route
+	const { view } = useSearch({ from: "/posts" }); // view from parent
 
-  return <div>View: {view}, Tab: {tab}</div>
+	return (
+		<div>
+			View: {view}, Tab: {tab}
+		</div>
+	);
 }
 ```
 
@@ -57,16 +61,16 @@ function PostPage() {
 ```tsx
 // routes/__root.tsx — search params available everywhere
 export const Route = createRootRoute({
-  validateSearch: z.object({
-    theme: z.enum(['light', 'dark']).catch('light'),
-    lang: z.enum(['en', 'es', 'fr']).catch('en'),
-  }),
-})
+	validateSearch: z.object({
+		theme: z.enum(["light", "dark"]).catch("light"),
+		lang: z.enum(["en", "es", "fr"]).catch("en"),
+	}),
+});
 
 // Any route can access theme and lang
 function AnyComponent() {
-  const { theme, lang } = useSearch({ from: '__root__' })
-  return <div>Theme: {theme}</div>
+	const { theme, lang } = useSearch({ from: "__root__" });
+	return <div>Theme: {theme}</div>;
 }
 ```
 
@@ -74,15 +78,15 @@ function AnyComponent() {
 
 ```tsx
 function PostFilters() {
-  return (
-    // WRONG — loses parent search params (view, theme, etc.)
-    // <Link to="." search={{ tab: 'comments' }}>Comments</Link>
+	return (
+		// WRONG — loses parent search params (view, theme, etc.)
+		// <Link to="." search={{ tab: 'comments' }}>Comments</Link>
 
-    // CORRECT — preserves parent params with functional update
-    <Link to="." search={(prev) => ({ ...prev, tab: 'comments' })}>
-      Comments
-    </Link>
-  )
+		// CORRECT — preserves parent params with functional update
+		<Link to="." search={(prev) => ({ ...prev, tab: "comments" })}>
+			Comments
+		</Link>
+	);
 }
 ```
 

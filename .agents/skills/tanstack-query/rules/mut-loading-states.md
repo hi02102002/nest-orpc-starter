@@ -43,32 +43,35 @@ const mutation = useMutation({
 
 ```tsx
 function TodoList() {
-  const { data: todos } = useQuery({ queryKey: ['todos'], queryFn: fetchTodos })
-  const addTodo = useMutation({
-    mutationFn: createTodo,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  })
+	const { data: todos } = useQuery({
+		queryKey: ["todos"],
+		queryFn: fetchTodos,
+	});
+	const addTodo = useMutation({
+		mutationFn: createTodo,
+		onSettled: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+	});
 
-  return (
-    <ul>
-      {todos?.map((todo) => (
-        <li key={todo.id}>{todo.title}</li>
-      ))}
-      {addTodo.isPending && (
-        <li style={{ opacity: 0.5 }}>{addTodo.variables.title}</li>
-      )}
-    </ul>
-  )
+	return (
+		<ul>
+			{todos?.map((todo) => (
+				<li key={todo.id}>{todo.title}</li>
+			))}
+			{addTodo.isPending && (
+				<li style={{ opacity: 0.5 }}>{addTodo.variables.title}</li>
+			)}
+		</ul>
+	);
 }
 ```
 
 ## Mutation Status Reference
 
-| Status | Boolean | Meaning |
-|--------|---------|---------|
-| `'idle'` | `isIdle` | Mutation has not been called yet |
-| `'pending'` | `isPending` | Mutation is currently executing |
-| `'error'` | `isError` | Last mutation attempt failed |
+| Status      | Boolean     | Meaning                              |
+| ----------- | ----------- | ------------------------------------ |
+| `'idle'`    | `isIdle`    | Mutation has not been called yet     |
+| `'pending'` | `isPending` | Mutation is currently executing      |
+| `'error'`   | `isError`   | Last mutation attempt failed         |
 | `'success'` | `isSuccess` | Last mutation completed successfully |
 
 ## Context

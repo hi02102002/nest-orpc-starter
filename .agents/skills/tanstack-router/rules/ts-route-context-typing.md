@@ -10,55 +10,55 @@ Use `createRootRouteWithContext<YourContext>()` instead of `createRootRoute()` t
 
 ```tsx
 // routes/__root.tsx - No typed context
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
-  component: () => <Outlet />,
-})
+	component: () => <Outlet />,
+});
 
 // routes/posts.tsx
-export const Route = createFileRoute('/posts')({
-  loader: ({ context }) => {
-    // context is {} — no type safety, no access to queryClient
-    const posts = context.queryClient.ensureQueryData(postsQuery) // Type error
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loader: ({ context }) => {
+		// context is {} — no type safety, no access to queryClient
+		const posts = context.queryClient.ensureQueryData(postsQuery); // Type error
+	},
+});
 ```
 
 ## Good Example
 
 ```tsx
 // routes/__root.tsx
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
-import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 
 interface RouterContext {
-  queryClient: QueryClient
+	queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  component: () => <Outlet />,
-})
+	component: () => <Outlet />,
+});
 
 // router.tsx
-import { createRouter } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
-import { routeTree } from './routeTree.gen'
+import { createRouter } from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
+import { routeTree } from "./routeTree.gen";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 const router = createRouter({
-  routeTree,
-  context: { queryClient }, // TypeScript enforces this matches RouterContext
-})
+	routeTree,
+	context: { queryClient }, // TypeScript enforces this matches RouterContext
+});
 
 // routes/posts.tsx
-export const Route = createFileRoute('/posts')({
-  loader: ({ context: { queryClient } }) => {
-    // queryClient is fully typed — autocomplete and type checking work
-    return queryClient.ensureQueryData(postsQueryOptions())
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loader: ({ context: { queryClient } }) => {
+		// queryClient is fully typed — autocomplete and type checking work
+		return queryClient.ensureQueryData(postsQueryOptions());
+	},
+});
 ```
 
 ## Context

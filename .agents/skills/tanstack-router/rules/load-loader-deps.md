@@ -10,39 +10,38 @@ Search params are not directly available in the loader function. Use `loaderDeps
 
 ```tsx
 // Returning the entire search object — cache invalidates on ANY param change
-export const Route = createFileRoute('/products')({
-  validateSearch: z.object({
-    page: z.number().catch(1),
-    sort: z.enum(['name', 'price']).catch('name'),
-    view: z.enum(['grid', 'list']).catch('grid'), // UI-only param
-  }),
-  loaderDeps: ({ search }) => search, // BAD: includes 'view' which doesn't affect data
-  loader: ({ deps }) => fetchProducts({ page: deps.page, sort: deps.sort }),
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: z.object({
+		page: z.number().catch(1),
+		sort: z.enum(["name", "price"]).catch("name"),
+		view: z.enum(["grid", "list"]).catch("grid"), // UI-only param
+	}),
+	loaderDeps: ({ search }) => search, // BAD: includes 'view' which doesn't affect data
+	loader: ({ deps }) => fetchProducts({ page: deps.page, sort: deps.sort }),
+});
 // Changing 'view' from 'grid' to 'list' unnecessarily refetches data
 ```
 
 ## Good Example
 
 ```tsx
-export const Route = createFileRoute('/products')({
-  validateSearch: z.object({
-    page: z.number().catch(1),
-    sort: z.enum(['name', 'price']).catch('name'),
-    view: z.enum(['grid', 'list']).catch('grid'),
-  }),
-  // Only declare the params the loader actually uses
-  loaderDeps: ({ search: { page, sort } }) => ({ page, sort }),
-  loader: ({ deps: { page, sort } }) =>
-    fetchProducts({ page, sort }),
-  component: ProductsPage,
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: z.object({
+		page: z.number().catch(1),
+		sort: z.enum(["name", "price"]).catch("name"),
+		view: z.enum(["grid", "list"]).catch("grid"),
+	}),
+	// Only declare the params the loader actually uses
+	loaderDeps: ({ search: { page, sort } }) => ({ page, sort }),
+	loader: ({ deps: { page, sort } }) => fetchProducts({ page, sort }),
+	component: ProductsPage,
+});
 
 function ProductsPage() {
-  const { view } = Route.useSearch()
-  const products = Route.useLoaderData()
-  // Changing 'view' does NOT refetch — only 'page' and 'sort' trigger reloads
-  return <ProductList products={products} view={view} />
+	const { view } = Route.useSearch();
+	const products = Route.useLoaderData();
+	// Changing 'view' does NOT refetch — only 'page' and 'sort' trigger reloads
+	return <ProductList products={products} view={view} />;
 }
 ```
 
@@ -50,17 +49,17 @@ function ProductsPage() {
 
 ```tsx
 const productsQueryOptions = (deps: { page: number; sort: string }) =>
-  queryOptions({
-    queryKey: ['products', deps],
-    queryFn: () => fetchProducts(deps),
-  })
+	queryOptions({
+		queryKey: ["products", deps],
+		queryFn: () => fetchProducts(deps),
+	});
 
-export const Route = createFileRoute('/products')({
-  validateSearch: productSearchSchema,
-  loaderDeps: ({ search: { page, sort } }) => ({ page, sort }),
-  loader: ({ deps, context: { queryClient } }) =>
-    queryClient.ensureQueryData(productsQueryOptions(deps)),
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: productSearchSchema,
+	loaderDeps: ({ search: { page, sort } }) => ({ page, sort }),
+	loader: ({ deps, context: { queryClient } }) =>
+		queryClient.ensureQueryData(productsQueryOptions(deps)),
+});
 ```
 
 ## How the Cache Key Works

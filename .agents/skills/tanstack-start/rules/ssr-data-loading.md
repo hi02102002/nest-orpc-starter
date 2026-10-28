@@ -10,59 +10,59 @@ Route loaders are isomorphic — they run on the server during SSR and on the cl
 
 ```tsx
 // Loader accessing server-only resources directly - breaks on client
-export const Route = createFileRoute('/posts')({
-  loader: async () => {
-    // db import gets bundled into client code!
-    const posts = await db.posts.findMany()
-    return posts
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loader: async () => {
+		// db import gets bundled into client code!
+		const posts = await db.posts.findMany();
+		return posts;
+	},
+});
 
 // Returning the entire search object from loaderDeps
-export const Route = createFileRoute('/posts')({
-  loaderDeps: ({ search }) => search,  // Reloads on ANY search change
-  loader: async ({ deps }) => {
-    return fetchPosts(deps)
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loaderDeps: ({ search }) => search, // Reloads on ANY search change
+	loader: async ({ deps }) => {
+		return fetchPosts(deps);
+	},
+});
 
 // Calling browser APIs during SSR
-export const Route = createFileRoute('/dashboard')({
-  loader: async () => {
-    const width = window.innerWidth  // Crashes on server!
-    return fetchLayout(width)
-  },
-})
+export const Route = createFileRoute("/dashboard")({
+	loader: async () => {
+		const width = window.innerWidth; // Crashes on server!
+		return fetchLayout(width);
+	},
+});
 ```
 
 ## Good Example
 
 ```tsx
-import { createServerFn } from '@tanstack/react-start'
-import { createFileRoute } from '@tanstack/react-router'
+import { createServerFn } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 
 // Server function handles server-only logic
 const getPosts = createServerFn()
-  .inputValidator((data: { offset: number; limit: number }) => data)
-  .handler(async ({ data }) => {
-    return db.posts.findMany({
-      skip: data.offset,
-      take: data.limit,
-      orderBy: { createdAt: 'desc' },
-    })
-  })
+	.inputValidator((data: { offset: number; limit: number }) => data)
+	.handler(async ({ data }) => {
+		return db.posts.findMany({
+			skip: data.offset,
+			take: data.limit,
+			orderBy: { createdAt: "desc" },
+		});
+	});
 
-export const Route = createFileRoute('/posts')({
-  validateSearch: z.object({
-    offset: z.number().default(0),
-    limit: z.number().default(20),
-  }),
-  // Only extract the deps the loader actually uses
-  loaderDeps: ({ search: { offset, limit } }) => ({ offset, limit }),
-  loader: async ({ deps }) => {
-    return getPosts({ data: deps })
-  },
-})
+export const Route = createFileRoute("/posts")({
+	validateSearch: z.object({
+		offset: z.number().default(0),
+		limit: z.number().default(20),
+	}),
+	// Only extract the deps the loader actually uses
+	loaderDeps: ({ search: { offset, limit } }) => ({ offset, limit }),
+	loader: async ({ deps }) => {
+		return getPosts({ data: deps });
+	},
+});
 ```
 
 ## Good Example: Using beforeLoad for Auth Context
@@ -70,26 +70,26 @@ export const Route = createFileRoute('/posts')({
 ```tsx
 // beforeLoad runs serially (parent → child), before loaders
 // Use it for auth checks that gate data loading
-export const Route = createFileRoute('/_authed')({
-  beforeLoad: async ({ location }) => {
-    const user = await getCurrentUser()
-    if (!user) {
-      throw redirect({
-        to: '/login',
-        search: { redirect: location.href },
-      })
-    }
-    return { user }  // Available to child routes via context
-  },
-})
+export const Route = createFileRoute("/_authed")({
+	beforeLoad: async ({ location }) => {
+		const user = await getCurrentUser();
+		if (!user) {
+			throw redirect({
+				to: "/login",
+				search: { redirect: location.href },
+			});
+		}
+		return { user }; // Available to child routes via context
+	},
+});
 
 // Child route can use context from parent's beforeLoad
-export const Route = createFileRoute('/_authed/dashboard')({
-  loader: async ({ context }) => {
-    // context.user is guaranteed by parent's beforeLoad
-    return getDashboardData({ data: { userId: context.user.id } })
-  },
-})
+export const Route = createFileRoute("/_authed/dashboard")({
+	loader: async ({ context }) => {
+		// context.user is guaranteed by parent's beforeLoad
+		return getDashboardData({ data: { userId: context.user.id } });
+	},
+});
 ```
 
 ## Loading Lifecycle

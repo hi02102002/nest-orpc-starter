@@ -1,29 +1,30 @@
 ---
+
 name: drizzle-best-practices
 description: |
-  Use this skill whenever the user is working with Drizzle ORM on PostgreSQL. This covers any mention of Drizzle, drizzle-orm, drizzle-kit, drizzle-zod, `pgTable`, `defineRelations`, `relations()`, `db.select()`, `db.query`, or insert/update/delete against Postgres.
+Use this skill whenever the user is working with Drizzle ORM on PostgreSQL. This covers any mention of Drizzle, drizzle-orm, drizzle-kit, drizzle-zod, `pgTable`, `defineRelations`, `relations()`, `db.select()`, `db.query`, or insert/update/delete against Postgres.
 
-  Typical intents to trigger on:
-  - Designing or debugging Postgres table schemas, columns, identity PKs, enums, JSONB, arrays
-  - Modeling one-to-many or many-to-many relations and join tables in Drizzle
-  - Writing, optimizing, or preparing Drizzle queries (placeholders, `.prepare()`)
-  - Generating Zod validators from Drizzle tables
-  - Setting up TypeScript + Postgres projects (Neon, Supabase, postgres.js, node-postgres) with Drizzle
-  - Migrating from Prisma, TypeORM, or Sequelize **to Drizzle**
-  - Resolving Drizzle type errors; choosing between v1 RC and 0.45.x APIs
+Typical intents to trigger on:
+- Designing or debugging Postgres table schemas, columns, identity PKs, enums, JSONB, arrays
+- Modeling one-to-many or many-to-many relations and join tables in Drizzle
+- Writing, optimizing, or preparing Drizzle queries (placeholders, `.prepare()`)
+- Generating Zod validators from Drizzle tables
+- Setting up TypeScript + Postgres projects (Neon, Supabase, postgres.js, node-postgres) with Drizzle
+- Migrating from Prisma, TypeORM, or Sequelize **to Drizzle**
+- Resolving Drizzle type errors; choosing between v1 RC and 0.45.x APIs
 
-  Do NOT trigger for Drizzle with MySQL/SQLite, raw SQL without an ORM, or other ORMs when Drizzle is not the target.
+Do NOT trigger for Drizzle with MySQL/SQLite, raw SQL without an ORM, or other ORMs when Drizzle is not the target.
 license: MIT
 compatibility: TypeScript projects using Node.js or edge runtimes with drizzle-orm and a PostgreSQL database.
 metadata:
-  author: Marc A. Maceira Zayas
-  abstract: >
-    Comprehensive Drizzle ORM best practices guide for TypeScript developers building on
-    PostgreSQL. Contains guidance across 8 categories from critical (schema design, query
-    patterns) to incremental (advanced features). Each reference includes explanations,
-    correct vs incorrect code examples, and rationale for why the pattern matters.
-    Engine-specific Postgres patterns (identity columns, JSONB, arrays, enums, etc.) are
-    documented in a dedicated reference file to keep the skill modular.
+author: Marc A. Maceira Zayas
+abstract: >
+Comprehensive Drizzle ORM best practices guide for TypeScript developers building on
+PostgreSQL. Contains guidance across 8 categories from critical (schema design, query
+patterns) to incremental (advanced features). Each reference includes explanations,
+correct vs incorrect code examples, and rationale for why the pattern matters.
+Engine-specific Postgres patterns (identity columns, JSONB, arrays, enums, etc.) are
+documented in a dedicated reference file to keep the skill modular.
 ---
 
 # Drizzle ORM Best Practices (PostgreSQL)
@@ -38,24 +39,24 @@ Drizzle is mid-transition to **v1**, and the relations + relational-query APIs d
 the two major lines. **Check the project's `package.json` before writing code** so you emit the
 right syntax:
 
-| Installed `drizzle-orm` | API to use | Install command |
-|---|---|---|
+| Installed `drizzle-orm`      | API to use                                                                                                                                                    | Install command                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | `^1.0.0-rc` or `^1.0.0-beta` | **v1 — the default in this skill.** `defineRelations`, object-syntax relational queries (`where: { … }`, `orderBy: { … }`), validators from `drizzle-orm/zod` | `npm i drizzle-orm@rc` + `npm i -D drizzle-kit@rc` |
-| `^0.4x` (e.g. `0.45.2`) | **Legacy.** `relations()` helper, callback/operator relational queries, validators from the separate `drizzle-zod` package | `npm i drizzle-orm` (resolves to 0.45.2) |
+| `^0.4x` (e.g. `0.45.2`)      | **Legacy.** `relations()` helper, callback/operator relational queries, validators from the separate `drizzle-zod` package                                    | `npm i drizzle-orm` (resolves to 0.45.2)           |
 
 The current release candidate is **`drizzle-orm@1.0.0-rc.3`** (the `@rc` tag), which supersedes the
 older `@beta` tag the docs still reference in places.
 
 Three things that routinely trip up agents:
 
-- **`@latest` is still `0.45.2`, not v1.** `npm i drizzle-orm` does *not* get you v1 — a new project
+- **`@latest` is still `0.45.2`, not v1.** `npm i drizzle-orm` does _not_ get you v1 — a new project
   that wants the v1 API must ask for `@rc` explicitly.
 - **The SQL-like query builder is unchanged across versions.** `db.select().from(t).where(eq(t.id, 1))`,
   `db.insert()`, `db.update()`, `db.delete()` work identically in 0.45.x and v1. Only the relational
-  query API (`db.query`) and relation *definitions* changed. Never rewrite `db.select()` operator
+  query API (`db.query`) and relation _definitions_ changed. Never rewrite `db.select()` operator
   filters into the relational object syntax.
 - **On v1, the relational query API (`db.query`) is driven by `defineRelations`.** Passing a
-  legacy `schema` does *not* populate `db.query`. The old `relations()` helper is still importable
+  legacy `schema` does _not_ populate `db.query`. The old `relations()` helper is still importable
   from `drizzle-orm/_relations` so existing relation modules keep compiling during a port, but to
   query relationally on v1 you convert them to `defineRelations`. (Earlier betas exposed a
   `db._query` path; it was removed before `1.0.0-rc.3`.) See `references/relations-defining.md`.
@@ -79,16 +80,16 @@ Reference these guidelines when:
 
 ## Rule Categories by Priority
 
-| Priority | Category | Impact | Prefix |
-|----------|----------|--------|--------|
-| 1 | Schema Design | CRITICAL | `schema-` |
-| 2 | Query Patterns | CRITICAL | `query-` |
-| 3 | Relations | HIGH | `relations-` |
-| 4 | Migrations | HIGH | `migrations-` |
-| 5 | Type Safety | MEDIUM-HIGH | `types-` |
-| 6 | Performance | MEDIUM | `perf-` |
-| 7 | Database Drivers | MEDIUM | `driver-` |
-| 8 | Advanced Patterns | LOW | `advanced-` |
+| Priority | Category          | Impact      | Prefix        |
+| -------- | ----------------- | ----------- | ------------- |
+| 1        | Schema Design     | CRITICAL    | `schema-`     |
+| 2        | Query Patterns    | CRITICAL    | `query-`      |
+| 3        | Relations         | HIGH        | `relations-`  |
+| 4        | Migrations        | HIGH        | `migrations-` |
+| 5        | Type Safety       | MEDIUM-HIGH | `types-`      |
+| 6        | Performance       | MEDIUM      | `perf-`       |
+| 7        | Database Drivers  | MEDIUM      | `driver-`     |
+| 8        | Advanced Patterns | LOW         | `advanced-`   |
 
 ## How to Use
 

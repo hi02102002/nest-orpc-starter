@@ -12,8 +12,8 @@ that prevent common mistakes.
 
 ```typescript
 await db.insert(usersTable).values({
-  name: 'Alice',
-  email: 'alice@example.com',
+	name: "Alice",
+	email: "alice@example.com",
 });
 ```
 
@@ -21,9 +21,9 @@ await db.insert(usersTable).values({
 
 ```typescript
 const [newUser] = await db
-  .insert(usersTable)
-  .values({ name: 'Alice', email: 'alice@example.com' })
-  .returning();
+	.insert(usersTable)
+	.values({ name: "Alice", email: "alice@example.com" })
+	.returning();
 // newUser has the full row including generated id
 ```
 
@@ -31,8 +31,8 @@ const [newUser] = await db
 
 ```typescript
 await db.insert(usersTable).values([
-  { name: 'Alice', email: 'alice@example.com' },
-  { name: 'Bob', email: 'bob@example.com' },
+	{ name: "Alice", email: "alice@example.com" },
+	{ name: "Bob", email: "bob@example.com" },
 ]);
 ```
 
@@ -40,7 +40,7 @@ await db.insert(usersTable).values([
 
 ```typescript
 // Forgetting .returning() then trying to use the result
-const result = await db.insert(usersTable).values({ name: 'Alice' });
+const result = await db.insert(usersTable).values({ name: "Alice" });
 // result is NOT the inserted row — it's a driver-specific result object
 // You need .returning() to get the actual data back
 ```
@@ -51,19 +51,19 @@ const result = await db.insert(usersTable).values({ name: 'Alice' });
 
 ```typescript
 await db
-  .update(usersTable)
-  .set({ name: 'Bob Updated' })
-  .where(eq(usersTable.id, 1));
+	.update(usersTable)
+	.set({ name: "Bob Updated" })
+	.where(eq(usersTable.id, 1));
 ```
 
 ### Update with Returning
 
 ```typescript
 const [updated] = await db
-  .update(usersTable)
-  .set({ name: 'Bob Updated' })
-  .where(eq(usersTable.id, 1))
-  .returning();
+	.update(usersTable)
+	.set({ name: "Bob Updated" })
+	.where(eq(usersTable.id, 1))
+	.returning();
 ```
 
 ### Incorrect Update — Forgetting Where
@@ -86,9 +86,9 @@ await db.delete(usersTable).where(eq(usersTable.id, 1));
 
 ```typescript
 const [deleted] = await db
-  .delete(usersTable)
-  .where(eq(usersTable.id, 1))
-  .returning();
+	.delete(usersTable)
+	.where(eq(usersTable.id, 1))
+	.returning();
 ```
 
 ### Incorrect Delete — Forgetting Where
@@ -105,21 +105,21 @@ await db.delete(usersTable);
 
 ```typescript
 await db
-  .insert(usersTable)
-  .values({ id: 1, name: 'Alice', email: 'alice@example.com' })
-  .onConflictDoUpdate({
-    target: usersTable.email,
-    set: { name: 'Alice Updated' },
-  });
+	.insert(usersTable)
+	.values({ id: 1, name: "Alice", email: "alice@example.com" })
+	.onConflictDoUpdate({
+		target: usersTable.email,
+		set: { name: "Alice Updated" },
+	});
 ```
 
 ### Do Nothing on Conflict
 
 ```typescript
 await db
-  .insert(usersTable)
-  .values({ email: 'alice@example.com', name: 'Alice' })
-  .onConflictDoNothing({ target: usersTable.email });
+	.insert(usersTable)
+	.values({ email: "alice@example.com", name: "Alice" })
+	.onConflictDoNothing({ target: usersTable.email });
 ```
 
 ### Upsert with Where Clause
@@ -129,13 +129,13 @@ existing row matches a condition:
 
 ```typescript
 await db
-  .insert(usersTable)
-  .values({ email: 'alice@example.com', name: 'Alice', updatedAt: new Date() })
-  .onConflictDoUpdate({
-    target: usersTable.email,
-    set: { name: 'Alice Updated', updatedAt: new Date() },
-    where: sql`${usersTable.updatedAt} < now() - interval '1 hour'`,
-  });
+	.insert(usersTable)
+	.values({ email: "alice@example.com", name: "Alice", updatedAt: new Date() })
+	.onConflictDoUpdate({
+		target: usersTable.email,
+		set: { name: "Alice Updated", updatedAt: new Date() },
+		where: sql`${usersTable.updatedAt} < now() - interval '1 hour'`,
+	});
 ```
 
 ## Transactions
@@ -144,15 +144,15 @@ Wrap related mutations in a transaction to ensure atomicity:
 
 ```typescript
 await db.transaction(async (tx) => {
-  const [user] = await tx
-    .insert(usersTable)
-    .values({ name: 'Alice' })
-    .returning();
+	const [user] = await tx
+		.insert(usersTable)
+		.values({ name: "Alice" })
+		.returning();
 
-  await tx.insert(profilesTable).values({
-    userId: user.id,
-    bio: 'Hello world',
-  });
+	await tx.insert(profilesTable).values({
+		userId: user.id,
+		bio: "Hello world",
+	});
 });
 // If either insert fails, both are rolled back
 ```
@@ -161,12 +161,12 @@ await db.transaction(async (tx) => {
 
 ```typescript
 await db.transaction(async (tx) => {
-  await tx.insert(usersTable).values({ name: 'Alice' });
+	await tx.insert(usersTable).values({ name: "Alice" });
 
-  // Creates a savepoint
-  await tx.transaction(async (nestedTx) => {
-    await nestedTx.insert(postsTable).values({ title: 'First post' });
-  });
+	// Creates a savepoint
+	await tx.transaction(async (nestedTx) => {
+		await nestedTx.insert(postsTable).values({ title: "First post" });
+	});
 });
 ```
 

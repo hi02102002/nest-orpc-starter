@@ -9,15 +9,15 @@ cause runtime surprises even when TypeScript compiles cleanly.
 ## Incorrect
 
 ```typescript
-import { pgTable, text, integer, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, varchar } from "drizzle-orm/pg-core";
 
-export const products = pgTable('products', {
-  id: integer('id').primaryKey(), // no auto-generation strategy
-  price: text('price'), // storing numbers as text
-  isActive: text('is_active'), // storing booleans as text
-  metadata: text('metadata'), // storing JSON as plain text
-  createdAt: text('created_at'), // storing timestamps as text
-  tags: varchar('tags', { length: 1000 }), // storing arrays as comma-separated strings
+export const products = pgTable("products", {
+	id: integer("id").primaryKey(), // no auto-generation strategy
+	price: text("price"), // storing numbers as text
+	isActive: text("is_active"), // storing booleans as text
+	metadata: text("metadata"), // storing JSON as plain text
+	createdAt: text("created_at"), // storing timestamps as text
+	tags: varchar("tags", { length: 1000 }), // storing arrays as comma-separated strings
 });
 ```
 
@@ -31,16 +31,27 @@ export const products = pgTable('products', {
 ## Correct
 
 ```typescript
-import { pgTable, integer, numeric, boolean, jsonb, timestamp, text } from 'drizzle-orm/pg-core';
-import * as t from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	integer,
+	numeric,
+	boolean,
+	jsonb,
+	timestamp,
+	text,
+} from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
 
-export const products = pgTable('products', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  price: t.numeric('price', { precision: 10, scale: 2 }).notNull(),
-  isActive: t.boolean('is_active').notNull().default(true),
-  metadata: t.jsonb('metadata').$type<{ color: string; size: string }>(),
-  createdAt: t.timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  tags: t.text('tags').array(),
+export const products = pgTable("products", {
+	id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+	price: t.numeric("price", { precision: 10, scale: 2 }).notNull(),
+	isActive: t.boolean("is_active").notNull().default(true),
+	metadata: t.jsonb("metadata").$type<{ color: string; size: string }>(),
+	createdAt: t
+		.timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	tags: t.text("tags").array(),
 });
 ```
 
@@ -54,19 +65,19 @@ export const products = pgTable('products', {
 
 ## Key Column Type Mappings (PostgreSQL)
 
-| Use Case | Type | TypeScript |
-|----------|------|------------|
-| Primary key | `integer().generatedAlwaysAsIdentity()` | `number` |
-| UUID primary key | `uuid().defaultRandom()` | `string` |
-| Short strings | `varchar({ length: N })` | `string` |
-| Long text | `text()` | `string` |
-| Exact decimals | `numeric({ precision, scale })` | `string` |
-| Integers | `integer()` | `number` |
-| Booleans | `boolean()` | `boolean` |
-| Timestamps | `timestamp({ withTimezone: true })` | `Date` |
-| JSON data | `jsonb().$type<T>()` | `T` |
-| Enums | `pgEnum('name', [...])` | `union type` |
-| Arrays | `text().array()` | `string[]` |
+| Use Case         | Type                                    | TypeScript   |
+| ---------------- | --------------------------------------- | ------------ |
+| Primary key      | `integer().generatedAlwaysAsIdentity()` | `number`     |
+| UUID primary key | `uuid().defaultRandom()`                | `string`     |
+| Short strings    | `varchar({ length: N })`                | `string`     |
+| Long text        | `text()`                                | `string`     |
+| Exact decimals   | `numeric({ precision, scale })`         | `string`     |
+| Integers         | `integer()`                             | `number`     |
+| Booleans         | `boolean()`                             | `boolean`    |
+| Timestamps       | `timestamp({ withTimezone: true })`     | `Date`       |
+| JSON data        | `jsonb().$type<T>()`                    | `T`          |
+| Enums            | `pgEnum('name', [...])`                 | `union type` |
+| Arrays           | `text().array()`                        | `string[]`   |
 
 See `engine-postgres.md` for detailed coverage of Postgres-specific types like JSONB,
 arrays, enums, intervals, and full-text search vectors.

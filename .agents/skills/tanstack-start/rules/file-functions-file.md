@@ -11,25 +11,25 @@ Organize server functions in `.functions.ts` files to clearly separate RPC wrapp
 ```tsx
 // Mixing server functions with component code
 // routes/posts.tsx
-import { createServerFn } from '@tanstack/react-start'
-import { db } from '../lib/db.server'  // Server import in route file
+import { createServerFn } from "@tanstack/react-start";
+import { db } from "../lib/db.server"; // Server import in route file
 
 const getPosts = createServerFn().handler(async () => {
-  return db.posts.findMany()
-})
+	return db.posts.findMany();
+});
 
-const createPost = createServerFn({ method: 'POST' })
-  .inputValidator(createPostSchema)
-  .handler(async ({ data }) => {
-    return db.posts.create({ data })
-  })
+const createPost = createServerFn({ method: "POST" })
+	.inputValidator(createPostSchema)
+	.handler(async ({ data }) => {
+		return db.posts.create({ data });
+	});
 
 // 200 lines of server functions mixed with component code...
 
-export const Route = createFileRoute('/posts')({
-  loader: () => getPosts(),
-  component: PostsPage,
-})
+export const Route = createFileRoute("/posts")({
+	loader: () => getPosts(),
+	component: PostsPage,
+});
 ```
 
 ## Good Example
@@ -46,55 +46,55 @@ src/
 
 ```tsx
 // utils/posts.schema.ts — shared between client and server
-import { z } from 'zod'
+import { z } from "zod";
 
 export const createPostSchema = z.object({
-  title: z.string().min(1).max(200).trim(),
-  content: z.string().min(1).max(50000),
-  published: z.boolean().default(false),
-})
+	title: z.string().min(1).max(200).trim(),
+	content: z.string().min(1).max(50000),
+	published: z.boolean().default(false),
+});
 
 // utils/posts.server.ts — server-only implementation
-import { db } from '../lib/db'
+import { db } from "../lib/db";
 
 export async function findPosts(offset: number, limit: number) {
-  return db.posts.findMany({
-    skip: offset,
-    take: limit,
-    orderBy: { createdAt: 'desc' },
-  })
+	return db.posts.findMany({
+		skip: offset,
+		take: limit,
+		orderBy: { createdAt: "desc" },
+	});
 }
 
 export async function insertPost(data: { title: string; content: string }) {
-  return db.posts.create({ data })
+	return db.posts.create({ data });
 }
 
 // utils/posts.functions.ts — server function wrappers
-import { createServerFn } from '@tanstack/react-start'
-import { createPostSchema } from './posts.schema'
+import { createServerFn } from "@tanstack/react-start";
+import { createPostSchema } from "./posts.schema";
 
 export const getPosts = createServerFn()
-  .inputValidator((data: { offset: number; limit: number }) => data)
-  .handler(async ({ data }) => {
-    const { findPosts } = await import('./posts.server')
-    return findPosts(data.offset, data.limit)
-  })
+	.inputValidator((data: { offset: number; limit: number }) => data)
+	.handler(async ({ data }) => {
+		const { findPosts } = await import("./posts.server");
+		return findPosts(data.offset, data.limit);
+	});
 
-export const createPost = createServerFn({ method: 'POST' })
-  .inputValidator(createPostSchema)
-  .handler(async ({ data }) => {
-    const { insertPost } = await import('./posts.server')
-    return insertPost(data)
-  })
+export const createPost = createServerFn({ method: "POST" })
+	.inputValidator(createPostSchema)
+	.handler(async ({ data }) => {
+		const { insertPost } = await import("./posts.server");
+		return insertPost(data);
+	});
 
 // routes/posts.tsx — clean route file
-import { createFileRoute } from '@tanstack/react-router'
-import { getPosts } from '../utils/posts.functions'
+import { createFileRoute } from "@tanstack/react-router";
+import { getPosts } from "../utils/posts.functions";
 
-export const Route = createFileRoute('/posts')({
-  loader: () => getPosts({ data: { offset: 0, limit: 20 } }),
-  component: PostsPage,
-})
+export const Route = createFileRoute("/posts")({
+	loader: () => getPosts({ data: { offset: 0, limit: 20 } }),
+	component: PostsPage,
+});
 ```
 
 ## Context

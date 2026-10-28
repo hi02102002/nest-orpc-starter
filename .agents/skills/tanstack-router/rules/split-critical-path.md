@@ -10,32 +10,32 @@ When code splitting, the main route file must contain everything needed for rout
 
 ```tsx
 // routes/dashboard.tsx — empty, everything in lazy file
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/dashboard')({
-  // Nothing here — loader is in the lazy file
-})
+export const Route = createFileRoute("/dashboard")({
+	// Nothing here — loader is in the lazy file
+});
 
 // routes/dashboard.lazy.tsx
-import { createLazyFileRoute } from '@tanstack/react-router'
+import { createLazyFileRoute } from "@tanstack/react-router";
 
-export const Route = createLazyFileRoute('/dashboard')({
-  // BAD: loader can't go in lazy files — it needs to run before rendering
-  // loader: () => fetchDashboardData(),  // This won't work!
-  component: DashboardPage,
-})
+export const Route = createLazyFileRoute("/dashboard")({
+	// BAD: loader can't go in lazy files — it needs to run before rendering
+	// loader: () => fetchDashboardData(),  // This won't work!
+	component: DashboardPage,
+});
 ```
 
 ```tsx
 // Exporting component functions — prevents automatic code splitting
 // routes/posts.tsx
-export const Route = createFileRoute('/posts')({
-  component: PostsComponent,
-})
+export const Route = createFileRoute("/posts")({
+	component: PostsComponent,
+});
 
 // BAD: exported functions are included in the main bundle
 export function PostsComponent() {
-  return <div>Posts</div>
+	return <div>Posts</div>;
 }
 ```
 
@@ -43,47 +43,47 @@ export function PostsComponent() {
 
 ```tsx
 // routes/dashboard.tsx — all critical config here
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/dashboard')({
-  validateSearch: dashboardSearchSchema,
-  beforeLoad: ({ context }) => {
-    if (!context.user) throw redirect({ to: '/login' })
-  },
-  loaderDeps: ({ search: { period } }) => ({ period }),
-  loader: ({ deps, context: { queryClient } }) =>
-    queryClient.ensureQueryData(dashboardQueryOptions(deps)),
-  // No component — it's in the lazy file
-})
+export const Route = createFileRoute("/dashboard")({
+	validateSearch: dashboardSearchSchema,
+	beforeLoad: ({ context }) => {
+		if (!context.user) throw redirect({ to: "/login" });
+	},
+	loaderDeps: ({ search: { period } }) => ({ period }),
+	loader: ({ deps, context: { queryClient } }) =>
+		queryClient.ensureQueryData(dashboardQueryOptions(deps)),
+	// No component — it's in the lazy file
+});
 
 // routes/dashboard.lazy.tsx — only UI
-import { createLazyFileRoute } from '@tanstack/react-router'
+import { createLazyFileRoute } from "@tanstack/react-router";
 
-export const Route = createLazyFileRoute('/dashboard')({
-  component: DashboardPage,
-  pendingComponent: DashboardSkeleton,
-  errorComponent: DashboardError,
-  notFoundComponent: DashboardNotFound,
-})
+export const Route = createLazyFileRoute("/dashboard")({
+	component: DashboardPage,
+	pendingComponent: DashboardSkeleton,
+	errorComponent: DashboardError,
+	notFoundComponent: DashboardNotFound,
+});
 
 // NOT exported — stays code-split
 function DashboardPage() {
-  const data = Route.useLoaderData()
-  return <div>{/* heavy UI */}</div>
+	const data = Route.useLoaderData();
+	return <div>{/* heavy UI */}</div>;
 }
 ```
 
 ## What Goes Where
 
-| Main Route File | Lazy File |
-|---|---|
-| `validateSearch` | `component` |
-| `beforeLoad` | `errorComponent` |
-| `loader` | `pendingComponent` |
-| `loaderDeps` | `notFoundComponent` |
-| `context` | |
-| `staticData` | |
-| `head` | |
+| Main Route File  | Lazy File           |
+| ---------------- | ------------------- |
+| `validateSearch` | `component`         |
+| `beforeLoad`     | `errorComponent`    |
+| `loader`         | `pendingComponent`  |
+| `loaderDeps`     | `notFoundComponent` |
+| `context`        |                     |
+| `staticData`     |                     |
+| `head`           |                     |
 
 ## Context
 

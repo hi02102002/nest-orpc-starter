@@ -11,52 +11,56 @@ Use the `dehydrate` / `HydrationBoundary` pattern to transfer server-prefetched 
 ```tsx
 // Using initialData prop drilling — fragile and limited
 export async function getServerSideProps() {
-  const posts = await fetchPosts()
-  return { props: { posts } }
+	const posts = await fetchPosts();
+	return { props: { posts } };
 }
 
 function PostsPage({ posts }) {
-  const { data } = useQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-    initialData: posts,
-    // Problem: no dataUpdatedAt — staleness based on page load, not fetch time
-    // Problem: requires prop drilling to every component that needs data
-  })
+	const { data } = useQuery({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+		initialData: posts,
+		// Problem: no dataUpdatedAt — staleness based on page load, not fetch time
+		// Problem: requires prop drilling to every component that needs data
+	});
 }
 ```
 
 ## Good Example: Pages Router / Remix
 
 ```tsx
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
+import {
+	dehydrate,
+	HydrationBoundary,
+	QueryClient,
+} from "@tanstack/react-query";
 
 export async function getServerSideProps() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 60 * 1000 } },
-  })
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { staleTime: 60 * 1000 } },
+	});
 
-  // Prefetch multiple queries in parallel
-  await Promise.all([
-    queryClient.prefetchQuery({ queryKey: ['posts'], queryFn: fetchPosts }),
-    queryClient.prefetchQuery({ queryKey: ['tags'], queryFn: fetchTags }),
-  ])
+	// Prefetch multiple queries in parallel
+	await Promise.all([
+		queryClient.prefetchQuery({ queryKey: ["posts"], queryFn: fetchPosts }),
+		queryClient.prefetchQuery({ queryKey: ["tags"], queryFn: fetchTags }),
+	]);
 
-  return { props: { dehydratedState: dehydrate(queryClient) } }
+	return { props: { dehydratedState: dehydrate(queryClient) } };
 }
 
 export default function PostsRoute({ dehydratedState }) {
-  return (
-    <HydrationBoundary state={dehydratedState}>
-      <Posts />
-    </HydrationBoundary>
-  )
+	return (
+		<HydrationBoundary state={dehydratedState}>
+			<Posts />
+		</HydrationBoundary>
+	);
 }
 
 function Posts() {
-  // Data is already in cache — no loading spinner
-  const { data } = useQuery({ queryKey: ['posts'], queryFn: fetchPosts })
-  return <PostList posts={data} />
+	// Data is already in cache — no loading spinner
+	const { data } = useQuery({ queryKey: ["posts"], queryFn: fetchPosts });
+	return <PostList posts={data} />;
 }
 ```
 
@@ -95,15 +99,15 @@ export default function Posts() {
 ```tsx
 // Wrap at the app level to avoid repeating HydrationBoundary per page
 export default function App({ Component, pageProps }: AppProps) {
-  const [queryClient] = React.useState(() => new QueryClient())
+	const [queryClient] = React.useState(() => new QueryClient());
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={pageProps.dehydratedState}>
-        <Component {...pageProps} />
-      </HydrationBoundary>
-    </QueryClientProvider>
-  )
+	return (
+		<QueryClientProvider client={queryClient}>
+			<HydrationBoundary state={pageProps.dehydratedState}>
+				<Component {...pageProps} />
+			</HydrationBoundary>
+		</QueryClientProvider>
+	);
 }
 ```
 

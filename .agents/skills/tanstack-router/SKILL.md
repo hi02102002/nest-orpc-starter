@@ -1,4 +1,5 @@
 ---
+
 name: tanstack-router-best-practices
 description: TanStack Router best practices for type-safe routing, data loading, search params, and navigation. Activate when building React applications with complex routing needs.
 ---
@@ -19,18 +20,18 @@ Comprehensive guidelines for implementing TanStack Router patterns in React appl
 
 ## Rule Categories by Priority
 
-| Priority | Category | Rules | Impact |
-|----------|----------|-------|--------|
-| CRITICAL | Type Safety | 4 rules | Prevents runtime errors and enables refactoring |
-| CRITICAL | Route Organization | 5 rules | Ensures maintainable route structure |
-| HIGH | Router Config | 1 rule | Global router defaults |
-| HIGH | Data Loading | 6 rules | Optimizes data fetching and caching |
-| HIGH | Search Params | 5 rules | Enables type-safe URL state |
-| HIGH | Error Handling | 1 rule | Handles 404 and errors gracefully |
-| MEDIUM | Navigation | 5 rules | Improves UX and accessibility |
-| MEDIUM | Code Splitting | 3 rules | Reduces bundle size |
-| MEDIUM | Preloading | 3 rules | Improves perceived performance |
-| LOW | Route Context | 3 rules | Enables dependency injection |
+| Priority | Category           | Rules   | Impact                                          |
+| -------- | ------------------ | ------- | ----------------------------------------------- |
+| CRITICAL | Type Safety        | 4 rules | Prevents runtime errors and enables refactoring |
+| CRITICAL | Route Organization | 5 rules | Ensures maintainable route structure            |
+| HIGH     | Router Config      | 1 rule  | Global router defaults                          |
+| HIGH     | Data Loading       | 6 rules | Optimizes data fetching and caching             |
+| HIGH     | Search Params      | 5 rules | Enables type-safe URL state                     |
+| HIGH     | Error Handling     | 1 rule  | Handles 404 and errors gracefully               |
+| MEDIUM   | Navigation         | 5 rules | Improves UX and accessibility                   |
+| MEDIUM   | Code Splitting     | 3 rules | Reduces bundle size                             |
+| MEDIUM   | Preloading         | 3 rules | Improves perceived performance                  |
+| LOW      | Route Context      | 3 rules | Enables dependency injection                    |
 
 ## Quick Reference
 

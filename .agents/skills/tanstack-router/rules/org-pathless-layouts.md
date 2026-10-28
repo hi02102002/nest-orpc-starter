@@ -41,30 +41,30 @@ routes/
 
 ```tsx
 // routes/_app.tsx — wraps children without affecting URL
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_app')({
-  beforeLoad: ({ context }) => {
-    if (!context.user) throw redirect({ to: '/login' })
-  },
-  component: AppLayout,
-})
+export const Route = createFileRoute("/_app")({
+	beforeLoad: ({ context }) => {
+		if (!context.user) throw redirect({ to: "/login" });
+	},
+	component: AppLayout,
+});
 
 function AppLayout() {
-  return (
-    <div className="app-shell">
-      <Sidebar />
-      <main>
-        <Outlet />
-      </main>
-    </div>
-  )
+	return (
+		<div className="app-shell">
+			<Sidebar />
+			<main>
+				<Outlet />
+			</main>
+		</div>
+	);
 }
 
 // routes/_app.dashboard.tsx — URL is /dashboard, not /_app/dashboard
-export const Route = createFileRoute('/_app/dashboard')({
-  component: DashboardPage,
-})
+export const Route = createFileRoute("/_app/dashboard")({
+	component: DashboardPage,
+});
 ```
 
 ## Directory Style

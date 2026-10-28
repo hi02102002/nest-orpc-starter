@@ -10,22 +10,42 @@ File-based routing generates route configuration automatically from your file st
 
 ```tsx
 // Code-based routing — verbose, manual, error-prone
-import { createRouter, createRoute, createRootRoute } from '@tanstack/react-router'
+import {
+	createRouter,
+	createRoute,
+	createRootRoute,
+} from "@tanstack/react-router";
 
-const rootRoute = createRootRoute({ component: Root })
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home })
-const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: About })
-const postsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/posts', component: Posts })
-const postRoute = createRoute({ getParentRoute: () => postsRoute, path: '/$postId', component: Post })
+const rootRoute = createRootRoute({ component: Root });
+const indexRoute = createRoute({
+	getParentRoute: () => rootRoute,
+	path: "/",
+	component: Home,
+});
+const aboutRoute = createRoute({
+	getParentRoute: () => rootRoute,
+	path: "/about",
+	component: About,
+});
+const postsRoute = createRoute({
+	getParentRoute: () => rootRoute,
+	path: "/posts",
+	component: Posts,
+});
+const postRoute = createRoute({
+	getParentRoute: () => postsRoute,
+	path: "/$postId",
+	component: Post,
+});
 
 // Manual tree assembly — must keep in sync as routes are added
 const routeTree = rootRoute.addChildren([
-  indexRoute,
-  aboutRoute,
-  postsRoute.addChildren([postRoute]),
-])
+	indexRoute,
+	aboutRoute,
+	postsRoute.addChildren([postRoute]),
+]);
 
-const router = createRouter({ routeTree })
+const router = createRouter({ routeTree });
 ```
 
 ## Good Example
@@ -43,28 +63,28 @@ routes/
 
 ```tsx
 // routes/__root.tsx
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
-  component: () => (
-    <div>
-      <nav>{/* ... */}</nav>
-      <Outlet />
-    </div>
-  ),
-})
+	component: () => (
+		<div>
+			<nav>{/* ... */}</nav>
+			<Outlet />
+		</div>
+	),
+});
 
 // routes/posts.$postId.tsx
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/posts/$postId')({
-  loader: ({ params }) => fetchPost(params.postId),
-  component: PostPage,
-})
+export const Route = createFileRoute("/posts/$postId")({
+	loader: ({ params }) => fetchPost(params.postId),
+	component: PostPage,
+});
 
 function PostPage() {
-  const post = Route.useLoaderData()
-  return <article>{post.title}</article>
+	const post = Route.useLoaderData();
+	return <article>{post.title}</article>;
 }
 ```
 
@@ -72,29 +92,29 @@ function PostPage() {
 
 ```tsx
 // vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 export default defineConfig({
-  plugins: [
-    tanstackRouter(), // Generates routeTree.gen.ts automatically
-    react(),
-  ],
-})
+	plugins: [
+		tanstackRouter(), // Generates routeTree.gen.ts automatically
+		react(),
+	],
+});
 ```
 
 ## File Naming Conventions
 
-| Convention | Example | Meaning |
-|---|---|---|
-| `__root.tsx` | `__root.tsx` | Root route |
-| `.` separator | `posts.index.tsx` | Nesting (flat style) |
-| `$` prefix | `$postId` | Dynamic segment |
-| `_` prefix | `_layout.tsx` | Pathless layout |
-| `_` suffix | `posts_.$id.edit.tsx` | Non-nested route |
-| `-` prefix | `-components/` | Excluded from routing |
-| `(folder)` | `(auth)/login.tsx` | Organizational group |
+| Convention    | Example               | Meaning               |
+| ------------- | --------------------- | --------------------- |
+| `__root.tsx`  | `__root.tsx`          | Root route            |
+| `.` separator | `posts.index.tsx`     | Nesting (flat style)  |
+| `$` prefix    | `$postId`             | Dynamic segment       |
+| `_` prefix    | `_layout.tsx`         | Pathless layout       |
+| `_` suffix    | `posts_.$id.edit.tsx` | Non-nested route      |
+| `-` prefix    | `-components/`        | Excluded from routing |
+| `(folder)`    | `(auth)/login.tsx`    | Organizational group  |
 
 ## Context
 

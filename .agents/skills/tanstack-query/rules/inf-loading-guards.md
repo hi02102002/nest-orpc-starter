@@ -10,72 +10,67 @@ Always check `isFetching` or `isFetchingNextPage` before calling `fetchNextPage(
 
 ```tsx
 function ProjectList() {
-  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['projects'],
-    queryFn: fetchProjects,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  })
+	const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
+		queryKey: ["projects"],
+		queryFn: fetchProjects,
+		initialPageParam: 0,
+		getNextPageParam: (lastPage) => lastPage.nextCursor,
+	});
 
-  return (
-    <div>
-      {data?.pages.map((page) =>
-        page.items.map((item) => <ProjectCard key={item.id} item={item} />)
-      )}
-      {/* No loading guard — can trigger multiple fetches */}
-      {hasNextPage && (
-        <button onClick={() => fetchNextPage()}>Load More</button>
-      )}
-    </div>
-  )
+	return (
+		<div>
+			{data?.pages.map((page) =>
+				page.items.map((item) => <ProjectCard key={item.id} item={item} />),
+			)}
+			{/* No loading guard — can trigger multiple fetches */}
+			{hasNextPage && (
+				<button onClick={() => fetchNextPage()}>Load More</button>
+			)}
+		</div>
+	);
 }
 
 // Infinite scroll without guard — fires on every scroll event
-<List onEndReached={() => fetchNextPage()} />
+<List onEndReached={() => fetchNextPage()} />;
 ```
 
 ## Good Example
 
 ```tsx
 function ProjectList() {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['projects'],
-    queryFn: fetchProjects,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  })
+	const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+		useInfiniteQuery({
+			queryKey: ["projects"],
+			queryFn: fetchProjects,
+			initialPageParam: 0,
+			getNextPageParam: (lastPage) => lastPage.nextCursor,
+		});
 
-  return (
-    <div>
-      {data?.pages.map((page, i) => (
-        <React.Fragment key={i}>
-          {page.items.map((item) => (
-            <ProjectCard key={item.id} item={item} />
-          ))}
-        </React.Fragment>
-      ))}
+	return (
+		<div>
+			{data?.pages.map((page, i) => (
+				<React.Fragment key={i}>
+					{page.items.map((item) => (
+						<ProjectCard key={item.id} item={item} />
+					))}
+				</React.Fragment>
+			))}
 
-      <button
-        onClick={() => fetchNextPage()}
-        disabled={!hasNextPage || isFetching}
-      >
-        {isFetchingNextPage
-          ? 'Loading more...'
-          : hasNextPage
-            ? 'Load More'
-            : 'Nothing more to load'}
-      </button>
+			<button
+				onClick={() => fetchNextPage()}
+				disabled={!hasNextPage || isFetching}
+			>
+				{isFetchingNextPage
+					? "Loading more..."
+					: hasNextPage
+						? "Load More"
+						: "Nothing more to load"}
+			</button>
 
-      {/* Background refetch indicator (not pagination) */}
-      {isFetching && !isFetchingNextPage && <Spinner />}
-    </div>
-  )
+			{/* Background refetch indicator (not pagination) */}
+			{isFetching && !isFetchingNextPage && <Spinner />}
+		</div>
+	);
 }
 ```
 
@@ -83,15 +78,15 @@ function ProjectList() {
 
 ```tsx
 <FlatList
-  data={data?.pages.flatMap((page) => page.items)}
-  onEndReached={() => {
-    if (hasNextPage && !isFetching) {
-      fetchNextPage()
-    }
-  }}
-  onEndReachedThreshold={0.5}
-  ListFooterComponent={isFetchingNextPage ? <Spinner /> : null}
-/>
+	data={data?.pages.flatMap((page) => page.items)}
+	onEndReached={() => {
+		if (hasNextPage && !isFetching) {
+			fetchNextPage();
+		}
+	}}
+	onEndReachedThreshold={0.5}
+	ListFooterComponent={isFetchingNextPage ? <Spinner /> : null}
+/>;
 ```
 
 ## Context

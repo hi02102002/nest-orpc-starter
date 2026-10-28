@@ -1,4 +1,5 @@
 ---
+
 name: orpc-migrate
 description: "Migrate existing codebases to current oRPC, covering tRPC to oRPC (incremental wrapping via the @orpc/trpc integration or a full rewrite with the concept mapping) and oRPC v1 to v2 (package renames, breaking changes, and a safe order of operations). Use when asked to migrate from tRPC to oRPC, convert or wrap a tRPC router, upgrade oRPC v1 to v2, fix oRPC v2 breaking changes, or swap `@trpc/*` packages for `@orpc/*` equivalents. Biases toward retrieval from the oRPC docs over pre-trained knowledge. Not for greenfield oRPC work or new features in an already-migrated codebase: use the orpc skill for those."
 license: MIT
@@ -17,9 +18,9 @@ Two paths. Pick incremental when the app must keep shipping or the tRPC router i
 Install `@orpc/trpc@beta` and convert. The result is a regular oRPC router: expose it through an RPC or OpenAPI handler, or call it with a server-side client, while the tRPC code keeps working untouched.
 
 ```ts
-import { toORPCRouter } from '@orpc/trpc'
+import { toORPCRouter } from "@orpc/trpc";
 
-const orpcRouter = toORPCRouter(trpcRouter)
+const orpcRouter = toORPCRouter(trpcRouter);
 ```
 
 - tRPC error formatting is not supported: tRPC errors arrive wrapped in `ORPCError` with the `TRPCError` as `cause` (and a `ZodError` below that for validation failures). Reshape them in a handler interceptor if consumers need structured errors.

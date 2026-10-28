@@ -10,19 +10,19 @@ argument.
 ## Incorrect
 
 ```typescript
-import { pgTable, integer, varchar, text } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, text } from "drizzle-orm/pg-core";
 
-export const users = pgTable('users', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  email: varchar('email', { length: 256 }).notNull(), // frequently queried but no index
-  username: varchar('username', { length: 64 }).notNull(), // should be unique
+export const users = pgTable("users", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	email: varchar("email", { length: 256 }).notNull(), // frequently queried but no index
+	username: varchar("username", { length: 64 }).notNull(), // should be unique
 });
 
-export const posts = pgTable('posts', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  title: varchar('title', { length: 256 }),
-  authorId: integer('author_id').notNull(), // FK without index = slow joins
-  categoryId: integer('category_id').notNull(),
+export const posts = pgTable("posts", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	title: varchar("title", { length: 256 }),
+	authorId: integer("author_id").notNull(), // FK without index = slow joins
+	categoryId: integer("category_id").notNull(),
 });
 ```
 
@@ -35,35 +35,45 @@ export const posts = pgTable('posts', {
 ## Correct
 
 ```typescript
-import { pgTable, integer, varchar, text, index, uniqueIndex } from 'drizzle-orm/pg-core';
-import * as t from 'drizzle-orm/pg-core';
-import { users } from './users';
+import {
+	pgTable,
+	integer,
+	varchar,
+	text,
+	index,
+	uniqueIndex,
+} from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
+import { users } from "./users";
 
 export const users = pgTable(
-  'users',
-  {
-    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    email: t.varchar('email', { length: 256 }).notNull(),
-    username: t.varchar('username', { length: 64 }).notNull(),
-  },
-  (table) => [
-    t.uniqueIndex('users_email_idx').on(table.email),
-    t.uniqueIndex('users_username_idx').on(table.username),
-  ]
+	"users",
+	{
+		id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+		email: t.varchar("email", { length: 256 }).notNull(),
+		username: t.varchar("username", { length: 64 }).notNull(),
+	},
+	(table) => [
+		t.uniqueIndex("users_email_idx").on(table.email),
+		t.uniqueIndex("users_username_idx").on(table.username),
+	],
 );
 
 export const posts = pgTable(
-  'posts',
-  {
-    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    title: t.varchar('title', { length: 256 }).notNull(),
-    authorId: t.integer('author_id').notNull().references(() => users.id),
-    categoryId: t.integer('category_id').notNull(),
-  },
-  (table) => [
-    t.index('posts_author_id_idx').on(table.authorId),
-    t.index('posts_category_id_idx').on(table.categoryId),
-  ]
+	"posts",
+	{
+		id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+		title: t.varchar("title", { length: 256 }).notNull(),
+		authorId: t
+			.integer("author_id")
+			.notNull()
+			.references(() => users.id),
+		categoryId: t.integer("category_id").notNull(),
+	},
+	(table) => [
+		t.index("posts_author_id_idx").on(table.authorId),
+		t.index("posts_category_id_idx").on(table.categoryId),
+	],
 );
 ```
 
@@ -72,19 +82,23 @@ export const posts = pgTable(
 For lookup tables and junction tables, use composite primary keys:
 
 ```typescript
-import { pgTable, integer, primaryKey, timestamp } from 'drizzle-orm/pg-core';
-import * as t from 'drizzle-orm/pg-core';
+import { pgTable, integer, primaryKey, timestamp } from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
 
 export const usersToGroups = pgTable(
-  'users_to_groups',
-  {
-    userId: t.integer('user_id').notNull().references(() => users.id),
-    groupId: t.integer('group_id').notNull().references(() => groups.id),
-    joinedAt: t.timestamp('joined_at').notNull().defaultNow(),
-  },
-  (table) => [
-    t.primaryKey({ columns: [table.userId, table.groupId] }),
-  ]
+	"users_to_groups",
+	{
+		userId: t
+			.integer("user_id")
+			.notNull()
+			.references(() => users.id),
+		groupId: t
+			.integer("group_id")
+			.notNull()
+			.references(() => groups.id),
+		joinedAt: t.timestamp("joined_at").notNull().defaultNow(),
+	},
+	(table) => [t.primaryKey({ columns: [table.userId, table.groupId] })],
 );
 ```
 
@@ -94,17 +108,17 @@ If you frequently query by multiple columns together, a composite index helps:
 
 ```typescript
 export const events = pgTable(
-  'events',
-  {
-    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: t.integer('user_id').notNull(),
-    type: t.varchar('type', { length: 64 }).notNull(),
-    createdAt: t.timestamp('created_at').notNull().defaultNow(),
-  },
-  (table) => [
-    // Composite index for queries filtering by userId + type
-    t.index('events_user_type_idx').on(table.userId, table.type),
-  ]
+	"events",
+	{
+		id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+		userId: t.integer("user_id").notNull(),
+		type: t.varchar("type", { length: 64 }).notNull(),
+		createdAt: t.timestamp("created_at").notNull().defaultNow(),
+	},
+	(table) => [
+		// Composite index for queries filtering by userId + type
+		t.index("events_user_type_idx").on(table.userId, table.type),
+	],
 );
 ```
 

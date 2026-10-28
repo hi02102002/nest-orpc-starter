@@ -11,22 +11,22 @@ TanStack Query uses structural sharing to preserve referential identity for unch
 ```tsx
 // Disabling structural sharing unnecessarily
 const { data } = useQuery({
-  queryKey: ['todos'],
-  queryFn: fetchTodos,
-  structuralSharing: false, // Every refetch creates new references for everything
-  // Downstream useMemo/useEffect with data deps re-trigger on every refetch
-})
+	queryKey: ["todos"],
+	queryFn: fetchTodos,
+	structuralSharing: false, // Every refetch creates new references for everything
+	// Downstream useMemo/useEffect with data deps re-trigger on every refetch
+});
 
 // Using non-JSON data types breaks structural sharing silently
 const { data } = useQuery({
-  queryKey: ['dates'],
-  queryFn: async () => {
-    const res = await fetch('/api/events')
-    const events = await res.json()
-    // Returning Map/Set/Date instances — structural sharing only works with JSON types
-    return new Map(events.map((e) => [e.id, new Date(e.date)]))
-  },
-})
+	queryKey: ["dates"],
+	queryFn: async () => {
+		const res = await fetch("/api/events");
+		const events = await res.json();
+		// Returning Map/Set/Date instances — structural sharing only works with JSON types
+		return new Map(events.map((e) => [e.id, new Date(e.date)]));
+	},
+});
 ```
 
 ## Good Example
@@ -34,33 +34,33 @@ const { data } = useQuery({
 ```tsx
 // Structural sharing is enabled by default — just works
 const { data: todos } = useQuery({
-  queryKey: ['todos'],
-  queryFn: fetchTodos,
-  // structuralSharing: true (default)
-  // If refetch returns same data, `todos` keeps identical references
-})
+	queryKey: ["todos"],
+	queryFn: fetchTodos,
+	// structuralSharing: true (default)
+	// If refetch returns same data, `todos` keeps identical references
+});
 
 // Safe to use in dependency arrays
 useEffect(() => {
-  // Only runs when data actually changes, not on every refetch
-  analytics.track('todos-loaded', { count: todos?.length })
-}, [todos])
+	// Only runs when data actually changes, not on every refetch
+	analytics.track("todos-loaded", { count: todos?.length });
+}, [todos]);
 ```
 
 ## Good Example: Custom Structural Sharing
 
 ```tsx
 // For non-JSON types, provide a custom comparator
-import { replaceEqualDeep } from '@tanstack/react-query'
+import { replaceEqualDeep } from "@tanstack/react-query";
 
 const { data } = useQuery({
-  queryKey: ['events'],
-  queryFn: fetchEvents,
-  structuralSharing: (oldData, newData) => {
-    // Custom comparison that handles your data types
-    return replaceEqualDeep(oldData, newData)
-  },
-})
+	queryKey: ["events"],
+	queryFn: fetchEvents,
+	structuralSharing: (oldData, newData) => {
+		// Custom comparison that handles your data types
+		return replaceEqualDeep(oldData, newData);
+	},
+});
 ```
 
 ## Context

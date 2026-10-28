@@ -22,8 +22,8 @@ The cleanest solution — each query is an independent HTTP request:
 
 ```typescript
 // Neon HTTP — zero connection overhead
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle({ client: sql });
@@ -37,8 +37,8 @@ independent). Use the WebSocket driver if you need transactions.
 Put a pooler between your serverless functions and Postgres:
 
 ```typescript
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 // Use the POOLER URL — not the direct connection URL
 const client = postgres(process.env.DATABASE_POOLER_URL!);
@@ -52,9 +52,9 @@ Common poolers: PgBouncer, Supabase connection pooler, Neon connection pooler, A
 When you need transactions but can't use persistent TCP connections:
 
 ```typescript
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from 'ws';
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -67,15 +67,15 @@ const db = drizzle({ client: pool });
 
 ```typescript
 // Option 1: Neon HTTP (simplest, no transactions)
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle({ client: sql });
 
 // Option 2: postgres.js with pooler (full features)
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 const client = postgres(process.env.DATABASE_POOLER_URL!);
 const db = drizzle({ client });
@@ -86,8 +86,8 @@ const db = drizzle({ client });
 Edge runtimes don't support Node.js TCP connections. You must use HTTP-based drivers:
 
 ```typescript
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle({ client: sql });
@@ -97,7 +97,7 @@ const db = drizzle({ client: sql });
 
 ```typescript
 // Use RDS Proxy to pool connections
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/node-postgres";
 
 const db = drizzle(process.env.RDS_PROXY_URL!);
 ```
@@ -106,14 +106,14 @@ const db = drizzle(process.env.RDS_PROXY_URL!);
 
 ```typescript
 // Use Cloudflare Hyperdrive for connection pooling
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/node-postgres";
 
 export default {
-  async fetch(request: Request, env: Env) {
-    const db = drizzle(env.HYPERDRIVE.connectionString);
-    const users = await db.select().from(usersTable);
-    return Response.json(users);
-  },
+	async fetch(request: Request, env: Env) {
+		const db = drizzle(env.HYPERDRIVE.connectionString);
+		const users = await db.select().from(usersTable);
+		return Response.json(users);
+	},
 };
 ```
 
@@ -122,16 +122,16 @@ export default {
 Initialize outside the handler to reuse across warm invocations:
 
 ```typescript
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 // Created once, reused across warm invocations
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle({ client: sql });
 
 export async function handler(event: any) {
-  const users = await db.select().from(usersTable);
-  return { statusCode: 200, body: JSON.stringify(users) };
+	const users = await db.select().from(usersTable);
+	return { statusCode: 200, body: JSON.stringify(users) };
 }
 ```
 
@@ -140,7 +140,7 @@ export async function handler(event: any) {
 ```typescript
 // Wrong: using node-postgres in edge runtimes
 // Edge runtimes don't have Node.js net/tls modules
-import { drizzle } from 'drizzle-orm/node-postgres'; // Will fail at runtime in edge
+import { drizzle } from "drizzle-orm/node-postgres"; // Will fail at runtime in edge
 
 // Wrong: not using a connection pooler in Lambda
 const db = drizzle(process.env.DIRECT_DATABASE_URL!);
@@ -148,9 +148,9 @@ const db = drizzle(process.env.DIRECT_DATABASE_URL!);
 
 // Wrong: creating the client inside the handler
 export async function handler(event) {
-  const sql = neon(process.env.DATABASE_URL!); // Re-created on every invocation
-  const db = drizzle({ client: sql });
-  // Move this outside the handler
+	const sql = neon(process.env.DATABASE_URL!); // Re-created on every invocation
+	const db = drizzle({ client: sql });
+	// Move this outside the handler
 }
 ```
 

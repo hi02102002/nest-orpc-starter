@@ -10,23 +10,23 @@ If your query function depends on a variable, that variable must be included in 
 
 ```tsx
 function UserPosts({ userId }: { userId: string }) {
-  // Missing userId in query key - all users share the same cache!
-  const { data } = useQuery({
-    queryKey: ['posts'],
-    queryFn: () => fetchPostsByUser(userId),
-  })
+	// Missing userId in query key - all users share the same cache!
+	const { data } = useQuery({
+		queryKey: ["posts"],
+		queryFn: () => fetchPostsByUser(userId),
+	});
 
-  return <PostList posts={data} />
+	return <PostList posts={data} />;
 }
 
 function FilteredTodos({ status, page }: { status: string; page: number }) {
-  // Missing filter parameters - won't refetch when filters change
-  const { data } = useQuery({
-    queryKey: ['todos'],
-    queryFn: () => fetchTodos({ status, page }),
-  })
+	// Missing filter parameters - won't refetch when filters change
+	const { data } = useQuery({
+		queryKey: ["todos"],
+		queryFn: () => fetchTodos({ status, page }),
+	});
 
-  return <TodoList todos={data} />
+	return <TodoList todos={data} />;
 }
 ```
 
@@ -34,23 +34,23 @@ function FilteredTodos({ status, page }: { status: string; page: number }) {
 
 ```tsx
 function UserPosts({ userId }: { userId: string }) {
-  // userId included - each user has their own cache entry
-  const { data } = useQuery({
-    queryKey: ['posts', userId],
-    queryFn: () => fetchPostsByUser(userId),
-  })
+	// userId included - each user has their own cache entry
+	const { data } = useQuery({
+		queryKey: ["posts", userId],
+		queryFn: () => fetchPostsByUser(userId),
+	});
 
-  return <PostList posts={data} />
+	return <PostList posts={data} />;
 }
 
 function FilteredTodos({ status, page }: { status: string; page: number }) {
-  // All dependencies included - refetches when any change
-  const { data } = useQuery({
-    queryKey: ['todos', { status, page }],
-    queryFn: () => fetchTodos({ status, page }),
-  })
+	// All dependencies included - refetches when any change
+	const { data } = useQuery({
+		queryKey: ["todos", { status, page }],
+		queryFn: () => fetchTodos({ status, page }),
+	});
 
-  return <TodoList todos={data} />
+	return <TodoList todos={data} />;
 }
 ```
 

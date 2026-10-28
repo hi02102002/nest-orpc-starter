@@ -11,14 +11,14 @@ The `<Link>` component automatically tracks whether it matches the current route
 ```tsx
 // Manually tracking active state — duplicates router logic, error-prone
 function NavLink({ to, children }) {
-  const location = useLocation()
-  const isActive = location.pathname === to // Doesn't handle nested routes
+	const location = useLocation();
+	const isActive = location.pathname === to; // Doesn't handle nested routes
 
-  return (
-    <Link to={to} className={isActive ? 'active' : ''}>
-      {children}
-    </Link>
-  )
+	return (
+		<Link to={to} className={isActive ? "active" : ""}>
+			{children}
+		</Link>
+	);
 }
 ```
 
@@ -27,24 +27,21 @@ function NavLink({ to, children }) {
 ```tsx
 // Using built-in activeProps/inactiveProps
 function Navigation() {
-  return (
-    <nav>
-      <Link
-        to="/dashboard"
-        activeProps={{ className: 'font-bold text-blue-600' }}
-        inactiveProps={{ className: 'text-gray-600' }}
-      >
-        Dashboard
-      </Link>
+	return (
+		<nav>
+			<Link
+				to="/dashboard"
+				activeProps={{ className: "font-bold text-blue-600" }}
+				inactiveProps={{ className: "text-gray-600" }}
+			>
+				Dashboard
+			</Link>
 
-      <Link
-        to="/posts"
-        activeProps={{ style: { fontWeight: 'bold' } }}
-      >
-        Posts
-      </Link>
-    </nav>
-  )
+			<Link to="/posts" activeProps={{ style: { fontWeight: "bold" } }}>
+				Posts
+			</Link>
+		</nav>
+	);
 }
 ```
 
@@ -52,16 +49,18 @@ function Navigation() {
 
 ```tsx
 // Style active links purely with CSS using the data-status attribute
-<Link to="/dashboard" className="nav-link">Dashboard</Link>
+<Link to="/dashboard" className="nav-link">
+	Dashboard
+</Link>;
 ```
 
 ```css
 .nav-link {
-  color: gray;
+	color: gray;
 }
-.nav-link[data-status='active'] {
-  color: blue;
-  font-weight: bold;
+.nav-link[data-status="active"] {
+	color: blue;
+	font-weight: bold;
 }
 ```
 
@@ -102,23 +101,23 @@ function Navigation() {
 
 ```tsx
 <Link to="/posts">
-  {({ isActive }) => (
-    <span className={isActive ? 'text-blue-600' : 'text-gray-400'}>
-      Posts
-      {isActive && <ChevronIcon />}
-    </span>
-  )}
-</Link>
+	{({ isActive }) => (
+		<span className={isActive ? "text-blue-600" : "text-gray-400"}>
+			Posts
+			{isActive && <ChevronIcon />}
+		</span>
+	)}
+</Link>;
 ```
 
 ## activeOptions Reference
 
-| Option | Default | Description |
-|---|---|---|
-| `exact` | `false` | Only active on exact path match (not prefix) |
-| `includeSearch` | `true` | Check if link's search params are a subset of current |
-| `includeHash` | `false` | Check if link's hash matches current hash |
-| `explicitUndefined` | `false` | `undefined` values in search must NOT be present |
+| Option              | Default | Description                                           |
+| ------------------- | ------- | ----------------------------------------------------- |
+| `exact`             | `false` | Only active on exact path match (not prefix)          |
+| `includeSearch`     | `true`  | Check if link's search params are a subset of current |
+| `includeHash`       | `false` | Check if link's hash matches current hash             |
+| `explicitUndefined` | `false` | `undefined` values in search must NOT be present      |
 
 ## Context
 

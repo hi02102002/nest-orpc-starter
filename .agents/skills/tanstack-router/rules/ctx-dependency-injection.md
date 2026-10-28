@@ -11,57 +11,57 @@ Router context enables dependency injection — passing services, clients, and c
 ```tsx
 // Direct imports in every route — tightly coupled, hard to test
 // routes/posts.tsx
-import { queryClient } from '~/lib/query-client' // Singleton import
-import { apiClient } from '~/lib/api'            // Hard to mock in tests
+import { queryClient } from "~/lib/query-client"; // Singleton import
+import { apiClient } from "~/lib/api"; // Hard to mock in tests
 
-export const Route = createFileRoute('/posts')({
-  loader: async () => {
-    const posts = await apiClient.getPosts()      // Can't swap implementation
-    await queryClient.ensureQueryData(postsQuery)  // Tight coupling to singleton
-    return posts
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loader: async () => {
+		const posts = await apiClient.getPosts(); // Can't swap implementation
+		await queryClient.ensureQueryData(postsQuery); // Tight coupling to singleton
+		return posts;
+	},
+});
 ```
 
 ## Good Example
 
 ```tsx
 // routes/__root.tsx — define the context shape
-import { createRootRouteWithContext } from '@tanstack/react-router'
-import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 
 interface RouterContext {
-  queryClient: QueryClient
-  apiClient: ApiClient
+	queryClient: QueryClient;
+	apiClient: ApiClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  component: RootLayout,
-})
+	component: RootLayout,
+});
 
 // router.tsx — inject dependencies
-import { createRouter } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
-import { ApiClient } from '~/lib/api'
+import { createRouter } from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
+import { ApiClient } from "~/lib/api";
 
-const queryClient = new QueryClient()
-const apiClient = new ApiClient({ baseUrl: '/api' })
+const queryClient = new QueryClient();
+const apiClient = new ApiClient({ baseUrl: "/api" });
 
 const router = createRouter({
-  routeTree,
-  context: { queryClient, apiClient },
-})
+	routeTree,
+	context: { queryClient, apiClient },
+});
 
 // routes/posts.tsx — use injected dependencies
-export const Route = createFileRoute('/posts')({
-  loader: ({ context: { queryClient, apiClient } }) => {
-    // Dependencies come from context — no direct imports
-    return queryClient.ensureQueryData({
-      queryKey: ['posts'],
-      queryFn: () => apiClient.getPosts(),
-    })
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loader: ({ context: { queryClient, apiClient } }) => {
+		// Dependencies come from context — no direct imports
+		return queryClient.ensureQueryData({
+			queryKey: ["posts"],
+			queryFn: () => apiClient.getPosts(),
+		});
+	},
+});
 ```
 
 ## Good Example: Passing React Hook Values
@@ -70,48 +70,48 @@ export const Route = createFileRoute('/posts')({
 // You can't call hooks in loaders — pass hook values through context
 // router.tsx
 export const router = createRouter({
-  routeTree,
-  context: {
-    queryClient,
-    networkStrength: undefined!, // Will be set by React
-  },
-})
+	routeTree,
+	context: {
+		queryClient,
+		networkStrength: undefined!, // Will be set by React
+	},
+});
 
 // main.tsx — provide live hook values
 function App() {
-  const networkStrength = useNetworkStrength()
-  return <RouterProvider router={router} context={{ networkStrength }} />
+	const networkStrength = useNetworkStrength();
+	return <RouterProvider router={router} context={{ networkStrength }} />;
 }
 
 // routes/posts.tsx — access hook value in loader
-export const Route = createFileRoute('/posts')({
-  loader: ({ context: { networkStrength } }) => {
-    if (networkStrength === 'STRONG') {
-      return fetchPostsWithImages()
-    }
-    return fetchPostsLite()
-  },
-})
+export const Route = createFileRoute("/posts")({
+	loader: ({ context: { networkStrength } }) => {
+		if (networkStrength === "STRONG") {
+			return fetchPostsWithImages();
+		}
+		return fetchPostsLite();
+	},
+});
 ```
 
 ## Good Example: Invalidating on Context Change
 
 ```tsx
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
+	const router = useRouter();
+	const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user)
-      // Invalidate router when auth state changes
-      // Forces re-evaluation of beforeLoad and loaders
-      router.invalidate()
-    })
-    return unsubscribe
-  }, [router])
+	useEffect(() => {
+		const unsubscribe = auth.onAuthStateChanged((user) => {
+			setUser(user);
+			// Invalidate router when auth state changes
+			// Forces re-evaluation of beforeLoad and loaders
+			router.invalidate();
+		});
+		return unsubscribe;
+	}, [router]);
 
-  return <RouterProvider router={router} context={{ user }} />
+	return <RouterProvider router={router} context={{ user }} />;
 }
 ```
 

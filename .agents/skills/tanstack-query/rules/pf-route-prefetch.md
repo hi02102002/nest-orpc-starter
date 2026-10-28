@@ -10,64 +10,64 @@ Prefetch query data in route loaders so it's available instantly when the page r
 
 ```tsx
 // No prefetching — data only loads after route renders
-export const Route = createFileRoute('/posts/$postId')({
-  component: PostPage,
-})
+export const Route = createFileRoute("/posts/$postId")({
+	component: PostPage,
+});
 
 function PostPage() {
-  const { postId } = Route.useParams()
-  // Fetch starts only after component mounts — shows loading spinner
-  const { data, isPending } = useQuery({
-    queryKey: ['post', postId],
-    queryFn: () => fetchPost(postId),
-  })
+	const { postId } = Route.useParams();
+	// Fetch starts only after component mounts — shows loading spinner
+	const { data, isPending } = useQuery({
+		queryKey: ["post", postId],
+		queryFn: () => fetchPost(postId),
+	});
 
-  if (isPending) return <Skeleton />
-  return <Post data={data} />
+	if (isPending) return <Skeleton />;
+	return <Post data={data} />;
 }
 ```
 
 ## Good Example
 
 ```tsx
-export const Route = createFileRoute('/posts/$postId')({
-  loader: async ({ params, context: { queryClient } }) => {
-    // Critical data — block navigation until loaded
-    await queryClient.ensureQueryData({
-      queryKey: ['post', params.postId],
-      queryFn: () => fetchPost(params.postId),
-    })
+export const Route = createFileRoute("/posts/$postId")({
+	loader: async ({ params, context: { queryClient } }) => {
+		// Critical data — block navigation until loaded
+		await queryClient.ensureQueryData({
+			queryKey: ["post", params.postId],
+			queryFn: () => fetchPost(params.postId),
+		});
 
-    // Non-critical — prefetch but don't block navigation
-    queryClient.prefetchQuery({
-      queryKey: ['post-comments', params.postId],
-      queryFn: () => fetchComments(params.postId),
-    })
-  },
-  component: PostPage,
-})
+		// Non-critical — prefetch but don't block navigation
+		queryClient.prefetchQuery({
+			queryKey: ["post-comments", params.postId],
+			queryFn: () => fetchComments(params.postId),
+		});
+	},
+	component: PostPage,
+});
 
 function PostPage() {
-  const { postId } = Route.useParams()
+	const { postId } = Route.useParams();
 
-  // Data is already in cache — renders instantly
-  const { data: post } = useSuspenseQuery({
-    queryKey: ['post', postId],
-    queryFn: () => fetchPost(postId),
-  })
+	// Data is already in cache — renders instantly
+	const { data: post } = useSuspenseQuery({
+		queryKey: ["post", postId],
+		queryFn: () => fetchPost(postId),
+	});
 
-  // May still be loading, but won't block the page
-  const { data: comments, isPending } = useQuery({
-    queryKey: ['post-comments', postId],
-    queryFn: () => fetchComments(postId),
-  })
+	// May still be loading, but won't block the page
+	const { data: comments, isPending } = useQuery({
+		queryKey: ["post-comments", postId],
+		queryFn: () => fetchComments(postId),
+	});
 
-  return (
-    <article>
-      <PostContent post={post} />
-      {isPending ? <CommentsSkeleton /> : <Comments data={comments} />}
-    </article>
-  )
+	return (
+		<article>
+			<PostContent post={post} />
+			{isPending ? <CommentsSkeleton /> : <Comments data={comments} />}
+		</article>
+	);
 }
 ```
 
@@ -75,18 +75,18 @@ function PostPage() {
 
 ```tsx
 loader: async ({ params, context: { queryClient } }) => {
-  // Prefetch multiple independent queries in parallel
-  await Promise.all([
-    queryClient.ensureQueryData({
-      queryKey: ['post', params.postId],
-      queryFn: () => fetchPost(params.postId),
-    }),
-    queryClient.ensureQueryData({
-      queryKey: ['author', params.postId],
-      queryFn: () => fetchAuthor(params.postId),
-    }),
-  ])
-}
+	// Prefetch multiple independent queries in parallel
+	await Promise.all([
+		queryClient.ensureQueryData({
+			queryKey: ["post", params.postId],
+			queryFn: () => fetchPost(params.postId),
+		}),
+		queryClient.ensureQueryData({
+			queryKey: ["author", params.postId],
+			queryFn: () => fetchAuthor(params.postId),
+		}),
+	]);
+};
 ```
 
 ## Context

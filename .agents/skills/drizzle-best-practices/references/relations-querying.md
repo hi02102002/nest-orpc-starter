@@ -19,9 +19,9 @@ for filtering, limiting, ordering, and selecting columns.
 
 ```typescript
 const usersWithPosts = await db.query.users.findMany({
-  with: {
-    posts: true,
-  },
+	with: {
+		posts: true,
+	},
 });
 // [{ id: 1, name: "Alice", posts: [{ id: 1, title: "Hello", ... }] }]
 ```
@@ -32,10 +32,10 @@ const usersWithPosts = await db.query.users.findMany({
 
 ```typescript
 const user = await db.query.users.findFirst({
-  where: { id: 1 },
-  with: {
-    posts: true,
-  },
+	where: { id: 1 },
+	with: {
+		posts: true,
+	},
 });
 // { id: 1, name: "Alice", posts: [...] } | undefined
 ```
@@ -51,11 +51,13 @@ await db.query.users.findMany({ where: { age: 15 } });
 // → where ("users"."age" = 15)
 
 // Multiple keys are AND-ed together
-await db.query.users.findMany({ where: { age: 15, name: 'John' } });
+await db.query.users.findMany({ where: { age: 15, name: "John" } });
 // → where ("users"."age" = 15 and "users"."name" = 'John')
 
 // Operators live in a nested object
-await db.query.users.findMany({ where: { age: { gte: 18 }, name: { like: 'John%' } } });
+await db.query.users.findMany({
+	where: { age: { gte: 18 }, name: { like: "John%" } },
+});
 ```
 
 Available operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `notIn`, `like`, `ilike`,
@@ -65,31 +67,28 @@ Combine conditions with `AND`, `OR`, `NOT`, and drop to raw SQL with `RAW`:
 
 ```typescript
 await db.query.users.findMany({
-  where: {
-    OR: [
-      { id: { gt: 10 } },
-      { name: { like: 'John%' } },
-    ],
-  },
+	where: {
+		OR: [{ id: { gt: 10 } }, { name: { like: "John%" } }],
+	},
 });
 // → where ("users"."id" > 10 or "users"."name" like 'John%')
 
 await db.query.users.findMany({
-  where: {
-    NOT: { id: { gt: 10 } },
-    name: { like: 'John%' },
-  },
+	where: {
+		NOT: { id: { gt: 10 } },
+		name: { like: "John%" },
+	},
 });
 // → where (not "users"."id" > 10 and "users"."name" like 'John%')
 
 // RAW for expressions the operators don't cover (JSONB paths, BETWEEN, functions, ...)
 await db.query.users.findMany({
-  where: {
-    AND: [
-      { RAW: (table) => sql`${table.preferences}->>'theme' = 'dark'` },
-      { RAW: (table) => sql`${table.age} BETWEEN 25 AND 35` },
-    ],
-  },
+	where: {
+		AND: [
+			{ RAW: (table) => sql`${table.preferences}->>'theme' = 'dark'` },
+			{ RAW: (table) => sql`${table.age} BETWEEN 25 AND 35` },
+		],
+	},
 });
 ```
 
@@ -100,16 +99,16 @@ You can filter the parent rows by conditions on a related table — no manual jo
 ```typescript
 // Users with id > 10 who have at least one post whose content starts with "M"
 const users = await db.query.users.findMany({
-  where: {
-    id: { gt: 10 },
-    posts: { content: { like: 'M%' } },
-  },
+	where: {
+		id: { gt: 10 },
+		posts: { content: { like: "M%" } },
+	},
 });
 
 // Users who have at least one post (existence filter)
 const usersWithAnyPost = await db.query.users.findMany({
-  with: { posts: true },
-  where: { posts: true },
+	with: { posts: true },
+	where: { posts: true },
 });
 ```
 
@@ -120,8 +119,8 @@ On `drizzle-orm@^0.4x`, `where` takes a callback that receives the columns and o
 ```typescript
 // Legacy v0.45.x only
 const result = await db.query.posts.findMany({
-  where: (posts, { eq, and, gt }) =>
-    and(eq(posts.published, true), gt(posts.views, 100)),
+	where: (posts, { eq, and, gt }) =>
+		and(eq(posts.published, true), gt(posts.views, 100)),
 });
 ```
 
@@ -135,14 +134,14 @@ Nest `with` to fetch deeply related data:
 
 ```typescript
 const result = await db.query.posts.findMany({
-  with: {
-    author: true,
-    comments: {
-      with: {
-        author: true,
-      },
-    },
-  },
+	with: {
+		author: true,
+		comments: {
+			with: {
+				author: true,
+			},
+		},
+	},
 });
 // [{ id: 1, title: "Hello", author: { ... }, comments: [{ content: "...", author: { ... } }] }]
 ```
@@ -154,21 +153,21 @@ at both the top level and inside nested `with`.
 
 ```typescript
 const user = await db.query.users.findFirst({
-  where: { id: 1 },
-  with: {
-    posts: {
-      where: { published: true },
-      orderBy: { createdAt: 'desc' },
-      limit: 10,
-      offset: 0,
-      with: {
-        comments: {
-          limit: 3,
-          orderBy: { createdAt: 'desc' },
-        },
-      },
-    },
-  },
+	where: { id: 1 },
+	with: {
+		posts: {
+			where: { published: true },
+			orderBy: { createdAt: "desc" },
+			limit: 10,
+			offset: 0,
+			with: {
+				comments: {
+					limit: 3,
+					orderBy: { createdAt: "desc" },
+				},
+			},
+		},
+	},
 });
 ```
 
@@ -176,7 +175,7 @@ For expressions, `orderBy` also accepts a callback returning `sql` (no imports n
 
 ```typescript
 await db.query.posts.findMany({
-  orderBy: (t) => sql`${t.id} asc`,
+	orderBy: (t) => sql`${t.id} asc`,
 });
 ```
 
@@ -185,7 +184,7 @@ await db.query.posts.findMany({
 ```typescript
 // Legacy v0.45.x only
 await db.query.posts.findMany({
-  orderBy: [desc(posts.createdAt)],
+	orderBy: [desc(posts.createdAt)],
 });
 ```
 
@@ -196,19 +195,19 @@ transferred. This is unchanged between versions.
 
 ```typescript
 const result = await db.query.users.findMany({
-  columns: {
-    id: true,
-    name: true,
-    // email is NOT fetched
-  },
-  with: {
-    posts: {
-      columns: {
-        title: true,
-        // content, authorId, etc. are NOT fetched
-      },
-    },
-  },
+	columns: {
+		id: true,
+		name: true,
+		// email is NOT fetched
+	},
+	with: {
+		posts: {
+			columns: {
+				title: true,
+				// content, authorId, etc. are NOT fetched
+			},
+		},
+	},
 });
 ```
 
@@ -217,9 +216,9 @@ are ignored (you've already restricted the set by including).
 
 ```typescript
 const result = await db.query.users.findMany({
-  columns: {
-    password: false, // fetch everything except password
-  },
+	columns: {
+		password: false, // fetch everything except password
+	},
 });
 ```
 
@@ -231,10 +230,11 @@ ignored — the object key is the alias.
 
 ```typescript
 const result = await db.query.users.findMany({
-  extras: {
-    // callback form gives you the table and sql with no imports
-    fullName: (users, { sql }) => sql<string>`concat(${users.firstName}, ' ', ${users.lastName})`,
-  },
+	extras: {
+		// callback form gives you the table and sql with no imports
+		fullName: (users, { sql }) =>
+			sql<string>`concat(${users.firstName}, ' ', ${users.lastName})`,
+	},
 });
 // [{ id: 1, firstName: "Alice", lastName: "Smith", fullName: "Alice Smith" }]
 ```
@@ -247,30 +247,30 @@ const result = await db.query.users.findMany({
 const count = await db.query.users.findMany(); // fetches ALL rows just to count them
 // Better:
 const [{ count }] = await db
-  .select({ count: sql<number>`count(*)`.mapWith(Number) })
-  .from(users);
+	.select({ count: sql<number>`count(*)`.mapWith(Number) })
+	.from(users);
 
 // Wrong (v1): callback where — this is the legacy 0.45.x form
 const bad = await db.query.users.findMany({
-  where: (users, { eq }) => eq(users.age, 15), // ❌ on v1
+	where: (users, { eq }) => eq(users.age, 15), // ❌ on v1
 });
 // Right (v1):
 const good = await db.query.users.findMany({ where: { age: 15 } });
 
 // Wrong: deeply nesting without limits — fetches ALL related data at every level
 const result = await db.query.users.findMany({
-  with: {
-    posts: {
-      with: {
-        comments: {
-          with: {
-            author: true,
-            likes: true, // could be thousands per comment
-          },
-        },
-      },
-    },
-  },
+	with: {
+		posts: {
+			with: {
+				comments: {
+					with: {
+						author: true,
+						likes: true, // could be thousands per comment
+					},
+				},
+			},
+		},
+	},
 });
 // Always add limits when nesting deeply.
 ```

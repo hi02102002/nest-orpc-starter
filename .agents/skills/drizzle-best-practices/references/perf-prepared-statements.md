@@ -34,24 +34,24 @@ const user3 = await getUserById.execute({ id: 3 });
 Use `sql.placeholder()` for parameterized values:
 
 ```typescript
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 
 const getPostsByAuthor = db
-  .select()
-  .from(posts)
-  .where(
-    and(
-      eq(posts.authorId, sql.placeholder('authorId')),
-      eq(posts.published, sql.placeholder('published')),
-    )
-  )
-  .limit(sql.placeholder('limit'))
-  .prepare('get_posts_by_author');
+	.select()
+	.from(posts)
+	.where(
+		and(
+			eq(posts.authorId, sql.placeholder("authorId")),
+			eq(posts.published, sql.placeholder("published")),
+		),
+	)
+	.limit(sql.placeholder("limit"))
+	.prepare("get_posts_by_author");
 
 const result = await getPostsByAuthor.execute({
-  authorId: 1,
-  published: true,
-  limit: 10,
+	authorId: 1,
+	published: true,
+	limit: 10,
 });
 ```
 
@@ -70,12 +70,14 @@ The name must be unique within the connection. Use descriptive names that reflec
 In Drizzle v1, the relational `where` is object syntax, so a placeholder goes inside the operator:
 
 ```typescript
-const getUserWithPosts = db.query.users.findFirst({
-  where: { id: { eq: sql.placeholder('id') } },
-  with: {
-    posts: true,
-  },
-}).prepare('get_user_with_posts');
+const getUserWithPosts = db.query.users
+	.findFirst({
+		where: { id: { eq: sql.placeholder("id") } },
+		with: {
+			posts: true,
+		},
+	})
+	.prepare("get_user_with_posts");
 
 const result = await getUserWithPosts.execute({ id: 1 });
 ```

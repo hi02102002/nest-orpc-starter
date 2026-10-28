@@ -11,41 +11,41 @@ Route loaders are isomorphic — they run on both the server (SSR) and client (n
 ```tsx
 // DANGEROUS: loader runs on both server and client
 // process.env.SECRET is bundled into client JavaScript
-export const Route = createFileRoute('/users')({
-  loader: () => {
-    const secret = process.env.DATABASE_URL  // EXPOSED in client bundle!
-    return fetch(`${process.env.API_URL}/users`, {
-      headers: { Authorization: `Bearer ${process.env.API_SECRET}` },
-    })
-  },
-})
+export const Route = createFileRoute("/users")({
+	loader: () => {
+		const secret = process.env.DATABASE_URL; // EXPOSED in client bundle!
+		return fetch(`${process.env.API_URL}/users`, {
+			headers: { Authorization: `Bearer ${process.env.API_SECRET}` },
+		});
+	},
+});
 
 // DANGEROUS: importing server modules in route files
-import { db } from './db.server'  // Database driver bundled into client!
+import { db } from "./db.server"; // Database driver bundled into client!
 
-export const Route = createFileRoute('/posts')({
-  loader: () => db.posts.findMany(),
-})
+export const Route = createFileRoute("/posts")({
+	loader: () => db.posts.findMany(),
+});
 ```
 
 ## Good Example
 
 ```tsx
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn } from "@tanstack/react-start";
 
 // Server function - code only runs on server, replaced with RPC stub on client
 const getUsers = createServerFn().handler(async () => {
-  // Safe: this code never reaches the client bundle
-  const secret = process.env.API_SECRET
-  const response = await fetch(`${process.env.API_URL}/users`, {
-    headers: { Authorization: `Bearer ${secret}` },
-  })
-  return response.json()
-})
+	// Safe: this code never reaches the client bundle
+	const secret = process.env.API_SECRET;
+	const response = await fetch(`${process.env.API_URL}/users`, {
+		headers: { Authorization: `Bearer ${secret}` },
+	});
+	return response.json();
+});
 
-export const Route = createFileRoute('/users')({
-  loader: () => getUsers(),  // Client calls this as an RPC
-})
+export const Route = createFileRoute("/users")({
+	loader: () => getUsers(), // Client calls this as an RPC
+});
 ```
 
 ## Good Example: Environment Variable Boundaries
@@ -53,24 +53,24 @@ export const Route = createFileRoute('/users')({
 ```tsx
 // Client-safe: only VITE_ prefixed vars are available
 function AppHeader() {
-  return <h1>{import.meta.env.VITE_APP_NAME}</h1>
+	return <h1>{import.meta.env.VITE_APP_NAME}</h1>;
 }
 
 // Server-only: access any env var inside server functions
 const getConfig = createServerFn().handler(async () => {
-  return {
-    // Only return what the client needs — never return secrets
-    appName: process.env.VITE_APP_NAME,
-    featureFlags: JSON.parse(process.env.FEATURE_FLAGS ?? '{}'),
-  }
-})
+	return {
+		// Only return what the client needs — never return secrets
+		appName: process.env.VITE_APP_NAME,
+		featureFlags: JSON.parse(process.env.FEATURE_FLAGS ?? "{}"),
+	};
+});
 
 // For truly server-only utility functions
-import { createServerOnlyFn } from '@tanstack/react-start'
+import { createServerOnlyFn } from "@tanstack/react-start";
 
 const getDbConnection = createServerOnlyFn(() => {
-  return connect(process.env.DATABASE_URL)
-})
+	return connect(process.env.DATABASE_URL);
+});
 // Calling getDbConnection() on the client throws an error
 ```
 
@@ -85,13 +85,13 @@ src/utils/
 
 ```tsx
 // users.functions.ts — safe to import in components
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn } from "@tanstack/react-start";
 
 export const getUsers = createServerFn().handler(async () => {
-  // Import server-only code inside the handler
-  const { db } = await import('./users.server')
-  return db.users.findMany()
-})
+	// Import server-only code inside the handler
+	const { db } = await import("./users.server");
+	return db.users.findMany();
+});
 ```
 
 ## Context

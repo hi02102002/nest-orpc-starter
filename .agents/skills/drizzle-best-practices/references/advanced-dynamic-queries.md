@@ -11,54 +11,54 @@ Drizzle's query builder is composable, making dynamic queries natural and type-s
 Build conditions based on user input:
 
 ```typescript
-import { and, eq, like, gte, lte, SQL } from 'drizzle-orm';
+import { and, eq, like, gte, lte, SQL } from "drizzle-orm";
 
 interface Filters {
-  name?: string;
-  role?: string;
-  minAge?: number;
-  maxAge?: number;
+	name?: string;
+	role?: string;
+	minAge?: number;
+	maxAge?: number;
 }
 
 async function getUsers(filters: Filters) {
-  const conditions: SQL[] = [];
+	const conditions: SQL[] = [];
 
-  if (filters.name) {
-    conditions.push(like(users.name, `%${filters.name}%`));
-  }
-  if (filters.role) {
-    conditions.push(eq(users.role, filters.role));
-  }
-  if (filters.minAge !== undefined) {
-    conditions.push(gte(users.age, filters.minAge));
-  }
-  if (filters.maxAge !== undefined) {
-    conditions.push(lte(users.age, filters.maxAge));
-  }
+	if (filters.name) {
+		conditions.push(like(users.name, `%${filters.name}%`));
+	}
+	if (filters.role) {
+		conditions.push(eq(users.role, filters.role));
+	}
+	if (filters.minAge !== undefined) {
+		conditions.push(gte(users.age, filters.minAge));
+	}
+	if (filters.maxAge !== undefined) {
+		conditions.push(lte(users.age, filters.maxAge));
+	}
 
-  return db
-    .select()
-    .from(users)
-    .where(conditions.length > 0 ? and(...conditions) : undefined);
+	return db
+		.select()
+		.from(users)
+		.where(conditions.length > 0 ? and(...conditions) : undefined);
 }
 ```
 
 ## Dynamic ORDER BY
 
 ```typescript
-type SortField = 'name' | 'createdAt' | 'email';
-type SortDirection = 'asc' | 'desc';
+type SortField = "name" | "createdAt" | "email";
+type SortDirection = "asc" | "desc";
 
 async function getUsers(sortBy: SortField, direction: SortDirection) {
-  const column = {
-    name: users.name,
-    createdAt: users.createdAt,
-    email: users.email,
-  }[sortBy];
+	const column = {
+		name: users.name,
+		createdAt: users.createdAt,
+		email: users.email,
+	}[sortBy];
 
-  const orderFn = direction === 'desc' ? desc : asc;
+	const orderFn = direction === "desc" ? desc : asc;
 
-  return db.select().from(users).orderBy(orderFn(column));
+	return db.select().from(users).orderBy(orderFn(column));
 }
 ```
 
@@ -66,16 +66,16 @@ async function getUsers(sortBy: SortField, direction: SortDirection) {
 
 ```typescript
 async function getUsers(includeEmail: boolean) {
-  const columns: Record<string, any> = {
-    id: users.id,
-    name: users.name,
-  };
+	const columns: Record<string, any> = {
+		id: users.id,
+		name: users.name,
+	};
 
-  if (includeEmail) {
-    columns.email = users.email;
-  }
+	if (includeEmail) {
+		columns.email = users.email;
+	}
 
-  return db.select(columns).from(users);
+	return db.select(columns).from(users);
 }
 ```
 
@@ -85,12 +85,12 @@ async function getUsers(includeEmail: boolean) {
 
 ```typescript
 async function getUsers(page: number, pageSize: number) {
-  return db
-    .select()
-    .from(users)
-    .limit(pageSize)
-    .offset((page - 1) * pageSize)
-    .orderBy(users.id);
+	return db
+		.select()
+		.from(users)
+		.limit(pageSize)
+		.offset((page - 1) * pageSize)
+		.orderBy(users.id);
 }
 ```
 
@@ -98,17 +98,13 @@ async function getUsers(page: number, pageSize: number) {
 
 ```typescript
 async function getUsers(cursor?: number, pageSize = 20) {
-  const query = db
-    .select()
-    .from(users)
-    .orderBy(users.id)
-    .limit(pageSize);
+	const query = db.select().from(users).orderBy(users.id).limit(pageSize);
 
-  if (cursor) {
-    return query.where(gt(users.id, cursor));
-  }
+	if (cursor) {
+		return query.where(gt(users.id, cursor));
+	}
 
-  return query;
+	return query;
 }
 ```
 
@@ -118,11 +114,11 @@ For building queries across function boundaries:
 
 ```typescript
 function withPagination<T extends PgSelect>(
-  query: T,
-  page: number,
-  pageSize: number,
+	query: T,
+	page: number,
+	pageSize: number,
 ) {
-  return query.limit(pageSize).offset((page - 1) * pageSize);
+	return query.limit(pageSize).offset((page - 1) * pageSize);
 }
 
 // Usage
@@ -135,24 +131,24 @@ const results = await paginatedQuery;
 
 ```typescript
 interface QueryOptions {
-  includePosts?: boolean;
-  includeProfile?: boolean;
+	includePosts?: boolean;
+	includeProfile?: boolean;
 }
 
 async function getUser(id: number, options: QueryOptions) {
-  const withClause: Record<string, any> = {};
+	const withClause: Record<string, any> = {};
 
-  if (options.includePosts) {
-    withClause.posts = true;
-  }
-  if (options.includeProfile) {
-    withClause.profile = true;
-  }
+	if (options.includePosts) {
+		withClause.posts = true;
+	}
+	if (options.includeProfile) {
+		withClause.profile = true;
+	}
 
-  return db.query.users.findFirst({
-    where: { id }, // v1 object syntax; on 0.45.x: where: eq(users.id, id)
-    with: withClause,
-  });
+	return db.query.users.findFirst({
+		where: { id }, // v1 object syntax; on 0.45.x: where: eq(users.id, id)
+		with: withClause,
+	});
 }
 ```
 

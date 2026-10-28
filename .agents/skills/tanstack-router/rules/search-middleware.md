@@ -11,69 +11,75 @@ Search middlewares transform search params when generating link hrefs and upon n
 ```tsx
 // Manually retaining search params in every Link — tedious, error-prone
 function Navigation() {
-  const { locale } = Route.useSearch()
+	const { locale } = Route.useSearch();
 
-  return (
-    <nav>
-      {/* Must manually pass locale to every single link */}
-      <Link to="/dashboard" search={{ locale }}>Dashboard</Link>
-      <Link to="/settings" search={{ locale }}>Settings</Link>
-      <Link to="/profile" search={{ locale }}>Profile</Link>
-      {/* Forget one and locale is lost */}
-    </nav>
-  )
+	return (
+		<nav>
+			{/* Must manually pass locale to every single link */}
+			<Link to="/dashboard" search={{ locale }}>
+				Dashboard
+			</Link>
+			<Link to="/settings" search={{ locale }}>
+				Settings
+			</Link>
+			<Link to="/profile" search={{ locale }}>
+				Profile
+			</Link>
+			{/* Forget one and locale is lost */}
+		</nav>
+	);
 }
 ```
 
 ## Good Example: retainSearchParams
 
 ```tsx
-import { createRootRoute } from '@tanstack/react-router'
-import { retainSearchParams } from '@tanstack/react-router'
-import { z } from 'zod'
+import { createRootRoute } from "@tanstack/react-router";
+import { retainSearchParams } from "@tanstack/react-router";
+import { z } from "zod";
 
 export const Route = createRootRoute({
-  validateSearch: z.object({
-    locale: z.enum(['en', 'es', 'fr']).catch('en'),
-  }),
-  search: {
-    middlewares: [retainSearchParams(['locale'])],
-  },
-})
+	validateSearch: z.object({
+		locale: z.enum(["en", "es", "fr"]).catch("en"),
+	}),
+	search: {
+		middlewares: [retainSearchParams(["locale"])],
+	},
+});
 
 // Now locale is automatically retained on every link and navigation
 // No need to manually pass it
 function Navigation() {
-  return (
-    <nav>
-      <Link to="/dashboard">Dashboard</Link>  {/* locale auto-retained */}
-      <Link to="/settings">Settings</Link>    {/* locale auto-retained */}
-    </nav>
-  )
+	return (
+		<nav>
+			<Link to="/dashboard">Dashboard</Link> {/* locale auto-retained */}
+			<Link to="/settings">Settings</Link> {/* locale auto-retained */}
+		</nav>
+	);
 }
 ```
 
 ## Good Example: stripSearchParams
 
 ```tsx
-import { stripSearchParams } from '@tanstack/react-router'
+import { stripSearchParams } from "@tanstack/react-router";
 
 const defaultSearch = {
-  page: 1,
-  sort: 'newest',
-  filter: '',
-}
+	page: 1,
+	sort: "newest",
+	filter: "",
+};
 
-export const Route = createFileRoute('/products')({
-  validateSearch: z.object({
-    page: z.number().catch(1),
-    sort: z.enum(['newest', 'oldest', 'price']).catch('newest'),
-    filter: z.string().catch(''),
-  }),
-  search: {
-    middlewares: [stripSearchParams(defaultSearch)],
-  },
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: z.object({
+		page: z.number().catch(1),
+		sort: z.enum(["newest", "oldest", "price"]).catch("newest"),
+		filter: z.string().catch(""),
+	}),
+	search: {
+		middlewares: [stripSearchParams(defaultSearch)],
+	},
+});
 
 // URL: /products (when page=1, sort=newest, filter='')
 // URL: /products?page=2 (only non-default params shown)
@@ -83,34 +89,34 @@ export const Route = createFileRoute('/products')({
 ## Good Example: Combining Middlewares
 
 ```tsx
-export const Route = createFileRoute('/products')({
-  validateSearch: productSearchSchema,
-  search: {
-    middlewares: [
-      retainSearchParams(['locale']),
-      stripSearchParams({ page: 1, sort: 'newest' }),
-    ],
-  },
-})
+export const Route = createFileRoute("/products")({
+	validateSearch: productSearchSchema,
+	search: {
+		middlewares: [
+			retainSearchParams(["locale"]),
+			stripSearchParams({ page: 1, sort: "newest" }),
+		],
+	},
+});
 ```
 
 ## Good Example: Custom Middleware
 
 ```tsx
 export const Route = createRootRoute({
-  validateSearch: searchSchema,
-  search: {
-    middlewares: [
-      ({ search, next }) => {
-        const result = next(search)
-        return {
-          rootValue: search.rootValue, // Always preserve rootValue
-          ...result,
-        }
-      },
-    ],
-  },
-})
+	validateSearch: searchSchema,
+	search: {
+		middlewares: [
+			({ search, next }) => {
+				const result = next(search);
+				return {
+					rootValue: search.rootValue, // Always preserve rootValue
+					...result,
+				};
+			},
+		],
+	},
+});
 ```
 
 ## Context

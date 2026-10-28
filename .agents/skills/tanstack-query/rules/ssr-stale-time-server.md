@@ -11,24 +11,24 @@ When using SSR, set a default `staleTime` above 0 for the server-side `QueryClie
 ```tsx
 // Server-side prefetch
 export async function getServerSideProps() {
-  const queryClient = new QueryClient() // staleTime defaults to 0
+	const queryClient = new QueryClient(); // staleTime defaults to 0
 
-  await queryClient.prefetchQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-  })
+	await queryClient.prefetchQuery({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+	});
 
-  return { props: { dehydratedState: dehydrate(queryClient) } }
+	return { props: { dehydratedState: dehydrate(queryClient) } };
 }
 
 // Client — data from server is immediately stale
 // Every query refetches on mount, doubling network requests
 function Posts() {
-  const { data } = useQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-    // staleTime: 0 → instant refetch after hydration
-  })
+	const { data } = useQuery({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+		// staleTime: 0 → instant refetch after hydration
+	});
 }
 ```
 
@@ -37,33 +37,33 @@ function Posts() {
 ```tsx
 // Set staleTime as a default for the SSR QueryClient
 export async function getServerSideProps() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000, // Data stays fresh for 1 minute
-      },
-    },
-  })
+	const queryClient = new QueryClient({
+		defaultOptions: {
+			queries: {
+				staleTime: 60 * 1000, // Data stays fresh for 1 minute
+			},
+		},
+	});
 
-  await queryClient.prefetchQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-  })
+	await queryClient.prefetchQuery({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+	});
 
-  return { props: { dehydratedState: dehydrate(queryClient) } }
+	return { props: { dehydratedState: dehydrate(queryClient) } };
 }
 
 // Client-side QueryClient should match
 const [queryClient] = React.useState(
-  () =>
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: 60 * 1000, // Same as server — no refetch within 1 minute
-        },
-      },
-    })
-)
+	() =>
+		new QueryClient({
+			defaultOptions: {
+				queries: {
+					staleTime: 60 * 1000, // Same as server — no refetch within 1 minute
+				},
+			},
+		}),
+);
 ```
 
 ## Good Example: Shared Config
@@ -71,13 +71,13 @@ const [queryClient] = React.useState(
 ```tsx
 // Shared QueryClient factory for both server and client
 function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000,
-      },
-    },
-  })
+	return new QueryClient({
+		defaultOptions: {
+			queries: {
+				staleTime: 60 * 1000,
+			},
+		},
+	});
 }
 
 // Server: new client per request

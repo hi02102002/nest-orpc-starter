@@ -1,4 +1,5 @@
 ---
+
 name: tanstack-start-best-practices
 description: TanStack Start best practices for full-stack React applications. Server functions, middleware, SSR, authentication, and deployment patterns. Activate when building full-stack apps with TanStack Start.
 ---
@@ -19,18 +20,18 @@ Comprehensive guidelines for implementing TanStack Start patterns in full-stack 
 
 ## Rule Categories by Priority
 
-| Priority | Category | Rules | Impact |
-|----------|----------|-------|--------|
-| CRITICAL | Server Functions | 5 rules | Core data mutation patterns |
-| CRITICAL | Security | 4 rules | Prevents vulnerabilities |
-| HIGH | Middleware | 4 rules | Request/response handling |
-| HIGH | Authentication | 4 rules | Secure user sessions |
-| MEDIUM | API Routes | 1 rule | External endpoint patterns |
-| MEDIUM | SSR | 5 rules | Server rendering patterns |
-| MEDIUM | Error Handling | 3 rules | Graceful failure handling |
-| MEDIUM | Environment | 1 rule | Configuration management |
-| LOW | File Organization | 3 rules | Maintainable code structure |
-| LOW | Deployment | 2 rules | Production readiness |
+| Priority | Category          | Rules   | Impact                      |
+| -------- | ----------------- | ------- | --------------------------- |
+| CRITICAL | Server Functions  | 5 rules | Core data mutation patterns |
+| CRITICAL | Security          | 4 rules | Prevents vulnerabilities    |
+| HIGH     | Middleware        | 4 rules | Request/response handling   |
+| HIGH     | Authentication    | 4 rules | Secure user sessions        |
+| MEDIUM   | API Routes        | 1 rule  | External endpoint patterns  |
+| MEDIUM   | SSR               | 5 rules | Server rendering patterns   |
+| MEDIUM   | Error Handling    | 3 rules | Graceful failure handling   |
+| MEDIUM   | Environment       | 1 rule  | Configuration management    |
+| LOW      | File Organization | 3 rules | Maintainable code structure |
+| LOW      | Deployment        | 2 rules | Production readiness        |
 
 ## Quick Reference
 

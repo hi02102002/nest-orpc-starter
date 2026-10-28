@@ -45,16 +45,16 @@ Reference these guidelines when:
 
 ## Rule Categories by Priority
 
-| Priority | Category | Impact | Prefix |
-|----------|----------|--------|--------|
-| 1 | Schema Design | CRITICAL | `schema-` |
-| 2 | Query Patterns | CRITICAL | `query-` |
-| 3 | Relations | HIGH | `relations-` |
-| 4 | Migrations | HIGH | `migrations-` |
-| 5 | Type Safety | MEDIUM-HIGH | `types-` |
-| 6 | Performance | MEDIUM | `perf-` |
-| 7 | Database Drivers | MEDIUM | `driver-` |
-| 8 | Advanced Patterns | LOW | `advanced-` |
+| Priority | Category          | Impact      | Prefix        |
+| -------- | ----------------- | ----------- | ------------- |
+| 1        | Schema Design     | CRITICAL    | `schema-`     |
+| 2        | Query Patterns    | CRITICAL    | `query-`      |
+| 3        | Relations         | HIGH        | `relations-`  |
+| 4        | Migrations        | HIGH        | `migrations-` |
+| 5        | Type Safety       | MEDIUM-HIGH | `types-`      |
+| 6        | Performance       | MEDIUM      | `perf-`       |
+| 7        | Database Drivers  | MEDIUM      | `driver-`     |
+| 8        | Advanced Patterns | LOW         | `advanced-`   |
 
 ## How to Use
 

@@ -23,44 +23,46 @@ const mutation = useMutation({
 
 ```tsx
 const mutation = useMutation({
-  mutationFn: createPost,
-  onError: (error) => {
-    toast.error(`Failed to create post: ${error.message}`)
-  },
-  onSuccess: () => {
-    toast.success('Post created!')
-    queryClient.invalidateQueries({ queryKey: ['posts'] })
-  },
-})
+	mutationFn: createPost,
+	onError: (error) => {
+		toast.error(`Failed to create post: ${error.message}`);
+	},
+	onSuccess: () => {
+		toast.success("Post created!");
+		queryClient.invalidateQueries({ queryKey: ["posts"] });
+	},
+});
 ```
 
 ## Good Example: Inline Error Display with reset()
 
 ```tsx
 function CreatePostForm() {
-  const mutation = useMutation({ mutationFn: createPost })
+	const mutation = useMutation({ mutationFn: createPost });
 
-  return (
-    <form onSubmit={(e) => {
-      e.preventDefault()
-      mutation.mutate(formData)
-    }}>
-      {/* ... form fields ... */}
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				mutation.mutate(formData);
+			}}
+		>
+			{/* ... form fields ... */}
 
-      {mutation.isError && (
-        <div className="error">
-          <p>Error: {mutation.error.message}</p>
-          <button type="button" onClick={() => mutation.reset()}>
-            Dismiss
-          </button>
-        </div>
-      )}
+			{mutation.isError && (
+				<div className="error">
+					<p>Error: {mutation.error.message}</p>
+					<button type="button" onClick={() => mutation.reset()}>
+						Dismiss
+					</button>
+				</div>
+			)}
 
-      <button type="submit" disabled={mutation.isPending}>
-        {mutation.isPending ? 'Creating...' : 'Create Post'}
-      </button>
-    </form>
-  )
+			<button type="submit" disabled={mutation.isPending}>
+				{mutation.isPending ? "Creating..." : "Create Post"}
+			</button>
+		</form>
+	);
 }
 ```
 
@@ -68,13 +70,13 @@ function CreatePostForm() {
 
 ```tsx
 async function handleSubmit(data: FormData) {
-  try {
-    const result = await mutation.mutateAsync(data)
-    router.navigate({ to: `/posts/${result.id}` })
-  } catch (error) {
-    // Error is also stored in mutation.error
-    // Handle navigation-blocking errors here
-  }
+	try {
+		const result = await mutation.mutateAsync(data);
+		router.navigate({ to: `/posts/${result.id}` });
+	} catch (error) {
+		// Error is also stored in mutation.error
+		// Handle navigation-blocking errors here
+	}
 }
 ```
 

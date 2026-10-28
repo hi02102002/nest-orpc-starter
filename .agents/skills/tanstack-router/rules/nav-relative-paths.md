@@ -11,15 +11,15 @@ TanStack Router navigation uses `from` (origin) and `to` (destination). When `fr
 ```tsx
 // No 'from' — relative navigation has no context
 function PostActions() {
-  return (
-    <div>
-      {/* to=".." without from — TypeScript doesn't know the current route */}
-      <Link to="..">Back to Posts</Link>
+	return (
+		<div>
+			{/* to=".." without from — TypeScript doesn't know the current route */}
+			<Link to="..">Back to Posts</Link>
 
-      {/* Interpolating params into path — loses type safety */}
-      <Link to={`/posts/${postId}/edit`}>Edit</Link>
-    </div>
-  )
+			{/* Interpolating params into path — loses type safety */}
+			<Link to={`/posts/${postId}/edit`}>Edit</Link>
+		</div>
+	);
 }
 ```
 
@@ -27,29 +27,29 @@ function PostActions() {
 
 ```tsx
 function PostActions() {
-  return (
-    <div>
-      {/* to="." reloads the current route / from path */}
-      <Link from="/posts/$postId" to=".">
-        Refresh
-      </Link>
+	return (
+		<div>
+			{/* to="." reloads the current route / from path */}
+			<Link from="/posts/$postId" to=".">
+				Refresh
+			</Link>
 
-      {/* to=".." navigates to the first parent route */}
-      <Link from="/posts/$postId" to="..">
-        Back to Posts
-      </Link>
+			{/* to=".." navigates to the first parent route */}
+			<Link from="/posts/$postId" to="..">
+				Back to Posts
+			</Link>
 
-      {/* Relative navigation to a sibling */}
-      <Link from="/posts/$postId" to="./edit">
-        Edit Post
-      </Link>
+			{/* Relative navigation to a sibling */}
+			<Link from="/posts/$postId" to="./edit">
+				Edit Post
+			</Link>
 
-      {/* Absolute navigation with type-safe params */}
-      <Link to="/posts/$postId/edit" params={{ postId: '123' }}>
-        Edit Post
-      </Link>
-    </div>
-  )
+			{/* Absolute navigation with type-safe params */}
+			<Link to="/posts/$postId/edit" params={{ postId: "123" }}>
+				Edit Post
+			</Link>
+		</div>
+	);
 }
 ```
 
@@ -58,17 +58,21 @@ function PostActions() {
 ```tsx
 // Route.fullPath provides the correct 'from' for the current route
 function PostPage() {
-  return (
-    <div>
-      <Link from={Route.fullPath} to="..">
-        Back to Posts
-      </Link>
+	return (
+		<div>
+			<Link from={Route.fullPath} to="..">
+				Back to Posts
+			</Link>
 
-      <Link from={Route.fullPath} to="." search={(prev) => ({ ...prev, tab: 'comments' })}>
-        Comments Tab
-      </Link>
-    </div>
-  )
+			<Link
+				from={Route.fullPath}
+				to="."
+				search={(prev) => ({ ...prev, tab: "comments" })}
+			>
+				Comments Tab
+			</Link>
+		</div>
+	);
 }
 ```
 
@@ -76,26 +80,26 @@ function PostPage() {
 
 ```tsx
 function PostPage() {
-  // 'from' set at hook level — all navigate calls are relative to this route
-  const navigate = useNavigate({ from: '/posts/$postId' })
+	// 'from' set at hook level — all navigate calls are relative to this route
+	const navigate = useNavigate({ from: "/posts/$postId" });
 
-  const handleDelete = async () => {
-    await deletePost()
-    navigate({ to: '..' }) // Go to /posts
-  }
+	const handleDelete = async () => {
+		await deletePost();
+		navigate({ to: ".." }); // Go to /posts
+	};
 
-  const handleDuplicate = async () => {
-    const newPost = await duplicatePost()
-    navigate({ to: '.', params: { postId: newPost.id } }) // Stay on same route, different param
-  }
+	const handleDuplicate = async () => {
+		const newPost = await duplicatePost();
+		navigate({ to: ".", params: { postId: newPost.id } }); // Stay on same route, different param
+	};
 }
 ```
 
 ## Special Relative Paths
 
-| Path | Meaning |
-|---|---|
-| `to="."` | Current route / `from` path |
+| Path      | Meaning                      |
+| --------- | ---------------------------- |
+| `to="."`  | Current route / `from` path  |
 | `to=".."` | First parent route of `from` |
 
 ## Context

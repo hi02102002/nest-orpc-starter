@@ -14,10 +14,10 @@ available with the Neon HTTP driver.
 
 ```typescript
 const batchResponse = await db.batch([
-  db.insert(users).values({ id: 1, name: 'Alice' }).returning({ id: users.id }),
-  db.update(users).set({ name: 'Alice Updated' }).where(eq(users.id, 1)),
-  db.query.users.findMany({}),
-  db.select().from(users).where(eq(users.id, 1)),
+	db.insert(users).values({ id: 1, name: "Alice" }).returning({ id: users.id }),
+	db.update(users).set({ name: "Alice Updated" }).where(eq(users.id, 1)),
+	db.query.users.findMany({}),
+	db.select().from(users).where(eq(users.id, 1)),
 ]);
 ```
 
@@ -25,10 +25,10 @@ The response is a typed tuple matching the order of your statements:
 
 ```typescript
 type BatchResponse = [
-  { id: number }[],              // insert returning
-  ResultSet,                      // update result
-  { id: number; name: string }[], // relational query
-  { id: number; name: string }[], // select
+	{ id: number }[], // insert returning
+	ResultSet, // update result
+	{ id: number; name: string }[], // relational query
+	{ id: number; name: string }[], // select
 ];
 ```
 
@@ -36,11 +36,11 @@ If any statement fails, the entire batch is rolled back (transactional).
 
 ## Driver Support
 
-| Driver | Batch Support |
-|--------|---------------|
-| Neon HTTP | Yes |
+| Driver        | Batch Support         |
+| ------------- | --------------------- |
+| Neon HTTP     | Yes                   |
 | node-postgres | No (use transactions) |
-| postgres.js | No (use transactions) |
+| postgres.js   | No (use transactions) |
 
 For Postgres, the batch API is primarily available with Neon HTTP. With node-postgres or
 postgres.js, use transactions instead to group multiple operations.
@@ -51,10 +51,10 @@ For inserting many rows at once, pass an array to `.values()`:
 
 ```typescript
 await db.insert(users).values([
-  { name: 'Alice', email: 'alice@example.com' },
-  { name: 'Bob', email: 'bob@example.com' },
-  { name: 'Charlie', email: 'charlie@example.com' },
-  // ... hundreds of rows
+	{ name: "Alice", email: "alice@example.com" },
+	{ name: "Bob", email: "bob@example.com" },
+	{ name: "Charlie", email: "charlie@example.com" },
+	// ... hundreds of rows
 ]);
 ```
 
@@ -91,16 +91,16 @@ Both group multiple operations, but they serve different purposes:
 ```typescript
 // Transaction — use when statements depend on each other
 await db.transaction(async (tx) => {
-  const [user] = await tx.insert(users).values({ name: 'Alice' }).returning();
-  // user.id is available for the next statement
-  await tx.insert(posts).values({ authorId: user.id, title: 'First post' });
+	const [user] = await tx.insert(users).values({ name: "Alice" }).returning();
+	// user.id is available for the next statement
+	await tx.insert(posts).values({ authorId: user.id, title: "First post" });
 });
 
 // Batch — use when statements are independent
 const results = await db.batch([
-  db.insert(users).values({ name: 'Alice' }),
-  db.insert(users).values({ name: 'Bob' }),
-  db.select().from(posts).where(eq(posts.published, true)),
+	db.insert(users).values({ name: "Alice" }),
+	db.insert(users).values({ name: "Bob" }),
+	db.select().from(posts).where(eq(posts.published, true)),
 ]);
 ```
 

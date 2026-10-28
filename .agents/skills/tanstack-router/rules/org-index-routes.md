@@ -21,20 +21,20 @@ routes/
 ```tsx
 // Putting default content in the layout instead of an index route
 // routes/posts.tsx
-export const Route = createFileRoute('/posts')({
-  component: PostsLayout,
-})
+export const Route = createFileRoute("/posts")({
+	component: PostsLayout,
+});
 
 function PostsLayout() {
-  const params = Route.useParams()
-  return (
-    <div>
-      <PostsSidebar />
-      {/* Mixing layout and index concerns — breaks when children render */}
-      {!params.postId && <p>Select a post</p>}
-      <Outlet />
-    </div>
-  )
+	const params = Route.useParams();
+	return (
+		<div>
+			<PostsSidebar />
+			{/* Mixing layout and index concerns — breaks when children render */}
+			{!params.postId && <p>Select a post</p>}
+			<Outlet />
+		</div>
+	);
 }
 ```
 
@@ -49,32 +49,32 @@ routes/
 
 ```tsx
 // routes/posts.tsx — pure layout, always renders
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/posts')({
-  component: PostsLayout,
-})
+export const Route = createFileRoute("/posts")({
+	component: PostsLayout,
+});
 
 function PostsLayout() {
-  return (
-    <div className="flex">
-      <PostsSidebar />
-      <main>
-        <Outlet /> {/* Index or child route renders here */}
-      </main>
-    </div>
-  )
+	return (
+		<div className="flex">
+			<PostsSidebar />
+			<main>
+				<Outlet /> {/* Index or child route renders here */}
+			</main>
+		</div>
+	);
 }
 
 // routes/posts.index.tsx — shows when at /posts exactly
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/posts/')({
-  component: PostsIndex,
-})
+export const Route = createFileRoute("/posts/")({
+	component: PostsIndex,
+});
 
 function PostsIndex() {
-  return <p>Select a post from the sidebar to get started.</p>
+	return <p>Select a post from the sidebar to get started.</p>;
 }
 ```
 

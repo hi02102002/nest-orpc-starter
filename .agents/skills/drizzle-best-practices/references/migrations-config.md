@@ -10,28 +10,28 @@ generate, push will fail, or you'll accidentally target the wrong database.
 
 ```typescript
 // drizzle.config.ts
-import { defineConfig } from 'drizzle-kit';
+import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  dialect: 'postgresql',
-  schema: './src/db/schema.ts',
-  out: './drizzle',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
+	dialect: "postgresql",
+	schema: "./src/db/schema.ts",
+	out: "./drizzle",
+	dbCredentials: {
+		url: process.env.DATABASE_URL!,
+	},
 });
 ```
 
 ## Configuration Options
 
-| Option | Required | Description |
-|--------|----------|-------------|
-| `dialect` | Yes | `'postgresql'` for Postgres |
-| `schema` | Yes | Path(s) to your schema file(s). Supports glob patterns. |
-| `out` | No | Directory for migration files. Defaults to `./drizzle`. |
-| `dbCredentials` | For push/pull/migrate | Connection details for your database. |
-| `strict` | No | Prompt for confirmation on potentially destructive changes. |
-| `verbose` | No | Log SQL statements during migration. |
+| Option          | Required              | Description                                                 |
+| --------------- | --------------------- | ----------------------------------------------------------- |
+| `dialect`       | Yes                   | `'postgresql'` for Postgres                                 |
+| `schema`        | Yes                   | Path(s) to your schema file(s). Supports glob patterns.     |
+| `out`           | No                    | Directory for migration files. Defaults to `./drizzle`.     |
+| `dbCredentials` | For push/pull/migrate | Connection details for your database.                       |
+| `strict`        | No                    | Prompt for confirmation on potentially destructive changes. |
+| `verbose`       | No                    | Log SQL statements during migration.                        |
 
 ## Multiple Schema Files
 
@@ -39,12 +39,12 @@ If your schema is split across files, use a glob pattern or array:
 
 ```typescript
 export default defineConfig({
-  dialect: 'postgresql',
-  schema: './src/db/schema/*.ts', // glob pattern
-  out: './drizzle',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
+	dialect: "postgresql",
+	schema: "./src/db/schema/*.ts", // glob pattern
+	out: "./drizzle",
+	dbCredentials: {
+		url: process.env.DATABASE_URL!,
+	},
 });
 ```
 
@@ -59,18 +59,18 @@ schema: ['./src/db/schema/users.ts', './src/db/schema/posts.ts'],
 If you use `.env` files, load them before accessing `process.env`:
 
 ```typescript
-import { config } from 'dotenv';
-import { defineConfig } from 'drizzle-kit';
+import { config } from "dotenv";
+import { defineConfig } from "drizzle-kit";
 
-config({ path: '.env' });
+config({ path: ".env" });
 
 export default defineConfig({
-  dialect: 'postgresql',
-  schema: './src/db/schema.ts',
-  out: './drizzle',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
+	dialect: "postgresql",
+	schema: "./src/db/schema.ts",
+	out: "./drizzle",
+	dbCredentials: {
+		url: process.env.DATABASE_URL!,
+	},
 });
 ```
 

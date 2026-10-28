@@ -11,17 +11,17 @@ Beyond automatic intent-based preloading on `<Link>` hover, you can manually pre
 ```tsx
 // Preloading everything eagerly on mount — wastes bandwidth
 function App() {
-  const router = useRouter()
+	const router = useRouter();
 
-  useEffect(() => {
-    // Loading ALL routes on app init is wasteful
-    router.preloadRoute({ to: '/dashboard' })
-    router.preloadRoute({ to: '/settings' })
-    router.preloadRoute({ to: '/profile' })
-    router.preloadRoute({ to: '/posts' })
-    router.preloadRoute({ to: '/analytics' })
-    // ...every route in the app
-  }, [])
+	useEffect(() => {
+		// Loading ALL routes on app init is wasteful
+		router.preloadRoute({ to: "/dashboard" });
+		router.preloadRoute({ to: "/settings" });
+		router.preloadRoute({ to: "/profile" });
+		router.preloadRoute({ to: "/posts" });
+		router.preloadRoute({ to: "/analytics" });
+		// ...every route in the app
+	}, []);
 }
 ```
 
@@ -29,14 +29,14 @@ function App() {
 
 ```tsx
 function WizardStep2() {
-  const router = useRouter()
+	const router = useRouter();
 
-  useEffect(() => {
-    // User is on step 2 — preload step 3 (most likely next action)
-    router.preloadRoute({ to: '/wizard/step-3' })
-  }, [router])
+	useEffect(() => {
+		// User is on step 2 — preload step 3 (most likely next action)
+		router.preloadRoute({ to: "/wizard/step-3" });
+	}, [router]);
 
-  return <div>{/* Step 2 content */}</div>
+	return <div>{/* Step 2 content */}</div>;
 }
 ```
 
@@ -44,30 +44,30 @@ function WizardStep2() {
 
 ```tsx
 function PostList() {
-  const router = useRouter()
-  const posts = Route.useLoaderData()
+	const router = useRouter();
+	const posts = Route.useLoaderData();
 
-  useEffect(() => {
-    // Preload the first few posts that the user is likely to click
-    posts.slice(0, 3).forEach((post) => {
-      router.preloadRoute({
-        to: '/posts/$postId',
-        params: { postId: post.id },
-      })
-    })
-  }, [router, posts])
+	useEffect(() => {
+		// Preload the first few posts that the user is likely to click
+		posts.slice(0, 3).forEach((post) => {
+			router.preloadRoute({
+				to: "/posts/$postId",
+				params: { postId: post.id },
+			});
+		});
+	}, [router, posts]);
 
-  return (
-    <ul>
-      {posts.map((post) => (
-        <li key={post.id}>
-          <Link to="/posts/$postId" params={{ postId: post.id }}>
-            {post.title}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  )
+	return (
+		<ul>
+			{posts.map((post) => (
+				<li key={post.id}>
+					<Link to="/posts/$postId" params={{ postId: post.id }}>
+						{post.title}
+					</Link>
+				</li>
+			))}
+		</ul>
+	);
 }
 ```
 
@@ -75,18 +75,18 @@ function PostList() {
 
 ```tsx
 function App() {
-  const router = useRouter()
+	const router = useRouter();
 
-  useEffect(() => {
-    // Preload only the code chunks (no data fetching)
-    // Useful for routes behind auth or feature flags
-    Promise.all([
-      router.loadRouteChunk(router.routesByPath['/dashboard']),
-      router.loadRouteChunk(router.routesByPath['/settings']),
-    ]).catch(() => {
-      // Failed to preload chunks — non-critical, ignore
-    })
-  }, [router])
+	useEffect(() => {
+		// Preload only the code chunks (no data fetching)
+		// Useful for routes behind auth or feature flags
+		Promise.all([
+			router.loadRouteChunk(router.routesByPath["/dashboard"]),
+			router.loadRouteChunk(router.routesByPath["/settings"]),
+		]).catch(() => {
+			// Failed to preload chunks — non-critical, ignore
+		});
+	}, [router]);
 }
 ```
 
@@ -95,12 +95,12 @@ function App() {
 ```tsx
 // Preload full route (data + code chunks)
 const matches = await router.preloadRoute({
-  to: '/posts/$postId',
-  params: { postId: '123' },
-})
+	to: "/posts/$postId",
+	params: { postId: "123" },
+});
 
 // Preload only the JS chunk (no loader execution)
-await router.loadRouteChunk(router.routesByPath['/posts'])
+await router.loadRouteChunk(router.routesByPath["/posts"]);
 ```
 
 ## Context

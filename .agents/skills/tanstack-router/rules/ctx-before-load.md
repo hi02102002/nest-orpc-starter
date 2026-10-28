@@ -10,90 +10,92 @@ Use `beforeLoad` to extend or modify the route context before the loader runs. C
 
 ```tsx
 // Duplicating auth checks in every loader
-export const Route = createFileRoute('/dashboard')({
-  loader: async ({ context }) => {
-    // Auth check in loader — runs after beforeLoad, too late for redirects
-    if (!context.user) {
-      throw redirect({ to: '/login' })
-    }
-    return fetchDashboard(context.user.id)
-  },
-})
+export const Route = createFileRoute("/dashboard")({
+	loader: async ({ context }) => {
+		// Auth check in loader — runs after beforeLoad, too late for redirects
+		if (!context.user) {
+			throw redirect({ to: "/login" });
+		}
+		return fetchDashboard(context.user.id);
+	},
+});
 
-export const Route = createFileRoute('/dashboard/settings')({
-  loader: async ({ context }) => {
-    // Same auth check duplicated — if parent didn't check, child must
-    if (!context.user) {
-      throw redirect({ to: '/login' })
-    }
-    return fetchSettings(context.user.id)
-  },
-})
+export const Route = createFileRoute("/dashboard/settings")({
+	loader: async ({ context }) => {
+		// Same auth check duplicated — if parent didn't check, child must
+		if (!context.user) {
+			throw redirect({ to: "/login" });
+		}
+		return fetchSettings(context.user.id);
+	},
+});
 ```
 
 ## Good Example
 
 ```tsx
 // routes/dashboard.tsx — auth check once in beforeLoad, inherited by children
-export const Route = createFileRoute('/dashboard')({
-  beforeLoad: async ({ context }) => {
-    if (!context.user) {
-      throw redirect({ to: '/login' })
-    }
+export const Route = createFileRoute("/dashboard")({
+	beforeLoad: async ({ context }) => {
+		if (!context.user) {
+			throw redirect({ to: "/login" });
+		}
 
-    // Return additional context for this route and all children
-    return {
-      dashboardApi: createDashboardApi(context.user.token),
-    }
-  },
-  loader: ({ context: { dashboardApi } }) => {
-    // dashboardApi is available — typed and guaranteed by beforeLoad
-    return dashboardApi.getOverview()
-  },
-})
+		// Return additional context for this route and all children
+		return {
+			dashboardApi: createDashboardApi(context.user.token),
+		};
+	},
+	loader: ({ context: { dashboardApi } }) => {
+		// dashboardApi is available — typed and guaranteed by beforeLoad
+		return dashboardApi.getOverview();
+	},
+});
 
 // routes/dashboard.settings.tsx — inherits auth + dashboardApi
-export const Route = createFileRoute('/dashboard/settings')({
-  loader: ({ context: { dashboardApi } }) => {
-    // No auth check needed — parent's beforeLoad already handled it
-    // dashboardApi is available from parent context
-    return dashboardApi.getSettings()
-  },
-})
+export const Route = createFileRoute("/dashboard/settings")({
+	loader: ({ context: { dashboardApi } }) => {
+		// No auth check needed — parent's beforeLoad already handled it
+		// dashboardApi is available from parent context
+		return dashboardApi.getSettings();
+	},
+});
 ```
 
 ## Good Example: Building Context Incrementally
 
 ```tsx
 // routes/__root.tsx — base context
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  component: RootLayout,
-})
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+	{
+		component: RootLayout,
+	},
+);
 
 // routes/_auth.tsx — adds user context
-export const Route = createFileRoute('/_auth')({
-  beforeLoad: async ({ context }) => {
-    const user = await context.queryClient.ensureQueryData(currentUserQuery())
-    if (!user) throw redirect({ to: '/login' })
-    return { user } // Now all _auth children have context.user
-  },
-})
+export const Route = createFileRoute("/_auth")({
+	beforeLoad: async ({ context }) => {
+		const user = await context.queryClient.ensureQueryData(currentUserQuery());
+		if (!user) throw redirect({ to: "/login" });
+		return { user }; // Now all _auth children have context.user
+	},
+});
 
 // routes/_auth.dashboard.tsx — adds dashboard-specific context
-export const Route = createFileRoute('/_auth/dashboard')({
-  beforeLoad: ({ context }) => {
-    // context.queryClient from root + context.user from _auth
-    return {
-      canManageUsers: context.user.role === 'admin',
-    }
-  },
-  loader: ({ context }) => {
-    // Has: queryClient, user, canManageUsers
-    context.queryClient  // from root
-    context.user         // from _auth beforeLoad
-    context.canManageUsers // from this route's beforeLoad
-  },
-})
+export const Route = createFileRoute("/_auth/dashboard")({
+	beforeLoad: ({ context }) => {
+		// context.queryClient from root + context.user from _auth
+		return {
+			canManageUsers: context.user.role === "admin",
+		};
+	},
+	loader: ({ context }) => {
+		// Has: queryClient, user, canManageUsers
+		context.queryClient; // from root
+		context.user; // from _auth beforeLoad
+		context.canManageUsers; // from this route's beforeLoad
+	},
+});
 ```
 
 ## Execution Order

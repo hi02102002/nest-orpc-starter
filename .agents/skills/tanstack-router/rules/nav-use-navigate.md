@@ -11,40 +11,42 @@ Use `useNavigate()` for programmatic navigation triggered by side effects — fo
 ```tsx
 // Using window.location or manual history manipulation
 function CreatePostForm() {
-  const handleSubmit = async (data: PostData) => {
-    const post = await createPost(data)
-    window.location.href = `/posts/${post.id}` // Full page reload, loses state
-  }
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+	const handleSubmit = async (data: PostData) => {
+		const post = await createPost(data);
+		window.location.href = `/posts/${post.id}`; // Full page reload, loses state
+	};
+	return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 
 // Using Link for side-effect-driven navigation
 function CreatePostForm() {
-  const [newPostId, setNewPostId] = useState<string | null>(null)
-  // Awkward: rendering a hidden Link and clicking it programmatically
-  return newPostId ? <Navigate to="/posts/$postId" params={{ postId: newPostId }} /> : null
+	const [newPostId, setNewPostId] = useState<string | null>(null);
+	// Awkward: rendering a hidden Link and clicking it programmatically
+	return newPostId ? (
+		<Navigate to="/posts/$postId" params={{ postId: newPostId }} />
+	) : null;
 }
 ```
 
 ## Good Example
 
 ```tsx
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate } from "@tanstack/react-router";
 
 function CreatePostForm() {
-  // Pass 'from' at the hook level for type safety
-  const navigate = useNavigate({ from: '/posts/new' })
+	// Pass 'from' at the hook level for type safety
+	const navigate = useNavigate({ from: "/posts/new" });
 
-  const handleSubmit = async (data: PostData) => {
-    const post = await createPost(data)
+	const handleSubmit = async (data: PostData) => {
+		const post = await createPost(data);
 
-    navigate({
-      to: '/posts/$postId',
-      params: { postId: post.id },
-    })
-  }
+		navigate({
+			to: "/posts/$postId",
+			params: { postId: post.id },
+		});
+	};
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+	return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 ```
 
@@ -52,35 +54,35 @@ function CreatePostForm() {
 
 ```tsx
 function LoginForm() {
-  const navigate = useNavigate()
+	const navigate = useNavigate();
 
-  const handleLogin = async (credentials: Credentials) => {
-    await authenticate(credentials)
+	const handleLogin = async (credentials: Credentials) => {
+		await authenticate(credentials);
 
-    navigate({
-      to: '/dashboard',
-      replace: true,        // Replace login page in history
-      resetScroll: true,    // Scroll to top
-    })
-  }
+		navigate({
+			to: "/dashboard",
+			replace: true, // Replace login page in history
+			resetScroll: true, // Scroll to top
+		});
+	};
 
-  return <form onSubmit={handleLogin}>{/* ... */}</form>
+	return <form onSubmit={handleLogin}>{/* ... */}</form>;
 }
 
 function FilterButton({ sort }: { sort: string }) {
-  const navigate = useNavigate({ from: '/products' })
+	const navigate = useNavigate({ from: "/products" });
 
-  return (
-    <button
-      onClick={() =>
-        navigate({
-          search: (prev) => ({ ...prev, sort, page: 1 }),
-        })
-      }
-    >
-      Sort by {sort}
-    </button>
-  )
+	return (
+		<button
+			onClick={() =>
+				navigate({
+					search: (prev) => ({ ...prev, sort, page: 1 }),
+				})
+			}
+		>
+			Sort by {sort}
+		</button>
+	);
 }
 ```
 
@@ -89,28 +91,28 @@ function FilterButton({ sort }: { sort: string }) {
 ```tsx
 // Route.useNavigate() has 'from' pre-set to the current route
 function PostActions() {
-  const navigate = Route.useNavigate()
+	const navigate = Route.useNavigate();
 
-  const handleDelete = async () => {
-    await deletePost()
-    navigate({ to: '..', })  // Navigate to parent route
-  }
+	const handleDelete = async () => {
+		await deletePost();
+		navigate({ to: ".." }); // Navigate to parent route
+	};
 
-  return <button onClick={handleDelete}>Delete</button>
+	return <button onClick={handleDelete}>Delete</button>;
 }
 ```
 
 ## NavigateOptions Reference
 
-| Option | Description |
-|---|---|
-| `to` | Destination path (absolute or relative from `from`) |
-| `params` | Path params object or updater function |
-| `search` | Search params object or updater function |
-| `hash` | Hash string or updater function |
-| `replace` | Replace current history entry instead of pushing |
-| `resetScroll` | Reset scroll position to 0,0 |
-| `viewTransition` | Use View Transitions API |
+| Option           | Description                                         |
+| ---------------- | --------------------------------------------------- |
+| `to`             | Destination path (absolute or relative from `from`) |
+| `params`         | Path params object or updater function              |
+| `search`         | Search params object or updater function            |
+| `hash`           | Hash string or updater function                     |
+| `replace`        | Replace current history entry instead of pushing    |
+| `resetScroll`    | Reset scroll position to 0,0                        |
+| `viewTransition` | Use View Transitions API                            |
 
 ## Context
 

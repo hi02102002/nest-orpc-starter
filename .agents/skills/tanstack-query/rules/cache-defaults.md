@@ -10,54 +10,54 @@ Configure sensible default options at the `QueryClient` level to avoid repeating
 
 ```tsx
 // No defaults configured — every query must set its own options
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 // Repetitive per-query configuration
 const { data: profile } = useQuery({
-  queryKey: ['profile'],
-  queryFn: fetchProfile,
-  staleTime: 60 * 1000,
-  retry: 2,
-})
+	queryKey: ["profile"],
+	queryFn: fetchProfile,
+	staleTime: 60 * 1000,
+	retry: 2,
+});
 
 const { data: settings } = useQuery({
-  queryKey: ['settings'],
-  queryFn: fetchSettings,
-  staleTime: 60 * 1000,
-  retry: 2,
-})
+	queryKey: ["settings"],
+	queryFn: fetchSettings,
+	staleTime: 60 * 1000,
+	retry: 2,
+});
 ```
 
 ## Good Example
 
 ```tsx
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,       // 1 minute — prevents unnecessary refetches
-      gcTime: 10 * 60 * 1000,     // 10 minutes — retains inactive cache longer
-      retry: 2,                    // Fewer retries than default 3
-      refetchOnWindowFocus: false, // Disable if not needed
-    },
-    mutations: {
-      retry: 0,  // Mutations should not retry by default
-    },
-  },
-})
+	defaultOptions: {
+		queries: {
+			staleTime: 60 * 1000, // 1 minute — prevents unnecessary refetches
+			gcTime: 10 * 60 * 1000, // 10 minutes — retains inactive cache longer
+			retry: 2, // Fewer retries than default 3
+			refetchOnWindowFocus: false, // Disable if not needed
+		},
+		mutations: {
+			retry: 0, // Mutations should not retry by default
+		},
+	},
+});
 
 // Only override where specific queries differ
 const { data: stockPrice } = useQuery({
-  queryKey: ['stock', symbol],
-  queryFn: () => fetchStockPrice(symbol),
-  staleTime: 0,          // Override: real-time data
-  refetchInterval: 5000, // Poll every 5 seconds
-})
+	queryKey: ["stock", symbol],
+	queryFn: () => fetchStockPrice(symbol),
+	staleTime: 0, // Override: real-time data
+	refetchInterval: 5000, // Poll every 5 seconds
+});
 
 const { data: categories } = useQuery({
-  queryKey: ['categories'],
-  queryFn: fetchCategories,
-  staleTime: 30 * 60 * 1000, // Override: rarely changes
-})
+	queryKey: ["categories"],
+	queryFn: fetchCategories,
+	staleTime: 30 * 60 * 1000, // Override: rarely changes
+});
 ```
 
 ## Context

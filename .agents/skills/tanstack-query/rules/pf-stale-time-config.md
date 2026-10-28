@@ -11,21 +11,21 @@ When prefetching data, you must set a `staleTime` above 0 on the corresponding `
 ```tsx
 // Prefetch in route loader
 loader: async ({ context: { queryClient } }) => {
-  await queryClient.prefetchQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-  })
-}
+	await queryClient.prefetchQuery({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+	});
+};
 
 // Component — no staleTime set
 function Posts() {
-  const { data } = useQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
-    // staleTime defaults to 0
-    // Data is immediately stale → refetches on mount
-    // The prefetch was wasted!
-  })
+	const { data } = useQuery({
+		queryKey: ["posts"],
+		queryFn: fetchPosts,
+		// staleTime defaults to 0
+		// Data is immediately stale → refetches on mount
+		// The prefetch was wasted!
+	});
 }
 ```
 
@@ -33,19 +33,19 @@ function Posts() {
 
 ```tsx
 const postsQueryOptions = queryOptions({
-  queryKey: ['posts'],
-  queryFn: fetchPosts,
-  staleTime: 60 * 1000, // 1 minute — prevents refetch after prefetch
-})
+	queryKey: ["posts"],
+	queryFn: fetchPosts,
+	staleTime: 60 * 1000, // 1 minute — prevents refetch after prefetch
+});
 
 // Loader uses the same options
 loader: async ({ context: { queryClient } }) => {
-  await queryClient.prefetchQuery(postsQueryOptions)
-}
+	await queryClient.prefetchQuery(postsQueryOptions);
+};
 
 // Component uses the same options — staleTime prevents double-fetch
 function Posts() {
-  const { data } = useQuery(postsQueryOptions)
+	const { data } = useQuery(postsQueryOptions);
 }
 ```
 
@@ -53,12 +53,12 @@ function Posts() {
 
 ```tsx
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000, // Prevent refetch within 1 minute of prefetch
-    },
-  },
-})
+	defaultOptions: {
+		queries: {
+			staleTime: 60 * 1000, // Prevent refetch within 1 minute of prefetch
+		},
+	},
+});
 ```
 
 ## The Problem Visualized

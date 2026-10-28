@@ -12,21 +12,21 @@ Defining tables without proper organization or using inconsistent patterns:
 
 ```typescript
 // schema.ts - everything in one massive file with inconsistent patterns
-import { pgTable, serial, varchar, integer } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, integer } from "drizzle-orm/pg-core";
 
 // Using string column names inconsistently
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  firstName: varchar('firstName', { length: 256 }), // camelCase in DB
-  last_name: varchar('last_name', { length: 256 }), // snake_case in DB
-  email: varchar('email'),
+export const users = pgTable("users", {
+	id: serial("id").primaryKey(),
+	firstName: varchar("firstName", { length: 256 }), // camelCase in DB
+	last_name: varchar("last_name", { length: 256 }), // snake_case in DB
+	email: varchar("email"),
 });
 
 // Forgetting to export - breaks migration generation
-const posts = pgTable('posts', {
-  id: serial('id').primaryKey(),
-  title: varchar('title'),
-  userId: integer('userId'), // no foreign key reference
+const posts = pgTable("posts", {
+	id: serial("id").primaryKey(),
+	title: varchar("title"),
+	userId: integer("userId"), // no foreign key reference
 });
 ```
 
@@ -40,36 +40,48 @@ const posts = pgTable('posts', {
 
 ```typescript
 // db/schema/users.ts
-import { pgTable, varchar, integer } from 'drizzle-orm/pg-core';
-import * as t from 'drizzle-orm/pg-core';
+import { pgTable, varchar, integer } from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
 
-export const users = pgTable('users', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  firstName: t.varchar('first_name', { length: 256 }),
-  lastName: t.varchar('last_name', { length: 256 }),
-  email: t.varchar('email', { length: 256 }).notNull(),
+export const users = pgTable("users", {
+	id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+	firstName: t.varchar("first_name", { length: 256 }),
+	lastName: t.varchar("last_name", { length: 256 }),
+	email: t.varchar("email", { length: 256 }).notNull(),
 });
 ```
 
 ```typescript
 // db/schema/posts.ts
-import { pgTable, varchar, integer, text, timestamp } from 'drizzle-orm/pg-core';
-import * as t from 'drizzle-orm/pg-core';
-import { users } from './users';
+import {
+	pgTable,
+	varchar,
+	integer,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
+import { users } from "./users";
 
-export const posts = pgTable('posts', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  title: t.varchar('title', { length: 256 }).notNull(),
-  content: t.text('content'),
-  authorId: t.integer('author_id').notNull().references(() => users.id),
-  createdAt: t.timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+export const posts = pgTable("posts", {
+	id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+	title: t.varchar("title", { length: 256 }).notNull(),
+	content: t.text("content"),
+	authorId: t
+		.integer("author_id")
+		.notNull()
+		.references(() => users.id),
+	createdAt: t
+		.timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
 });
 ```
 
 ```typescript
 // db/schema/index.ts - barrel export
-export * from './users';
-export * from './posts';
+export * from "./users";
+export * from "./posts";
 ```
 
 **Why this is better:**

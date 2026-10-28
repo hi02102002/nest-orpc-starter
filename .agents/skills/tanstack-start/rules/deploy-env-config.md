@@ -38,17 +38,17 @@ API_SECRET=sk-secret-key
 
 ```tsx
 // Server function — access any env var
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn } from "@tanstack/react-start";
 
 const getConfig = createServerFn().handler(async () => {
-  // Safe: server-only, never in client bundle
-  const dbUrl = process.env.DATABASE_URL
-  return { connected: !!dbUrl }
-})
+	// Safe: server-only, never in client bundle
+	const dbUrl = process.env.DATABASE_URL;
+	return { connected: !!dbUrl };
+});
 
 // Component — only VITE_ prefixed vars
 function AppHeader() {
-  return <h1>{import.meta.env.VITE_APP_NAME}</h1>
+	return <h1>{import.meta.env.VITE_APP_NAME}</h1>;
 }
 ```
 
@@ -59,50 +59,50 @@ function AppHeader() {
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_APP_NAME: string
-  readonly VITE_API_URL: string
+	readonly VITE_APP_NAME: string;
+	readonly VITE_API_URL: string;
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+	readonly env: ImportMetaEnv;
 }
 
 declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      readonly DATABASE_URL: string
-      readonly SESSION_SECRET: string
-      readonly API_SECRET: string
-      readonly NODE_ENV: 'development' | 'production' | 'test'
-    }
-  }
+	namespace NodeJS {
+		interface ProcessEnv {
+			readonly DATABASE_URL: string;
+			readonly SESSION_SECRET: string;
+			readonly API_SECRET: string;
+			readonly NODE_ENV: "development" | "production" | "test";
+		}
+	}
 }
 
-export {}
+export {};
 ```
 
 ## Good Example: Runtime Validation with Zod
 
 ```tsx
 // utils/env.server.ts — validate on startup
-import { z } from 'zod'
+import { z } from "zod";
 
 const serverEnvSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  SESSION_SECRET: z.string().min(32),
-  API_SECRET: z.string().min(1),
-  NODE_ENV: z.enum(['development', 'production', 'test']),
-})
+	DATABASE_URL: z.string().url(),
+	SESSION_SECRET: z.string().min(32),
+	API_SECRET: z.string().min(1),
+	NODE_ENV: z.enum(["development", "production", "test"]),
+});
 
-export const env = serverEnvSchema.parse(process.env)
+export const env = serverEnvSchema.parse(process.env);
 
 // utils/env.client.ts — validate client env
 const clientEnvSchema = z.object({
-  VITE_APP_NAME: z.string().min(1),
-  VITE_API_URL: z.string().url(),
-})
+	VITE_APP_NAME: z.string().min(1),
+	VITE_API_URL: z.string().url(),
+});
 
-export const clientEnv = clientEnvSchema.parse(import.meta.env)
+export const clientEnv = clientEnvSchema.parse(import.meta.env);
 ```
 
 ## Good Example: Runtime Client Variables via Server Functions
@@ -110,16 +110,16 @@ export const clientEnv = clientEnvSchema.parse(import.meta.env)
 ```tsx
 // For env vars that shouldn't be in the client bundle but are needed at runtime
 const getRuntimeConfig = createServerFn().handler(async () => {
-  return {
-    featureFlags: JSON.parse(process.env.FEATURE_FLAGS ?? '{}'),
-    apiVersion: process.env.API_VERSION ?? 'v1',
-  }
-})
+	return {
+		featureFlags: JSON.parse(process.env.FEATURE_FLAGS ?? "{}"),
+		apiVersion: process.env.API_VERSION ?? "v1",
+	};
+});
 
-export const Route = createFileRoute('/')({
-  loader: () => getRuntimeConfig(),
-  component: App,
-})
+export const Route = createFileRoute("/")({
+	loader: () => getRuntimeConfig(),
+	component: App,
+});
 ```
 
 ## .env File Loading Order

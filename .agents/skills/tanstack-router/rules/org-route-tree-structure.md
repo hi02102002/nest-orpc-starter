@@ -21,14 +21,18 @@ routes/
 ```tsx
 // Each route must duplicate the dashboard layout and auth logic
 // dashboard-stats.tsx
-export const Route = createFileRoute('/dashboard-stats')({
-  beforeLoad: () => { /* duplicate auth check */ },
-  component: () => (
-    <DashboardLayout>  {/* duplicate layout wrapper */}
-      <Stats />
-    </DashboardLayout>
-  ),
-})
+export const Route = createFileRoute("/dashboard-stats")({
+	beforeLoad: () => {
+		/* duplicate auth check */
+	},
+	component: () => (
+		<DashboardLayout>
+			{" "}
+			{/* duplicate layout wrapper */}
+			<Stats />
+		</DashboardLayout>
+	),
+});
 ```
 
 ## Good Example
@@ -46,32 +50,32 @@ routes/
 
 ```tsx
 // dashboard.tsx — parent layout, runs once for all children
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/dashboard')({
-  beforeLoad: ({ context }) => {
-    if (!context.user) throw redirect({ to: '/login' })
-  },
-  component: DashboardLayout,
-})
+export const Route = createFileRoute("/dashboard")({
+	beforeLoad: ({ context }) => {
+		if (!context.user) throw redirect({ to: "/login" });
+	},
+	component: DashboardLayout,
+});
 
 function DashboardLayout() {
-  return (
-    <div>
-      <DashboardSidebar />
-      <main>
-        <Outlet /> {/* Child routes render here */}
-      </main>
-    </div>
-  )
+	return (
+		<div>
+			<DashboardSidebar />
+			<main>
+				<Outlet /> {/* Child routes render here */}
+			</main>
+		</div>
+	);
 }
 
 // dashboard.stats.tsx — inherits layout and auth from parent
-export const Route = createFileRoute('/dashboard/stats')({
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(statsQueryOptions()),
-  component: StatsPage,
-})
+export const Route = createFileRoute("/dashboard/stats")({
+	loader: ({ context: { queryClient } }) =>
+		queryClient.ensureQueryData(statsQueryOptions()),
+	component: StatsPage,
+});
 ```
 
 ## Directory Style Equivalent

@@ -12,16 +12,16 @@ Postgres error codes lets you return meaningful responses instead of generic 500
 Postgres errors include a `code` field that identifies the exact failure. The most common
 ones you'll encounter with Drizzle:
 
-| Code | Name | When It Happens |
-|------|------|-----------------|
-| `23505` | `unique_violation` | Insert/update violates a UNIQUE constraint |
+| Code    | Name                    | When It Happens                                         |
+| ------- | ----------------------- | ------------------------------------------------------- |
+| `23505` | `unique_violation`      | Insert/update violates a UNIQUE constraint              |
 | `23503` | `foreign_key_violation` | Referenced row doesn't exist or row is still referenced |
-| `23502` | `not_null_violation` | A NOT NULL column received null |
-| `23514` | `check_violation` | A CHECK constraint failed |
-| `40001` | `serialization_failure` | Transaction conflict under serializable isolation |
-| `57014` | `query_canceled` | Query exceeded `statement_timeout` |
-| `08006` | `connection_failure` | Database connection lost |
-| `42P01` | `undefined_table` | Table doesn't exist (migration not run?) |
+| `23502` | `not_null_violation`    | A NOT NULL column received null                         |
+| `23514` | `check_violation`       | A CHECK constraint failed                               |
+| `40001` | `serialization_failure` | Transaction conflict under serializable isolation       |
+| `57014` | `query_canceled`        | Query exceeded `statement_timeout`                      |
+| `08006` | `connection_failure`    | Database connection lost                                |
+| `42P01` | `undefined_table`       | Table doesn't exist (migration not run?)                |
 
 ## Catching Specific Errors
 
@@ -55,17 +55,17 @@ referenced:
 
 ```typescript
 try {
-  await db.insert(postsTable).values({
-    title: 'Hello',
-    authorId: 999, // author doesn't exist
-  });
+	await db.insert(postsTable).values({
+		title: "Hello",
+		authorId: 999, // author doesn't exist
+	});
 } catch (error) {
-  if (error instanceof DatabaseError && error.code === '23503') {
-    // error.constraint — e.g. "posts_author_id_users_id_fk"
-    // error.detail — e.g. 'Key (author_id)=(999) is not present in table "users".'
-    throw new NotFoundError('Referenced author does not exist');
-  }
-  throw error;
+	if (error instanceof DatabaseError && error.code === "23503") {
+		// error.constraint — e.g. "posts_author_id_users_id_fk"
+		// error.detail — e.g. 'Key (author_id)=(999) is not present in table "users".'
+		throw new NotFoundError("Referenced author does not exist");
+	}
+	throw error;
 }
 ```
 
@@ -77,19 +77,19 @@ duplicates:
 ```typescript
 // Preferred: handle conflicts declaratively
 const [user] = await db
-  .insert(usersTable)
-  .values({ email: 'alice@example.com', name: 'Alice' })
-  .onConflictDoUpdate({
-    target: usersTable.email,
-    set: { name: 'Alice Updated' },
-  })
-  .returning();
+	.insert(usersTable)
+	.values({ email: "alice@example.com", name: "Alice" })
+	.onConflictDoUpdate({
+		target: usersTable.email,
+		set: { name: "Alice Updated" },
+	})
+	.returning();
 
 // Or silently skip duplicates
 await db
-  .insert(usersTable)
-  .values({ email: 'alice@example.com', name: 'Alice' })
-  .onConflictDoNothing({ target: usersTable.email });
+	.insert(usersTable)
+	.values({ email: "alice@example.com", name: "Alice" })
+	.onConflictDoNothing({ target: usersTable.email });
 ```
 
 ## Transaction Error Handling
@@ -99,25 +99,25 @@ rollback behavior:
 
 ```typescript
 try {
-  await db.transaction(async (tx) => {
-    const [user] = await tx
-      .insert(usersTable)
-      .values({ name: 'Alice' })
-      .returning();
+	await db.transaction(async (tx) => {
+		const [user] = await tx
+			.insert(usersTable)
+			.values({ name: "Alice" })
+			.returning();
 
-    await tx.insert(profilesTable).values({
-      userId: user.id,
-      bio: 'Hello world',
-    });
+		await tx.insert(profilesTable).values({
+			userId: user.id,
+			bio: "Hello world",
+		});
 
-    // If either fails, the entire transaction is rolled back
-  });
+		// If either fails, the entire transaction is rolled back
+	});
 } catch (error) {
-  if (error instanceof DatabaseError && error.code === '40001') {
-    // Serialization failure — safe to retry
-    // Implement retry logic for serializable transactions
-  }
-  throw error;
+	if (error instanceof DatabaseError && error.code === "40001") {
+		// Serialization failure — safe to retry
+		// Implement retry logic for serializable transactions
+	}
+	throw error;
 }
 ```
 
@@ -125,24 +125,24 @@ try {
 
 ```typescript
 await db.transaction(async (tx) => {
-  const [order] = await tx
-    .insert(ordersTable)
-    .values({ userId: 1, total: 100 })
-    .returning();
+	const [order] = await tx
+		.insert(ordersTable)
+		.values({ userId: 1, total: 100 })
+		.returning();
 
-  const inventory = await tx.query.inventory.findFirst({
-    where: { productId }, // v1 object syntax; on 0.45.x: where: eq(inventoryTable.productId, productId)
-  });
+	const inventory = await tx.query.inventory.findFirst({
+		where: { productId }, // v1 object syntax; on 0.45.x: where: eq(inventoryTable.productId, productId)
+	});
 
-  if (!inventory || inventory.quantity < 1) {
-    tx.rollback(); // explicitly abort — throws an error that Drizzle catches
-    return; // unreachable, but satisfies TypeScript
-  }
+	if (!inventory || inventory.quantity < 1) {
+		tx.rollback(); // explicitly abort — throws an error that Drizzle catches
+		return; // unreachable, but satisfies TypeScript
+	}
 
-  await tx
-    .update(inventoryTable)
-    .set({ quantity: sql`${inventoryTable.quantity} - 1` })
-    .where(eq(inventoryTable.productId, productId));
+	await tx
+		.update(inventoryTable)
+		.set({ quantity: sql`${inventoryTable.quantity} - 1` })
+		.where(eq(inventoryTable.productId, productId));
 });
 ```
 
@@ -152,36 +152,36 @@ Different drivers surface errors differently. Ensure you're importing the right 
 
 ```typescript
 // node-postgres
-import { DatabaseError } from 'pg';
+import { DatabaseError } from "pg";
 
 // postgres.js — errors have the same code property but different class
-import postgres from 'postgres';
+import postgres from "postgres";
 // postgres.js throws PostgresError instances
 // Access error.code the same way
 
 // Neon — wraps errors similarly to node-postgres
-import { neon } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
 ```
 
 A portable pattern that works across drivers:
 
 ```typescript
 function isDbError(error: unknown, code: string): boolean {
-  return (
-    error instanceof Error &&
-    'code' in error &&
-    (error as { code: string }).code === code
-  );
+	return (
+		error instanceof Error &&
+		"code" in error &&
+		(error as { code: string }).code === code
+	);
 }
 
 // Usage
 try {
-  await db.insert(usersTable).values({ email: 'duplicate@test.com' });
+	await db.insert(usersTable).values({ email: "duplicate@test.com" });
 } catch (error) {
-  if (isDbError(error, '23505')) {
-    // unique violation — works with any driver
-  }
-  throw error;
+	if (isDbError(error, "23505")) {
+		// unique violation — works with any driver
+	}
+	throw error;
 }
 ```
 

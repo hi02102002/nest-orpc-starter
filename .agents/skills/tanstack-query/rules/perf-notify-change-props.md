@@ -11,20 +11,20 @@ TanStack Query uses JavaScript Proxy to track which properties a component acces
 ```tsx
 // Object rest destructuring — disables tracked properties optimization
 const { data, ...rest } = useQuery({
-  queryKey: ['todos'],
-  queryFn: fetchTodos,
-})
+	queryKey: ["todos"],
+	queryFn: fetchTodos,
+});
 // `...rest` accesses ALL properties via the Proxy's get trap
 // Component re-renders when ANY property changes (isFetching, isStale, etc.)
 
 // Accessing properties you don't need
 function TodoList() {
-  const { data, isFetching, isStale, dataUpdatedAt, status } = useQuery({
-    queryKey: ['todos'],
-    queryFn: fetchTodos,
-  })
-  // Only uses `data` in render, but re-renders for isFetching, isStale changes too
-  return <List items={data} />
+	const { data, isFetching, isStale, dataUpdatedAt, status } = useQuery({
+		queryKey: ["todos"],
+		queryFn: fetchTodos,
+	});
+	// Only uses `data` in render, but re-renders for isFetching, isStale changes too
+	return <List items={data} />;
 }
 ```
 
@@ -33,26 +33,26 @@ function TodoList() {
 ```tsx
 // Only destructure what you use — tracking works automatically
 function TodoList() {
-  const { data } = useQuery({
-    queryKey: ['todos'],
-    queryFn: fetchTodos,
-  })
-  // Only re-renders when `data` changes
-  return <List items={data} />
+	const { data } = useQuery({
+		queryKey: ["todos"],
+		queryFn: fetchTodos,
+	});
+	// Only re-renders when `data` changes
+	return <List items={data} />;
 }
 
 // When you need isFetching for a spinner, that's fine — it's intentional
 function TodoListWithRefresh() {
-  const { data, isFetching } = useQuery({
-    queryKey: ['todos'],
-    queryFn: fetchTodos,
-  })
-  return (
-    <>
-      {isFetching && <Spinner />}
-      <List items={data} />
-    </>
-  )
+	const { data, isFetching } = useQuery({
+		queryKey: ["todos"],
+		queryFn: fetchTodos,
+	});
+	return (
+		<>
+			{isFetching && <Spinner />}
+			<List items={data} />
+		</>
+	);
 }
 ```
 
@@ -61,17 +61,17 @@ function TodoListWithRefresh() {
 ```tsx
 // Explicitly control which properties trigger re-renders
 const { data } = useQuery({
-  queryKey: ['todos'],
-  queryFn: fetchTodos,
-  notifyOnChangeProps: ['data', 'error'], // Only re-render for data or error changes
-})
+	queryKey: ["todos"],
+	queryFn: fetchTodos,
+	notifyOnChangeProps: ["data", "error"], // Only re-render for data or error changes
+});
 
 // Opt out of tracking entirely — re-render on any change
 const result = useQuery({
-  queryKey: ['todos'],
-  queryFn: fetchTodos,
-  notifyOnChangeProps: 'all',
-})
+	queryKey: ["todos"],
+	queryFn: fetchTodos,
+	notifyOnChangeProps: "all",
+});
 ```
 
 ## Good Example: Prefetch Observer (No Re-renders)
@@ -80,10 +80,10 @@ const result = useQuery({
 // Use notifyOnChangeProps: [] to observe a query without causing re-renders
 // Useful for prefetching in a parent component
 useQuery({
-  queryKey: ['comments', postId],
-  queryFn: () => fetchComments(postId),
-  notifyOnChangeProps: [], // Never triggers re-render — just populates cache
-})
+	queryKey: ["comments", postId],
+	queryFn: () => fetchComments(postId),
+	notifyOnChangeProps: [], // Never triggers re-render — just populates cache
+});
 ```
 
 ## Context

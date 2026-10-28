@@ -1,4 +1,5 @@
 ---
+
 name: petshop-server
 description: "Build, refactor, debug, and review the Petshop NestJS server in `apps/server`. Use this skill whenever a task changes a server feature, Nest module, controller, service, oRPC handler implementation, authentication/session access, database access, EVLog logging or observability, CORS, environment configuration, startup wiring, or server folder structure. Use it even for a small endpoint change so code stays feature-based and aligned with the shared oRPC contract."
 ---
@@ -133,9 +134,7 @@ import { EvlogModule } from "evlog/nestjs";
 import evlogConfig from "../evlog.config";
 
 @Module({
-	imports: [
-		EvlogModule.forRoot(toMiddlewareOptions(evlogConfig)),
-	],
+	imports: [EvlogModule.forRoot(toMiddlewareOptions(evlogConfig))],
 })
 export class AppModule {}
 ```

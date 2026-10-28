@@ -35,13 +35,13 @@ deployments.
 
 ## When to Use Which
 
-| Scenario | Command |
-|----------|---------|
-| Production deployments | `generate` + `migrate` |
-| CI/CD pipelines | `migrate` |
-| Local development / prototyping | `push` |
-| Syncing schema to a new database | `push` |
-| Pulling schema from existing DB | `pull` |
+| Scenario                         | Command                |
+| -------------------------------- | ---------------------- |
+| Production deployments           | `generate` + `migrate` |
+| CI/CD pipelines                  | `migrate`              |
+| Local development / prototyping  | `push`                 |
+| Syncing schema to a new database | `push`                 |
+| Pulling schema from existing DB  | `pull`                 |
 
 ## Command Reference
 
@@ -120,24 +120,24 @@ Commit the converted folder as part of the upgrade.
 For programmatic migration execution (e.g., in a deploy script or serverless function):
 
 ```typescript
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 
 const db = drizzle(process.env.DATABASE_URL!);
 
-await migrate(db, { migrationsFolder: './drizzle' });
+await migrate(db, { migrationsFolder: "./drizzle" });
 ```
 
 The migrator import path matches your driver:
 
 ```typescript
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 // or
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 // or
-import { migrate } from 'drizzle-orm/neon-http/migrator';
+import { migrate } from "drizzle-orm/neon-http/migrator";
 // or
-import { migrate } from 'drizzle-orm/neon-serverless/migrator';
+import { migrate } from "drizzle-orm/neon-serverless/migrator";
 ```
 
 ## Incorrect Patterns

@@ -11,20 +11,23 @@ and `customType` lets you define entirely new column types with custom serializa
 Override the TypeScript type for any column without changing the database type:
 
 ```typescript
-import { pgTable, text, jsonb, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, jsonb, integer } from "drizzle-orm/pg-core";
 
-export const users = pgTable('users', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+export const users = pgTable("users", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 
-  // JSONB column typed as a specific shape
-  preferences: jsonb('preferences').$type<{
-    theme: 'light' | 'dark';
-    language: string;
-    notifications: boolean;
-  }>(),
+	// JSONB column typed as a specific shape
+	preferences: jsonb("preferences").$type<{
+		theme: "light" | "dark";
+		language: string;
+		notifications: boolean;
+	}>(),
 
-  // Text column used as a typed union (alternative to pgEnum for simpler cases)
-  role: text('role').$type<'admin' | 'user' | 'guest'>().notNull().default('guest'),
+	// Text column used as a typed union (alternative to pgEnum for simpler cases)
+	role: text("role")
+		.$type<"admin" | "user" | "guest">()
+		.notNull()
+		.default("guest"),
 });
 ```
 
@@ -36,11 +39,13 @@ that doesn't match your type, TypeScript won't catch it.
 Generate default values in your application code (not in the database):
 
 ```typescript
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
-export const posts = pgTable('posts', {
-  id: text('id').$defaultFn(() => uuidv4()).primaryKey(),
-  slug: text('slug').$defaultFn(() => generateSlug()),
+export const posts = pgTable("posts", {
+	id: text("id")
+		.$defaultFn(() => uuidv4())
+		.primaryKey(),
+	slug: text("slug").$defaultFn(() => generateSlug()),
 });
 ```
 
@@ -52,28 +57,28 @@ This is different from `.default()` which sets a database-level default.
 For complete control over how values are mapped between TypeScript and the database:
 
 ```typescript
-import { customType } from 'drizzle-orm/pg-core';
+import { customType } from "drizzle-orm/pg-core";
 
 // A custom type that stores monetary values as integers (cents) in the DB
 // but exposes them as formatted strings in TypeScript
 const money = customType<{
-  data: string;        // TypeScript type
-  driverData: number;  // What the driver sends/receives
+	data: string; // TypeScript type
+	driverData: number; // What the driver sends/receives
 }>({
-  dataType() {
-    return 'integer';
-  },
-  fromDriver(value: number): string {
-    return (value / 100).toFixed(2);
-  },
-  toDriver(value: string): number {
-    return Math.round(parseFloat(value) * 100);
-  },
+	dataType() {
+		return "integer";
+	},
+	fromDriver(value: number): string {
+		return (value / 100).toFixed(2);
+	},
+	toDriver(value: string): number {
+		return Math.round(parseFloat(value) * 100);
+	},
 });
 
-export const products = pgTable('products', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  price: money('price').notNull(),
+export const products = pgTable("products", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	price: money("price").notNull(),
 });
 // In TypeScript: product.price is string ("19.99")
 // In database: price is integer (1999)
@@ -85,17 +90,17 @@ Use TypeScript branded types to prevent mixing up IDs from different tables:
 
 ```typescript
 // Define branded types
-type UserId = number & { __brand: 'UserId' };
-type PostId = number & { __brand: 'PostId' };
+type UserId = number & { __brand: "UserId" };
+type PostId = number & { __brand: "PostId" };
 
-export const users = pgTable('users', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity().$type<UserId>(),
-  name: text('name').notNull(),
+export const users = pgTable("users", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity().$type<UserId>(),
+	name: text("name").notNull(),
 });
 
-export const posts = pgTable('posts', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity().$type<PostId>(),
-  authorId: integer('author_id').notNull().$type<UserId>(), // must be a UserId
+export const posts = pgTable("posts", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity().$type<PostId>(),
+	authorId: integer("author_id").notNull().$type<UserId>(), // must be a UserId
 });
 
 // Now TypeScript prevents accidental ID mixups:

@@ -1,4 +1,5 @@
 ---
+
 name: orpc-api-contract
 description: "Create and change contract-first oRPC v2 APIs in this Petshop monorepo. Use this skill whenever a task adds, edits, debugs, or reviews an API endpoint, Zod request or response schema, typed API error, OpenAPI route, NestJS oRPC implementation, or web client call involving `packages/api-contract`, `@orpc/contract`, `@orpc/nest`, `OpenAPILink`, or `@petshop/api-contract`. Also use it for apparently small endpoint changes because the contract, server implementation, and client types must remain aligned."
 ---

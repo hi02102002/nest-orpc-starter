@@ -12,17 +12,17 @@ or poor performance.
 The standard choice for long-running Node.js servers (Express, Fastify, NestJS, etc.):
 
 ```typescript
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/node-postgres";
 
 // Simplest: connection string
 const db = drizzle(process.env.DATABASE_URL!);
 
 // With pool configuration
-import { Pool } from 'pg';
+import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20,
+	connectionString: process.env.DATABASE_URL,
+	max: 20,
 });
 const db = drizzle({ client: pool });
 ```
@@ -30,8 +30,8 @@ const db = drizzle({ client: pool });
 When using a pool, close it on shutdown:
 
 ```typescript
-process.on('SIGTERM', async () => {
-  await pool.end();
+process.on("SIGTERM", async () => {
+	await pool.end();
 });
 ```
 
@@ -40,8 +40,8 @@ process.on('SIGTERM', async () => {
 A modern, fast Postgres client. Good for both servers and serverless:
 
 ```typescript
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle({ client });
@@ -53,8 +53,8 @@ Uses HTTP to query Neon databases. Each query is a standalone request — no con
 needed. Ideal for serverless and edge:
 
 ```typescript
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle({ client: sql });
@@ -66,9 +66,9 @@ Neon HTTP doesn't support multi-statement transactions. If you need transactions
 serverless, use the WebSocket driver:
 
 ```typescript
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from 'ws';
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -80,8 +80,8 @@ const db = drizzle({ client: pool });
 Use postgres.js or node-postgres with the Supabase pooler URL:
 
 ```typescript
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 // Use the pooler connection string, not the direct one
 const client = postgres(process.env.SUPABASE_DB_URL!);
@@ -94,18 +94,18 @@ To use the relational query API (`db.query`), pass relations (v1) or your schema
 
 ```typescript
 // Drizzle v1 — pass the defineRelations object; this is what populates db.query
-import { relations } from './relations';
+import { relations } from "./relations";
 const db = drizzle({ client: pool, relations });
 
 // Drizzle 0.45.x (legacy) — pass the entire schema, including relations() helpers
-import * as schema from './schema';
+import * as schema from "./schema";
 const db = drizzle({ client: pool, schema });
 ```
 
 Without this, `db.query` is empty or has no type information.
 
 On Drizzle **v1**, `db.query` is driven solely by `relations` (defineRelations) — passing a legacy
-`schema` does *not* populate it, and there is no `db._query`. See `relations-defining.md`.
+`schema` does _not_ populate it, and there is no `db._query`. See `relations-defining.md`.
 
 ## Logging and Debugging
 
@@ -117,48 +117,44 @@ const db = drizzle({ client: pool, logger: true });
 
 // Custom logger
 const db = drizzle({
-  client: pool,
-  logger: {
-    logQuery(query: string, params: unknown[]) {
-      console.log('SQL:', query);
-      console.log('Params:', params);
-    },
-  },
+	client: pool,
+	logger: {
+		logQuery(query: string, params: unknown[]) {
+			console.log("SQL:", query);
+			console.log("Params:", params);
+		},
+	},
 });
 ```
 
 To inspect a query without executing it, use `.toSQL()`:
 
 ```typescript
-const query = db
-  .select()
-  .from(usersTable)
-  .where(eq(usersTable.id, 1))
-  .toSQL();
+const query = db.select().from(usersTable).where(eq(usersTable.id, 1)).toSQL();
 
-console.log(query.sql);    // SELECT ... FROM "users" WHERE "users"."id" = $1
+console.log(query.sql); // SELECT ... FROM "users" WHERE "users"."id" = $1
 console.log(query.params); // [1]
 ```
 
 ## Driver Selection Guide
 
-| Environment | Recommended Driver |
-|-------------|-------------------|
-| Traditional server (Express, Fastify) | `drizzle-orm/node-postgres` |
-| Traditional server (lightweight) | `drizzle-orm/postgres-js` |
-| Serverless + Neon | `drizzle-orm/neon-http` |
-| Serverless + Neon + transactions | `drizzle-orm/neon-serverless` |
-| Serverless + Supabase | `drizzle-orm/postgres-js` + pooler |
-| Serverless + AWS RDS | `drizzle-orm/node-postgres` + RDS Proxy |
-| Edge runtime (Vercel Edge, Workers) | `drizzle-orm/neon-http` |
+| Environment                           | Recommended Driver                      |
+| ------------------------------------- | --------------------------------------- |
+| Traditional server (Express, Fastify) | `drizzle-orm/node-postgres`             |
+| Traditional server (lightweight)      | `drizzle-orm/postgres-js`               |
+| Serverless + Neon                     | `drizzle-orm/neon-http`                 |
+| Serverless + Neon + transactions      | `drizzle-orm/neon-serverless`           |
+| Serverless + Supabase                 | `drizzle-orm/postgres-js` + pooler      |
+| Serverless + AWS RDS                  | `drizzle-orm/node-postgres` + RDS Proxy |
+| Edge runtime (Vercel Edge, Workers)   | `drizzle-orm/neon-http`                 |
 
 ## Incorrect Patterns
 
 ```typescript
 // Wrong: creating a new drizzle instance per request
-app.get('/users', async (req, res) => {
-  const db = drizzle(process.env.DATABASE_URL!); // new instance every time
-  // Create db once at module scope and reuse it
+app.get("/users", async (req, res) => {
+	const db = drizzle(process.env.DATABASE_URL!); // new instance every time
+	// Create db once at module scope and reuse it
 });
 
 // Wrong: using direct DB URL in serverless without a pooler

@@ -9,9 +9,11 @@ fetching too much data, getting wrong types from joins, or writing unnecessarily
 ## The Two APIs
 
 ### SQL-like API (`db.select()`)
+
 Best for: precise control over the SQL being generated, complex joins, aggregations, subqueries.
 
 ### Relational Query API (`db.query`)
+
 Best for: fetching related data in nested structures, avoiding manual join logic.
 
 ## Incorrect
@@ -22,9 +24,9 @@ const users = await db.select().from(usersTable);
 
 // Wrong: using sql-like API for simple relational fetches
 const postsWithAuthors = await db
-  .select()
-  .from(postsTable)
-  .leftJoin(usersTable, eq(postsTable.authorId, usersTable.id));
+	.select()
+	.from(postsTable)
+	.leftJoin(usersTable, eq(postsTable.authorId, usersTable.id));
 // Returns flat { posts: {...}, users: {...} | null } — not nested
 ```
 
@@ -39,11 +41,11 @@ const postsWithAuthors = await db
 
 ```typescript
 const userEmails = await db
-  .select({
-    id: usersTable.id,
-    email: usersTable.email,
-  })
-  .from(usersTable);
+	.select({
+		id: usersTable.id,
+		email: usersTable.email,
+	})
+	.from(usersTable);
 // Type: { id: number; email: string }[]
 ```
 
@@ -51,9 +53,9 @@ const userEmails = await db
 
 ```typescript
 const postsWithAuthors = await db.query.posts.findMany({
-  with: {
-    author: true,
-  },
+	with: {
+		author: true,
+	},
 });
 // Type: { id: number; title: string; author: { id: number; name: string } }[]
 ```
@@ -63,12 +65,12 @@ const postsWithAuthors = await db.query.posts.findMany({
 ```typescript
 // Inner join with partial select
 const result = await db
-  .select({
-    postTitle: postsTable.title,
-    authorName: usersTable.name,
-  })
-  .from(postsTable)
-  .innerJoin(usersTable, eq(postsTable.authorId, usersTable.id));
+	.select({
+		postTitle: postsTable.title,
+		authorName: usersTable.name,
+	})
+	.from(postsTable)
+	.innerJoin(usersTable, eq(postsTable.authorId, usersTable.id));
 // Type: { postTitle: string; authorName: string }[]
 ```
 
@@ -79,13 +81,13 @@ In Drizzle v1, the relational API takes object-syntax `where`/`orderBy` (see
 
 ```typescript
 const user = await db.query.users.findFirst({
-  where: { id: 1 },
-  with: {
-    posts: {
-      limit: 5,
-      orderBy: { createdAt: 'asc' },
-    },
-  },
+	where: { id: 1 },
+	with: {
+		posts: {
+			limit: 5,
+			orderBy: { createdAt: "asc" },
+		},
+	},
 });
 ```
 
@@ -95,17 +97,17 @@ On 0.45.x this is `where: eq(usersTable.id, 1)` and `orderBy: postsTable.created
 
 ```typescript
 const result = await db.query.users.findMany({
-  columns: {
-    id: true,
-    name: true,
-  },
-  with: {
-    posts: {
-      columns: {
-        title: true,
-      },
-    },
-  },
+	columns: {
+		id: true,
+		name: true,
+	},
+	with: {
+		posts: {
+			columns: {
+				title: true,
+			},
+		},
+	},
 });
 // Only fetches id, name from users and title from posts
 ```
@@ -115,18 +117,18 @@ const result = await db.query.users.findMany({
 Count returns a string in Postgres. Use `.mapWith(Number)` to get an actual number:
 
 ```typescript
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 
 // Correct: map to number
 const [{ count }] = await db
-  .select({ count: sql<number>`count(*)`.mapWith(Number) })
-  .from(usersTable);
+	.select({ count: sql<number>`count(*)`.mapWith(Number) })
+	.from(usersTable);
 // count is number 42
 
 // Wrong: forgetting mapWith
 const [{ count: rawCount }] = await db
-  .select({ count: sql<number>`count(*)` })
-  .from(usersTable);
+	.select({ count: sql<number>`count(*)` })
+	.from(usersTable);
 // rawCount is actually string "42" at runtime despite the <number> generic
 // The generic only affects compile-time types, not runtime values
 ```
@@ -135,21 +137,24 @@ const [{ count: rawCount }] = await db
 
 ```typescript
 const [{ activeCount }] = await db
-  .select({
-    activeCount: sql<number>`count(*) filter (where ${usersTable.isActive})`.mapWith(Number),
-  })
-  .from(usersTable);
+	.select({
+		activeCount:
+			sql<number>`count(*) filter (where ${usersTable.isActive})`.mapWith(
+				Number,
+			),
+	})
+	.from(usersTable);
 ```
 
 ## When to Use Which API
 
-| Scenario | Use |
-|----------|-----|
-| Fetch a record with its related data | `db.query.table.findMany({ with })` |
-| Aggregate queries (COUNT, SUM, AVG) | `db.select()` with `sql` operator |
-| Complex multi-table joins | `db.select()` with explicit joins |
-| Subqueries | `db.select()` |
-| Simple CRUD | Either works — relational API is often cleaner |
+| Scenario                             | Use                                            |
+| ------------------------------------ | ---------------------------------------------- |
+| Fetch a record with its related data | `db.query.table.findMany({ with })`            |
+| Aggregate queries (COUNT, SUM, AVG)  | `db.select()` with `sql` operator              |
+| Complex multi-table joins            | `db.select()` with explicit joins              |
+| Subqueries                           | `db.select()`                                  |
+| Simple CRUD                          | Either works — relational API is often cleaner |
 
 ## References
 

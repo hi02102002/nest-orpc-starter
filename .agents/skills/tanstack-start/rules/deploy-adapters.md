@@ -11,13 +11,13 @@ TanStack Start is built on Vite and supports deployment to any hosting provider 
 ```tsx
 // Using the old app.config.ts pattern - no longer valid
 // app.config.ts
-import { defineConfig } from '@tanstack/react-start/config'
+import { defineConfig } from "@tanstack/react-start/config";
 
 export default defineConfig({
-  server: {
-    preset: 'vercel',  // Old preset-based config
-  },
-})
+	server: {
+		preset: "vercel", // Old preset-based config
+	},
+});
 ```
 
 ## Good Example: Cloudflare Workers
@@ -28,28 +28,28 @@ pnpm add -D @cloudflare/vite-plugin wrangler
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { cloudflare } from '@cloudflare/vite-plugin'
-import viteReact from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { cloudflare } from "@cloudflare/vite-plugin";
+import viteReact from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
-    tanstackStart(),
-    viteReact(),
-  ],
-})
+	plugins: [
+		cloudflare({ viteEnvironment: { name: "ssr" } }),
+		tanstackStart(),
+		viteReact(),
+	],
+});
 ```
 
 ```jsonc
 // wrangler.jsonc
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
-  "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tanstack-start-app",
+	"compatibility_date": "2025-09-02",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "@tanstack/react-start/server-entry"
 }
 ```
 
@@ -61,44 +61,36 @@ npm install -D @netlify/vite-plugin-tanstack-start
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import netlify from '@netlify/vite-plugin-tanstack-start'
-import viteReact from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import netlify from "@netlify/vite-plugin-tanstack-start";
+import viteReact from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [
-    tanstackStart(),
-    netlify(),
-    viteReact(),
-  ],
-})
+	plugins: [tanstackStart(), netlify(), viteReact()],
+});
 ```
 
 ## Good Example: Nitro (Vercel, Node.js, Docker)
 
 ```json
 {
-  "dependencies": {
-    "nitro": "npm:nitro-nightly@latest"
-  }
+	"dependencies": {
+		"nitro": "npm:nitro-nightly@latest"
+	}
 }
 ```
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { nitro } from 'nitro/vite'
-import viteReact from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
+import viteReact from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [
-    tanstackStart(),
-    nitro(),
-    viteReact(),
-  ],
-})
+	plugins: [tanstackStart(), nitro(), viteReact()],
+});
 ```
 
 ```dockerfile
@@ -116,31 +108,27 @@ CMD ["node", ".output/server/index.mjs"]
 
 ```ts
 // vite.config.ts
-import { defineConfig } from 'vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { nitro } from 'nitro/vite'
-import viteReact from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
+import viteReact from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [
-    tanstackStart(),
-    nitro({ preset: 'bun' }),
-    viteReact(),
-  ],
-})
+	plugins: [tanstackStart(), nitro({ preset: "bun" }), viteReact()],
+});
 ```
 
 ## Adapter Comparison
 
-| Platform | Plugin | Notes |
-|----------|--------|-------|
-| Cloudflare Workers | `@cloudflare/vite-plugin` | Official partner, edge runtime |
-| Netlify | `@netlify/vite-plugin-tanstack-start` | Official partner |
-| Railway | Nitro adapter | Auto-detects, push to deploy |
-| Vercel | Nitro adapter | Via `nitro/vite` |
-| Node.js / Docker | Nitro adapter | `node .output/server/index.mjs` |
-| Bun | Nitro with `preset: 'bun'` | Requires React 19 |
-| Appwrite Sites | Standard build | Configure output dir in dashboard |
+| Platform           | Plugin                                | Notes                             |
+| ------------------ | ------------------------------------- | --------------------------------- |
+| Cloudflare Workers | `@cloudflare/vite-plugin`             | Official partner, edge runtime    |
+| Netlify            | `@netlify/vite-plugin-tanstack-start` | Official partner                  |
+| Railway            | Nitro adapter                         | Auto-detects, push to deploy      |
+| Vercel             | Nitro adapter                         | Via `nitro/vite`                  |
+| Node.js / Docker   | Nitro adapter                         | `node .output/server/index.mjs`   |
+| Bun                | Nitro with `preset: 'bun'`            | Requires React 19                 |
+| Appwrite Sites     | Standard build                        | Configure output dir in dashboard |
 
 ## Context
 

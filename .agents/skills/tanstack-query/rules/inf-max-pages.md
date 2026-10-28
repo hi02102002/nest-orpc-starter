@@ -11,26 +11,26 @@ By default, `useInfiniteQuery` keeps all fetched pages in memory and refetches a
 ```tsx
 // No maxPages — all pages accumulate in memory
 const { data } = useInfiniteQuery({
-  queryKey: ['feed'],
-  queryFn: fetchFeedPage,
-  initialPageParam: 0,
-  getNextPageParam: (lastPage) => lastPage.nextCursor,
-  // User scrolls through 50 pages → 50 pages in memory
-  // Background refetch fetches all 50 pages sequentially
-})
+	queryKey: ["feed"],
+	queryFn: fetchFeedPage,
+	initialPageParam: 0,
+	getNextPageParam: (lastPage) => lastPage.nextCursor,
+	// User scrolls through 50 pages → 50 pages in memory
+	// Background refetch fetches all 50 pages sequentially
+});
 ```
 
 ## Good Example
 
 ```tsx
 const { data, fetchNextPage, fetchPreviousPage } = useInfiniteQuery({
-  queryKey: ['feed'],
-  queryFn: fetchFeedPage,
-  initialPageParam: 0,
-  getNextPageParam: (lastPage) => lastPage.nextCursor,
-  getPreviousPageParam: (firstPage) => firstPage.prevCursor,
-  maxPages: 5, // Only keep 5 pages in cache at a time
-})
+	queryKey: ["feed"],
+	queryFn: fetchFeedPage,
+	initialPageParam: 0,
+	getNextPageParam: (lastPage) => lastPage.nextCursor,
+	getPreviousPageParam: (firstPage) => firstPage.prevCursor,
+	maxPages: 5, // Only keep 5 pages in cache at a time
+});
 
 // When maxPages is reached:
 // - Fetching next page drops the first page
@@ -42,19 +42,19 @@ const { data, fetchNextPage, fetchPreviousPage } = useInfiniteQuery({
 
 ```tsx
 const { data } = useInfiniteQuery({
-  queryKey: ['products'],
-  queryFn: ({ pageParam }) => fetchProducts({ page: pageParam, limit: 20 }),
-  initialPageParam: 1,
-  getNextPageParam: (lastPage, allPages, lastPageParam) => {
-    if (lastPage.length === 0) return undefined
-    return lastPageParam + 1
-  },
-  getPreviousPageParam: (firstPage, allPages, firstPageParam) => {
-    if (firstPageParam <= 1) return undefined
-    return firstPageParam - 1
-  },
-  maxPages: 3, // Keep 3 pages (60 items) in memory
-})
+	queryKey: ["products"],
+	queryFn: ({ pageParam }) => fetchProducts({ page: pageParam, limit: 20 }),
+	initialPageParam: 1,
+	getNextPageParam: (lastPage, allPages, lastPageParam) => {
+		if (lastPage.length === 0) return undefined;
+		return lastPageParam + 1;
+	},
+	getPreviousPageParam: (firstPage, allPages, firstPageParam) => {
+		if (firstPageParam <= 1) return undefined;
+		return firstPageParam - 1;
+	},
+	maxPages: 3, // Keep 3 pages (60 items) in memory
+});
 ```
 
 ## Context

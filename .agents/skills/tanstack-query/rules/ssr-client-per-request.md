@@ -10,14 +10,14 @@ On the server, create a new `QueryClient` for every request. A shared `QueryClie
 
 ```tsx
 // NEVER do this — shared across all requests/users
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 export default function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Page />
-    </QueryClientProvider>
-  )
+	return (
+		<QueryClientProvider client={queryClient}>
+			<Page />
+		</QueryClientProvider>
+	);
 }
 
 // User A's private data is cached and served to User B
@@ -27,25 +27,25 @@ export default function App() {
 
 ```tsx
 export default function App({ Component, pageProps }: AppProps) {
-  // useState ensures one client per component instance (per request on server)
-  const [queryClient] = React.useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // Prevent immediate refetch after hydration
-          },
-        },
-      })
-  )
+	// useState ensures one client per component instance (per request on server)
+	const [queryClient] = React.useState(
+		() =>
+			new QueryClient({
+				defaultOptions: {
+					queries: {
+						staleTime: 60 * 1000, // Prevent immediate refetch after hydration
+					},
+				},
+			}),
+	);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={pageProps.dehydratedState}>
-        <Component {...pageProps} />
-      </HydrationBoundary>
-    </QueryClientProvider>
-  )
+	return (
+		<QueryClientProvider client={queryClient}>
+			<HydrationBoundary state={pageProps.dehydratedState}>
+				<Component {...pageProps} />
+			</HydrationBoundary>
+		</QueryClientProvider>
+	);
 }
 ```
 
@@ -53,41 +53,43 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ```tsx
 // app/providers.tsx
-'use client'
+"use client";
 
-import { isServer, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+	isServer,
+	QueryClient,
+	QueryClientProvider,
+} from "@tanstack/react-query";
 
 function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000,
-      },
-    },
-  })
+	return new QueryClient({
+		defaultOptions: {
+			queries: {
+				staleTime: 60 * 1000,
+			},
+		},
+	});
 }
 
-let browserQueryClient: QueryClient | undefined = undefined
+let browserQueryClient: QueryClient | undefined = undefined;
 
 function getQueryClient() {
-  if (isServer) {
-    // Server: always create a new client (one per request)
-    return makeQueryClient()
-  } else {
-    // Browser: reuse the same client across renders
-    if (!browserQueryClient) browserQueryClient = makeQueryClient()
-    return browserQueryClient
-  }
+	if (isServer) {
+		// Server: always create a new client (one per request)
+		return makeQueryClient();
+	} else {
+		// Browser: reuse the same client across renders
+		if (!browserQueryClient) browserQueryClient = makeQueryClient();
+		return browserQueryClient;
+	}
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const queryClient = getQueryClient()
+	const queryClient = getQueryClient();
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+	return (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
 }
 ```
 

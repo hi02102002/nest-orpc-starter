@@ -11,93 +11,95 @@ Every server function that accesses user-specific data or performs mutations mus
 ```tsx
 // Trusting a userId passed from the client
 export const getUserData = createServerFn()
-  .inputValidator((data: { userId: string }) => data)
-  .handler(async ({ data }) => {
-    // Anyone can pass any userId! No server-side auth check
-    return db.users.findUnique({ where: { id: data.userId } })
-  })
+	.inputValidator((data: { userId: string }) => data)
+	.handler(async ({ data }) => {
+		// Anyone can pass any userId! No server-side auth check
+		return db.users.findUnique({ where: { id: data.userId } });
+	});
 
 // Checking auth on the client only
 function ProfilePage() {
-  const { user } = useAuth()  // Client-side only
-  if (!user) return <Navigate to="/login" />
-  // If someone calls getProfile() directly, there's no server check
-  return <Profile />
+	const { user } = useAuth(); // Client-side only
+	if (!user) return <Navigate to="/login" />;
+	// If someone calls getProfile() directly, there's no server check
+	return <Profile />;
 }
 ```
 
 ## Good Example: Auth via Middleware
 
 ```tsx
-import { createMiddleware, createServerFn } from '@tanstack/react-start'
-import { useSession } from '@tanstack/react-start/server'
-import { redirect } from '@tanstack/react-router'
+import { createMiddleware, createServerFn } from "@tanstack/react-start";
+import { useSession } from "@tanstack/react-start/server";
+import { redirect } from "@tanstack/react-router";
 
-const authMiddleware = createMiddleware({ type: 'function' })
-  .server(async ({ next }) => {
-    const session = await useAppSession()
-    if (!session.data.userId) {
-      throw redirect({ to: '/login' })
-    }
-    return next({
-      context: { userId: session.data.userId },
-    })
-  })
+const authMiddleware = createMiddleware({ type: "function" }).server(
+	async ({ next }) => {
+		const session = await useAppSession();
+		if (!session.data.userId) {
+			throw redirect({ to: "/login" });
+		}
+		return next({
+			context: { userId: session.data.userId },
+		});
+	},
+);
 
 // User can only access their own data - userId comes from session, not client
 export const getMyProfile = createServerFn()
-  .middleware([authMiddleware])
-  .handler(async ({ context }) => {
-    return db.users.findUnique({
-      where: { id: context.userId },
-      select: { id: true, name: true, email: true, avatar: true },
-    })
-  })
+	.middleware([authMiddleware])
+	.handler(async ({ context }) => {
+		return db.users.findUnique({
+			where: { id: context.userId },
+			select: { id: true, name: true, email: true, avatar: true },
+		});
+	});
 
-export const updateMyProfile = createServerFn({ method: 'POST' })
-  .middleware([authMiddleware])
-  .inputValidator(z.object({
-    name: z.string().min(1).max(100),
-  }))
-  .handler(async ({ data, context }) => {
-    return db.users.update({
-      where: { id: context.userId },
-      data: { name: data.name },
-    })
-  })
+export const updateMyProfile = createServerFn({ method: "POST" })
+	.middleware([authMiddleware])
+	.inputValidator(
+		z.object({
+			name: z.string().min(1).max(100),
+		}),
+	)
+	.handler(async ({ data, context }) => {
+		return db.users.update({
+			where: { id: context.userId },
+			data: { name: data.name },
+		});
+	});
 ```
 
 ## Good Example: Direct Session Check
 
 ```tsx
-import { createServerFn } from '@tanstack/react-start'
-import { redirect } from '@tanstack/react-router'
+import { createServerFn } from "@tanstack/react-start";
+import { redirect } from "@tanstack/react-router";
 
-export const getCurrentUser = createServerFn()
-  .handler(async () => {
-    const session = await useAppSession()
-    const userId = session.data.userId
+export const getCurrentUser = createServerFn().handler(async () => {
+	const session = await useAppSession();
+	const userId = session.data.userId;
 
-    if (!userId) return null
+	if (!userId) return null;
 
-    return db.users.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        // Never include passwordHash or secrets
-      },
-    })
-  })
+	return db.users.findUnique({
+		where: { id: userId },
+		select: {
+			id: true,
+			email: true,
+			name: true,
+			// Never include passwordHash or secrets
+		},
+	});
+});
 
 // Use in root route to make user available everywhere
 export const Route = createRootRoute({
-  beforeLoad: async () => {
-    const user = await getCurrentUser()
-    return { user }
-  },
-})
+	beforeLoad: async () => {
+		const user = await getCurrentUser();
+		return { user };
+	},
+});
 ```
 
 ## Context
