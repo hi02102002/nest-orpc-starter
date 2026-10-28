@@ -17,6 +17,7 @@
     "db:generate": "turbo run db:generate -F @petshop/db --",
     "db:migrate": "turbo run db:migrate -F @petshop/db --",
     "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/",
+    "generate:crud": "pnpm --filter @petshop/cli generate:crud",
     "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/",
     "auth:generate": "cd apps/server && pnpm run auth:generate",
     "check": "biome check --write ."
