@@ -3,6 +3,7 @@ import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
 import { ErrorPage, NotFoundPage } from "./components/error-pages";
+import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
 import { getOrpc } from "./utils/orpc";
 
@@ -23,6 +24,7 @@ export function getRouter() {
 		defaultNotFoundComponent: NotFoundPage,
 		defaultErrorComponent: ErrorPage,
 		context: { orpc, queryClient },
+		defaultPendingComponent: Loader,
 	});
 
 	setupRouterSsrQueryIntegration({ router, queryClient });

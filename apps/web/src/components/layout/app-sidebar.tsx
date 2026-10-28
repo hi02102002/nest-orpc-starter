@@ -1,4 +1,9 @@
-import { Link, type LinkProps, useLocation } from "@tanstack/react-router";
+import {
+	Link,
+	type LinkProps,
+	useLocation,
+	useRouteContext,
+} from "@tanstack/react-router";
 import type { MenuProps } from "antd";
 import { Layout, Menu, Typography } from "antd";
 import { Boxes, LayoutDashboard, LogOut, Users } from "lucide-react";
@@ -31,7 +36,9 @@ export function AppSidebar() {
 	const setCollapsed = useSidebarStore((state) => state.setCollapsed);
 	const setIsMobile = useSidebarStore((state) => state.setIsMobile);
 	const pathname = useLocation({ select: (location) => location.pathname });
-	const { data: session } = authClient.useSession();
+	const { session } = useRouteContext({
+		from: "__root__",
+	});
 	const admin = isAdmin(session?.user);
 	const signOut = useSignOut();
 
@@ -57,7 +64,7 @@ export function AppSidebar() {
 				}
 			}}
 			onBreakpoint={setIsMobile}
-			className="sticky! top-0 z-30 h-screen border-e border-[rgb(128_102_80/20%)] [&_.ant-layout-sider-children]:flex [&_.ant-layout-sider-children]:flex-col [&_.ant-layout-sider-children]:overflow-y-auto [&_.ant-layout-sider-trigger]:border-e [&_.ant-layout-sider-trigger]:border-[rgb(128_102_80/20%)]"
+			className="sticky! top-0 z-30 h-screen [&_.ant-layout-sider-children]:flex [&_.ant-layout-sider-children]:flex-col [&_.ant-layout-sider-children]:overflow-y-auto"
 		>
 			<div className="flex h-[61px] items-center gap-2.5 px-6">
 				<Boxes size={20} className="shrink-0" />
@@ -95,7 +102,6 @@ export function AppSidebar() {
 						onClick: signOut,
 					},
 				]}
-				className="border-e-0! border-t border-[rgb(128_102_80/20%)]"
 			/>
 		</Layout.Sider>
 	);

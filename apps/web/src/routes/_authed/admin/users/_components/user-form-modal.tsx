@@ -1,13 +1,14 @@
 import { App, Form, Input, Modal, Select } from "antd";
 import { useEffect } from "react";
-import { Controller } from "react-hook-form";
 import z from "zod";
 
+import { FormField } from "@/components/form/form-field";
 import { useZodForm } from "@/hooks/use-zod-form";
 
 import {
 	type AdminUser,
 	type UserFormValues,
+	type UserRole,
 	useCreateUser,
 	useUpdateUser,
 } from "../_hooks/use-admin-users";
@@ -36,7 +37,7 @@ const editSchema = baseSchema.extend({
 		.transform((value) => value || undefined),
 });
 
-export const roleOptions = [
+export const roleOptions: { value: UserRole; label: string }[] = [
 	{ value: "user", label: "Người dùng" },
 	{ value: "admin", label: "Quản trị viên" },
 ];
@@ -112,80 +113,58 @@ export function UserFormModal({
 				noValidate
 			>
 				<Form component={false} layout="vertical">
-					<Controller
-						control={control}
-						name="name"
-						render={({ field, fieldState }) => (
-							<Form.Item
-								label="Tên"
-								htmlFor={field.name}
-								validateStatus={fieldState.error ? "error" : undefined}
-								help={fieldState.error?.message}
-							>
-								<Input {...field} id={field.name} autoComplete="off" />
-							</Form.Item>
+					<FormField control={control} name="name" label="Tên" required>
+						{(field) => (
+							<Input {...field} placeholder="Nhập tên" autoComplete="off" />
 						)}
-					/>
-					<Controller
-						control={control}
-						name="email"
-						render={({ field, fieldState }) => (
-							<Form.Item
-								label="Email"
-								htmlFor={field.name}
-								validateStatus={fieldState.error ? "error" : undefined}
-								help={fieldState.error?.message}
-							>
-								<Input
-									{...field}
-									id={field.name}
-									type="email"
-									autoComplete="off"
-								/>
-							</Form.Item>
+					</FormField>
+					<FormField control={control} name="email" label="Email" required>
+						{(field) => (
+							<Input
+								{...field}
+								type="email"
+								placeholder="Nhập email"
+								autoComplete="off"
+							/>
 						)}
-					/>
-					<Controller
+					</FormField>
+					<FormField
 						control={control}
 						name="role"
-						render={({ field }) => (
-							<Form.Item
-								label="Vai trò"
-								htmlFor={field.name}
-								extra={
-									isSelf ? "Bạn không thể tự đổi vai trò của mình." : undefined
-								}
-							>
-								<Select
-									{...field}
-									id={field.name}
-									options={roleOptions}
-									disabled={isSelf}
-								/>
-							</Form.Item>
+						label="Vai trò"
+						required
+						extra={
+							isSelf ? "Bạn không thể tự đổi vai trò của mình." : undefined
+						}
+					>
+						{(field) => (
+							<Select
+								{...field}
+								options={roleOptions}
+								placeholder="Chọn vai trò"
+								disabled={isSelf}
+							/>
 						)}
-					/>
-					<Controller
+					</FormField>
+					<FormField
 						control={control}
 						name="password"
-						render={({ field, fieldState }) => (
-							<Form.Item
-								label={isEdit ? "Mật khẩu mới" : "Mật khẩu"}
-								htmlFor={field.name}
-								validateStatus={fieldState.error ? "error" : undefined}
-								help={
-									fieldState.error?.message ??
-									(isEdit ? "Để trống nếu không đổi mật khẩu." : undefined)
+						label={isEdit ? "Mật khẩu mới" : "Mật khẩu"}
+						required={!isEdit}
+						help={isEdit ? "Để trống nếu không đổi mật khẩu." : undefined}
+					>
+						{(field) => (
+							<Input.Password
+								{...field}
+								placeholder={
+									isEdit
+										? "Nhập mật khẩu mới"
+										: `Tối thiểu ${MIN_PASSWORD} ký tự`
 								}
-							>
-								<Input.Password
-									{...field}
-									id={field.name}
-									autoComplete="new-password"
-								/>
-							</Form.Item>
+								autoComplete="new-password"
+							/>
 						)}
-					/>
+					</FormField>
 					<button type="submit" hidden />
 				</Form>
 			</form>

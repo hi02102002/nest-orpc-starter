@@ -5,7 +5,7 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient, authFetchOptions } from "@/lib/auth-client";
 
 export type UserRole = "admin" | "user";
 
@@ -45,6 +45,7 @@ export const adminUsersQueryOptions = (search: AdminUsersSearch) =>
 		queryFn: () =>
 			unwrap(
 				authClient.admin.listUsers({
+					fetchOptions: authFetchOptions(),
 					query: {
 						limit: search.pageSize,
 						offset: (search.page - 1) * search.pageSize,

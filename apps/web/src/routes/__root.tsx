@@ -10,6 +10,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { ReactNode } from "react";
 
 import { AntdProvider } from "@/components/antd-provider";
+import { sessionQueryOptions } from "@/lib/session";
 import type { OrpcUtils } from "@/utils/orpc";
 
 import appCss from "../index.css?url";
@@ -20,6 +21,9 @@ export interface RouterAppContext {
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
+	beforeLoad: async ({ context }) => ({
+		session: await context.queryClient.fetchQuery(sessionQueryOptions),
+	}),
 	component: RootComponent,
 	head: () => ({
 		meta: [

@@ -6,8 +6,6 @@ import {
 	App,
 	Avatar,
 	Button,
-	Card,
-	Flex,
 	Input,
 	Popconfirm,
 	Select,
@@ -16,9 +14,13 @@ import {
 	Tag,
 	Typography,
 } from "antd";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import z from "zod";
+import { ColumnVisibilityButton } from "@/components/data-table/column-visibility-button";
+import { ListPage } from "@/components/data-table/list-page";
+import { TableEmpty } from "@/components/data-table/table-empty";
+import { useColumnVisibility } from "@/components/data-table/use-column-visibility";
 import { authClient } from "@/lib/auth-client";
 import dayjs from "@/lib/dayjs";
 import { roleOptions, UserFormModal } from "./_components/user-form-modal";
@@ -41,6 +43,10 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/_authed/admin/users/")({
 	validateSearch: searchSchema,
+	loaderDeps: ({ search }) => search,
+	context: ({ deps }) => ({
+		usersQueryOptions: adminUsersQueryOptions(deps),
+	}),
 	component: RouteComponent,
 });
 
@@ -50,12 +56,13 @@ type ModalState = { open: false } | { open: true; user?: AdminUser };
 
 function RouteComponent() {
 	const search = Route.useSearch();
+	const { usersQueryOptions } = Route.useRouteContext();
 	const navigate = Route.useNavigate();
 	const { message } = App.useApp();
 	const { data: session } = authClient.useSession();
 	const currentUserId = session?.user.id;
 
-	const { data, isFetching, error } = useQuery(adminUsersQueryOptions(search));
+	const { data, isLoading, error } = useQuery(usersQueryOptions);
 	const removeUser = useRemoveUser();
 	const [modal, setModal] = useState<ModalState>({ open: false });
 	const [searchText, setSearchText] = useState(search.search ?? "");
@@ -63,7 +70,7 @@ function RouteComponent() {
 	const setSearch = (patch: Partial<AdminUsersSearch>) =>
 		navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
-	const { run: applySearch } = useDebounceFn(
+	const { run: applySearch, cancel: cancelSearch } = useDebounceFn(
 		(value: string) => setSearch({ search: value || undefined, page: 1 }),
 		{ wait: 300 },
 	);
@@ -167,6 +174,26 @@ function RouteComponent() {
 		},
 	];
 
+	const { visibleColumns, visibility } = useColumnVisibility(
+		"admin-users",
+		columns,
+	);
+
+	const filtersActive = Boolean(
+		search.search || search.role || search.searchField !== "email",
+	);
+
+	const resetFilters = () => {
+		cancelSearch();
+		setSearchText("");
+		setSearch({
+			search: undefined,
+			searchField: "email",
+			role: undefined,
+			page: 1,
+		});
+	};
+
 	const onTableChange: TableProps<AdminUser>["onChange"] = (
 		pagination,
 		_filters,
@@ -186,12 +213,10 @@ function RouteComponent() {
 	};
 
 	return (
-		<Card variant="outlined">
-			<Flex vertical gap="middle">
-				<Flex justify="space-between" align="center" wrap gap="middle">
-					<Typography.Title level={4} className="m-0!">
-						Quản lý người dùng
-					</Typography.Title>
+		<ListPage
+			title="Quản lý người dùng"
+			actions={
+				<>
 					<Button
 						type="primary"
 						icon={<Plus size={16} />}
@@ -199,8 +224,11 @@ function RouteComponent() {
 					>
 						Thêm người dùng
 					</Button>
-				</Flex>
-				<Flex wrap gap="small">
+					<ColumnVisibilityButton visibility={visibility} />
+				</>
+			}
+			filters={
+				<>
 					<Space.Compact className="w-full max-w-md">
 						<Select
 							value={search.searchField}
@@ -223,6 +251,18 @@ function RouteComponent() {
 								setSearchText(event.target.value);
 								applySearch(event.target.value);
 							}}
+							onPressEnter={() => {
+								cancelSearch();
+								setSearch({ search: searchText || undefined, page: 1 });
+							}}
+						/>
+						<Button
+							icon={<Search size={16} />}
+							aria-label="Tìm kiếm"
+							onClick={() => {
+								cancelSearch();
+								setSearch({ search: searchText || undefined, page: 1 });
+							}}
 						/>
 					</Space.Compact>
 					<Select
@@ -233,36 +273,46 @@ function RouteComponent() {
 						options={roleOptions}
 						className="w-44"
 					/>
-				</Flex>
-
-				{error && (
-					<Typography.Text type="danger">{error.message}</Typography.Text>
-				)}
-				<Table<AdminUser>
-					rowKey="id"
-					columns={columns}
-					dataSource={data?.users}
-					loading={isFetching}
-					onChange={onTableChange}
-					scroll={{ x: "max-content" }}
-					pagination={{
-						current: search.page,
-						pageSize: search.pageSize,
-						total: data?.total ?? 0,
-						showSizeChanger: true,
-						showTotal: (total) => `${total} người dùng`,
-					}}
-					showSorterTooltip={false}
-					size="small"
-				/>
-			</Flex>
-
+				</>
+			}
+			filtersActive={filtersActive}
+			onResetFilters={resetFilters}
+		>
+			{error && (
+				<Typography.Text type="danger">{error.message}</Typography.Text>
+			)}
+			<Table<AdminUser>
+				rowKey="id"
+				columns={visibleColumns}
+				dataSource={data?.users ?? []}
+				locale={{
+					emptyText: (
+						<TableEmpty
+							entity="người dùng"
+							filtered={filtersActive}
+							onResetFilters={resetFilters}
+						/>
+					),
+				}}
+				loading={isLoading}
+				onChange={onTableChange}
+				scroll={{ x: "max-content" }}
+				pagination={{
+					current: search.page,
+					pageSize: search.pageSize,
+					total: data?.total ?? 0,
+					showSizeChanger: true,
+					showTotal: (total) => `${total} người dùng`,
+				}}
+				showSorterTooltip={false}
+				size="small"
+			/>
 			<UserFormModal
 				open={modal.open}
 				user={modal.open ? modal.user : undefined}
 				isSelf={modal.open && modal.user?.id === currentUserId}
 				onClose={() => setModal({ open: false })}
 			/>
-		</Card>
+		</ListPage>
 	);
 }

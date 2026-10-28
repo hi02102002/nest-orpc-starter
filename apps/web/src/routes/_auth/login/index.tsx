@@ -1,10 +1,12 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { App, Button, Form, Input } from "antd";
-import { Controller } from "react-hook-form";
 import z from "zod";
 
+import { FormField } from "@/components/form/form-field";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { authClient } from "@/lib/auth-client";
+import { sessionQueryKey } from "@/lib/session";
 
 const signInSchema = z.object({
 	email: z.email("Email không hợp lệ"),
@@ -25,6 +27,7 @@ function RouteComponent() {
 
 	const { message } = App.useApp();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
 	const {
 		control,
@@ -45,6 +48,8 @@ function RouteComponent() {
 			},
 			{
 				onSuccess: () => {
+					// Otherwise the root beforeLoad keeps the cached "signed out" session.
+					queryClient.removeQueries({ queryKey: sessionQueryKey });
 					if (redirect?.startsWith("/") && !redirect.startsWith("//")) {
 						navigate({ href: redirect });
 					} else {
@@ -65,43 +70,30 @@ function RouteComponent() {
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} noValidate>
 				<Form component={false} layout="vertical">
-					<Controller
-						control={control}
-						name="email"
-						render={({ field, fieldState }) => (
-							<Form.Item
-								label="Email"
-								htmlFor={field.name}
-								validateStatus={fieldState.error ? "error" : undefined}
-								help={fieldState.error?.message}
-							>
-								<Input
-									{...field}
-									autoComplete="email"
-									id={field.name}
-									type="email"
-								/>
-							</Form.Item>
+					<FormField control={control} name="email" label="Email" required>
+						{(field) => (
+							<Input
+								{...field}
+								type="email"
+								placeholder="Nhập email"
+								autoComplete="email"
+							/>
 						)}
-					/>
-					<Controller
+					</FormField>
+					<FormField
 						control={control}
 						name="password"
-						render={({ field, fieldState }) => (
-							<Form.Item
-								label="Password"
-								htmlFor={field.name}
-								validateStatus={fieldState.error ? "error" : undefined}
-								help={fieldState.error?.message}
-							>
-								<Input.Password
-									{...field}
-									autoComplete="current-password"
-									id={field.name}
-								/>
-							</Form.Item>
+						label="Mật khẩu"
+						required
+					>
+						{(field) => (
+							<Input.Password
+								{...field}
+								placeholder="Nhập mật khẩu"
+								autoComplete="current-password"
+							/>
 						)}
-					/>
+					</FormField>
 
 					<Button block type="primary" htmlType="submit" loading={isSubmitting}>
 						Đăng nhập

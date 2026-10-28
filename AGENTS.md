@@ -36,15 +36,15 @@ CI (`.github/workflows/ci.yml`) runs `biome ci .` and `pnpm check-types`. Run bo
 
 Project skills live in `.agents/skills/` (also exposed to Claude Code via `.claude/skills`). Load the matching one before editing:
 
-| Task                                             | Skill                                                                                                                           |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Plain list/get/create/update/delete over a table | `app-crud` (and `packages/crud/README.md`)                                                                                      |
-| A new or changed endpoint with business logic    | `orpc-api-contract` + `app-server`                                                                                              |
-| Server modules, auth, logging, DB access         | `app-server`                                                                                                                    |
-| Drizzle schema, relations, queries               | `drizzle-best-practices`                                                                                                        |
-| Web routing, data loading, queries               | `tanstack-start`, `tanstack-router`, `tanstack-query`, `tanstack-integration`                                                   |
-| UI components                                    | `antd`, `ant-design`                                                                                                            |
-| Auth features                                    | `better-auth-*`, `email-and-password-best-practices`, `organization-best-practices`, `two-factor-authentication-best-practices` |
+| Task                                             | Skill                                                                                                                                      |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Plain list/get/create/update/delete over a table | `app-crud` (and `packages/crud/README.md`)                                                                                                 |
+| A new or changed endpoint with business logic    | `orpc-api-contract` + `app-server`                                                                                                         |
+| Server modules, auth, logging, DB access         | `app-server`                                                                                                                               |
+| Drizzle schema, relations, queries               | `drizzle-best-practices`                                                                                                                   |
+| Web routing, data loading, queries               | `app-route-data` (session in context, loader prefetch), then `tanstack-start`, `tanstack-router`, `tanstack-query`, `tanstack-integration` |
+| Any web screen: forms, tables, modals, feedback  | `app-ui` (rules + sub-skills in `references/`), then `antd`, `ant-design` for API details                                                  |
+| Auth features                                    | `better-auth-*`, `email-and-password-best-practices`, `organization-best-practices`, `two-factor-authentication-best-practices`            |
 
 ## Architecture rules
 
@@ -67,5 +67,5 @@ Project skills live in `.agents/skills/` (also exposed to Claude Code via `.clau
 ## Known gotchas
 
 - **Migrations can't build a fresh database.** The tracked history starts with an `ALTER TABLE "user"` and has no migration that creates the auth tables. Use `pnpm db:push` for a brand-new database until the history is repaired.
-- **Hard-loading an authed page redirects to `/login`.** `_authed` `beforeLoad` calls `authClient.getSession()` during SSR without forwarding cookies. Client-side navigation works.
+- **Session in route guards.** Read `context.session` (set by the root `beforeLoad` from `sessionQueryOptions` in `apps/web/src/lib/session.ts`), never `authClient.getSession()`: during SSR it forwards the request cookie to the API, otherwise a hard refresh of an authed page redirects to `/login`. This relies on the browser sending the API session cookie to the web origin too (true on `localhost`, where cookies ignore the port); on separate production domains, configure Better Auth cross-subdomain cookies.
 - **OpenAPI.** Input schemas must be convertible to JSON Schema. Avoid bare `z.coerce.date()` in inputs and use `z.iso.datetime().pipe(z.coerce.date())` instead. Routes whose input is a union can't use path params.
