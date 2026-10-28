@@ -73,10 +73,10 @@ const getLink = ({
 			}),
 			...(dedupe
 				? [
-					new DedupeLinkPlugin({
-						groups: [{ condition: () => true, context: {} }],
-					}),
-				]
+						new DedupeLinkPlugin({
+							groups: [{ condition: () => true, context: {} }],
+						}),
+					]
 				: []),
 		],
 	});

@@ -19,7 +19,7 @@ type ORPCContextDependencies = {
 declare module "@orpc/server" {
 	interface DefaultInitialContext
 		extends RequestHeadersHandlerPluginContext,
-		ResponseHeadersHandlerPluginContext {
+			ResponseHeadersHandlerPluginContext {
 		db: Database;
 		session: Auth["$Infer"]["Session"] | null;
 	}
