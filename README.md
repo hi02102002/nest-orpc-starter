@@ -1,15 +1,15 @@
 # petshop
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Hono, ORPC, and more.
+This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack) and has since moved to a NestJS API with a contract-first oRPC layer, a TanStack Start web app, and a shared generic CRUD layer.
 
 ## Features
 
 - **TypeScript** - For type safety and improved developer experience
-- **TanStack Router** - File-based routing with full type safety
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Hono** - Lightweight, performant server framework
-- **oRPC** - End-to-end type-safe APIs with OpenAPI integration
+- **TanStack Start / Router / Query** - SSR, file-based routing and data fetching with full type safety
+- **Ant Design + TailwindCSS** - UI components and utility-first styling
+- **NestJS** - Feature-based backend modules
+- **oRPC** - Contract-first, end-to-end type-safe APIs with OpenAPI docs
+- **Generic CRUD** - One typed oRPC router for every registered resource (`packages/crud`)
 - **Node.js** - Runtime environment
 - **Drizzle** - TypeScript-first ORM
 - **PostgreSQL** - Database engine
@@ -45,7 +45,7 @@ pnpm run dev
 ```
 
 Open [http://localhost:3333](http://localhost:3333) in your browser to see the web application.
-The API is running at [http://localhost:8080](http://localhost:8080).
+The API is running at [http://localhost:8080](http://localhost:8080), with the API reference at [http://localhost:8080/docs](http://localhost:8080/docs).
 
 ## Docker
 
@@ -83,31 +83,29 @@ The web application is available at `http://localhost:3333`, the API at
 build. Rebuild the web image after changing this URL. TanStack Start uses the
 internal Compose URL `http://server:8080` for SSR requests.
 
-## UI Customization
+## API and CRUD
 
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
+The API is contract-first: `packages/api-contract` holds the oRPC contract (zod only, shared with the web), `apps/server` implements it with NestJS, and the web consumes it through `orpc` utilities in `apps/web/src/utils/orpc.ts`.
 
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
+There are two ways to add endpoints:
 
-### Add more shared components
+- **Plain CRUD over a table**: register a resource in the generic CRUD layer. No contract, controller or service is needed; the web calls `orpc.crud.*` with per-resource types, filters, sorting, search, pagination and joins.
 
-Run this from the project root to add more primitives to the shared UI package:
+  ```ts
+  useQuery(orpc.crud.list.queryOptions({
+  	input: { resource: "users", query: { search: "an", orderBy: { name: "asc" } } },
+  }));
+  ```
 
-```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
-```
+  Adding a resource touches four places: the Drizzle table and relations in `packages/db`, the zod registry in `packages/api-contract/src/crud.resources.ts`, the table binding in `apps/server/src/features/crud/crud.tables.ts`, and (for per-user data) a scope policy in `crud.policies.ts`. See [`packages/crud/README.md`](packages/crud/README.md) for the full guide, request lifecycle and troubleshooting.
 
-Import shared components like this:
+- **Endpoints with business logic**: write a dedicated feature contract and NestJS feature module. `pnpm run generate:crud` scaffolds one (schema, contract, service, controller, module).
 
-```tsx
-import { Button } from "@petshop/ui/components/button";
-```
+Agent skills for both workflows live in `.agents/skills` (`petshop-crud`, `orpc-api-contract`, `petshop-server`).
 
-### Add app-specific blocks
+## UI
 
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
+The web app uses Ant Design components with TailwindCSS utilities. The theme provider lives in `apps/web/src/components/antd-provider.tsx` and global styles in `apps/web/src/index.css`.
 
 ## Environment Configuration
 
@@ -128,13 +126,15 @@ Run standalone Node/Bun tools that use Varlock from the owning app directory so 
 ```
 petshop/
 ├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
-│   └── server/      # Backend API (Hono, ORPC)
+│   ├── web/           # Frontend application (TanStack Start + Ant Design)
+│   └── server/        # Backend API (NestJS + oRPC), organized by feature
 ├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
-│   ├── api/         # API layer / business logic
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
+│   ├── api-contract/  # Shared oRPC contract and zod schemas (no DB imports)
+│   ├── crud/          # Generic typed CRUD layer (contract, server engine, client utils)
+│   ├── auth/          # Better Auth configuration
+│   ├── db/            # Drizzle schema, relations & migrations
+│   ├── cli/           # Code generators (`generate:crud`)
+│   └── config/        # Shared TypeScript config
 ```
 
 ## Available Scripts
@@ -145,9 +145,10 @@ petshop/
 - `pnpm run dev:server`: Start only the server
 - `pnpm run check-types`: Check TypeScript types across all apps
 - `pnpm run db:push`: Push schema changes to database
-- `pnpm run db:generate`: Generate database client/types
+- `pnpm run db:generate`: Generate a migration from schema changes
 - `pnpm run db:migrate`: Run database migrations
 - `pnpm run db:studio`: Open database studio UI
+- `pnpm run generate:crud`: Scaffold a dedicated feature (schema, contract, service, controller, module)
 - `pnpm run check`: Run Biome formatting and linting
 
 ## Better Auth Schema Generation

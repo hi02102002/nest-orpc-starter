@@ -8,15 +8,17 @@ description: "Add, change, debug, or review resources served by the generic CRUD
 
 One oRPC router serves every registered resource. A resource is declared once with zod (shared, isomorphic), bound to a Drizzle table on the server, and optionally given a server-only policy. The web gets per-resource types for rows, filters and joins.
 
+For engine internals (request lifecycle, source map, extending operators/operations, debugging table), read `packages/crud/README.md`.
+
 ## Where things live
 
-| Layer | File | Holds |
-|---|---|---|
-| Engine | `packages/crud/src/*` | `defineResource`, contract builder, RQB v2 engine, typed TanStack utils. Knows nothing about petshop tables. |
-| Registry (shared) | `packages/api-contract/src/crud.resources.ts` | zod `select` / `create` / `update`, allowlists, relations, soft delete, operations. |
-| Table binding (server) | `apps/server/src/features/crud/crud.tables.ts` | `defineTables<CrudResources>()({ resource: table })`. |
-| Policies (server) | `apps/server/src/features/crud/crud.policies.ts` | `scope`, `can`, `beforeCreate`, `beforeUpdate`. |
-| Web | `apps/web/src/utils/orpc.ts` | `orpc.crud = createCrudUtils<CrudResources>(utils.crud)`. |
+| Layer                  | File                                             | Holds                                                                                                        |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Engine                 | `packages/crud/src/*`                            | `defineResource`, contract builder, RQB v2 engine, typed TanStack utils. Knows nothing about petshop tables. |
+| Registry (shared)      | `packages/api-contract/src/crud.resources.ts`    | zod `select` / `create` / `update`, allowlists, relations, soft delete, operations.                          |
+| Table binding (server) | `apps/server/src/features/crud/crud.tables.ts`   | `defineTables<CrudResources>()({ resource: table })`.                                                        |
+| Policies (server)      | `apps/server/src/features/crud/crud.policies.ts` | `scope`, `can`, `beforeCreate`, `beforeUpdate`.                                                              |
+| Web                    | `apps/web/src/utils/orpc.ts`                     | `orpc.crud = createCrudUtils<CrudResources>(utils.crud)`.                                                    |
 
 Keep the boundary: `@petshop/api-contract` must never import `@petshop/db`, `drizzle-orm` or table objects. It ships to the browser and must stay zod-only. Tables enter only in `crud.tables.ts`.
 
@@ -40,9 +42,10 @@ pets: defineResource({
 }),
 ```
 
-   - `select` is the public projection. Only its keys are selected, both for the resource and when it is joined. Leave internal columns (tokens, emails, flags) out of it.
-   - `create` must not contain server-managed fields such as `ownerId`, `id` or timestamps; set those in `beforeCreate`. Zod strips any extra keys a client sends.
-   - Only list fields in `filterable` and `sortable` that the client is allowed to filter or sort on.
+- `select` is the public projection. Only its keys are selected, both for the resource and when it is joined. Leave internal columns (tokens, emails, flags) out of it.
+- `create` must not contain server-managed fields such as `ownerId`, `id` or timestamps; set those in `beforeCreate`. Zod strips any extra keys a client sends.
+- Only list fields in `filterable` and `sortable` that the client is allowed to filter or sort on.
+
 3. **Bind the table** in `crud.tables.ts`: `pets`. This fails to compile when `select` drifts from the table, for example a missing enum value, a key that is not a column, or a nullable mismatch. Fix the schema; never cast the error away.
 4. **Add a policy** when rows belong to someone:
 
