@@ -44,8 +44,8 @@ Then, run the development server:
 pnpm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3333](http://localhost:3333) in your browser to see the web application.
+The API is running at [http://localhost:8080](http://localhost:8080).
 
 ## Docker
 
@@ -76,12 +76,12 @@ Build and start both applications:
 docker compose up --build
 ```
 
-The web application is available at `http://localhost:3001`, the API at
-`http://localhost:3000`, and the API reference at `http://localhost:3000/docs`.
+The web application is available at `http://localhost:3333`, the API at
+`http://localhost:8080`, and the API reference at `http://localhost:8080/docs`.
 
 `VITE_SERVER_URL` is embedded into the browser bundle during the web image
 build. Rebuild the web image after changing this URL. TanStack Start uses the
-internal Compose URL `http://server:3000` for SSR requests.
+internal Compose URL `http://server:8080` for SSR requests.
 
 ## UI Customization
 

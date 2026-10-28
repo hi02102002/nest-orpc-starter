@@ -29,8 +29,8 @@ FROM base AS builder
 COPY --from=dependencies /workspace /workspace
 COPY --from=pruner /workspace/out/full/ ./
 
-ARG VITE_SERVER_URL=http://localhost:3000
-ARG SERVER_URL=http://server:3000
+ARG VITE_SERVER_URL=http://localhost:8080
+ARG SERVER_URL=http://server:8080
 
 ENV NODE_ENV=production
 ENV VITE_SERVER_URL=$VITE_SERVER_URL
@@ -42,7 +42,7 @@ FROM node:24-alpine AS runner
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
-ENV PORT=3001
+ENV PORT=3333
 
 WORKDIR /app
 
@@ -50,9 +50,9 @@ COPY --from=builder --chown=node:node /workspace/apps/web/.output ./.output
 
 USER node
 
-EXPOSE 3001
+EXPOSE 3333
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=15s --retries=5 \
-	CMD node -e "fetch('http://127.0.0.1:3001/').then((response) => { if (!response.ok) process.exit(1) }).catch(() => process.exit(1))"
+	CMD node -e "fetch('http://127.0.0.1:3333/').then((response) => { if (!response.ok) process.exit(1) }).catch(() => process.exit(1))"
 
 CMD ["node", ".output/server/index.mjs"]
