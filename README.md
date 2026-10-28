@@ -29,8 +29,13 @@ pnpm install
 
 This project uses PostgreSQL with Drizzle ORM.
 
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/server/.env` file with your PostgreSQL connection details.
+1. Start a local PostgreSQL with Docker (`compose.dev.yaml`), or use your own database:
+
+```bash
+pnpm db:up     # postgres:17 on localhost:5432, waits until healthy; `pnpm db:down` stops it
+```
+
+2. Update your `apps/server/.env` file with your PostgreSQL connection details. The Docker database matches `DATABASE_URL=postgresql://postgres:password@localhost:5432/postgres`; override with `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` or `POSTGRES_PORT`.
 
 3. Apply the schema to your database:
 

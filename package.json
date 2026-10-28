@@ -12,6 +12,8 @@
 		"check-types": "turbo run check-types",
 		"dev:web": "turbo run dev -F web --",
 		"dev:server": "turbo run dev -F server --",
+		"db:up": "docker compose -f compose.dev.yaml up -d --wait",
+		"db:down": "docker compose -f compose.dev.yaml down",
 		"db:push": "turbo run db:push -F @app/db --",
 		"db:studio": "turbo run db:studio -F @app/db --",
 		"db:generate": "turbo run db:generate -F @app/db --",
