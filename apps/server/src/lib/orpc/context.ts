@@ -1,6 +1,6 @@
 import type { IncomingHttpHeaders } from "node:http";
+import type { Database } from "@app/db";
 import type { ExecutionContext } from "@nestjs/common";
-import type { Database } from "@petshop/db";
 import { fromNodeHeaders } from "better-auth/node";
 import { identifyUser } from "evlog/better-auth";
 import { useLogger } from "evlog/nestjs";

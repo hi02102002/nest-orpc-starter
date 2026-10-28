@@ -1,6 +1,6 @@
+import { contract } from "@app/api-contract";
 import { Controller, Get } from "@nestjs/common";
 import { Implement } from "@orpc/nest";
-import { contract } from "@petshop/api-contract";
 
 import { pub } from "@/lib/orpc/procedures";
 

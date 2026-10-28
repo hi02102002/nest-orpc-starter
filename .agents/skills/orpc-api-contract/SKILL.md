@@ -1,14 +1,14 @@
 ---
 
 name: orpc-api-contract
-description: "Create and change contract-first oRPC v2 APIs in this Petshop monorepo. Use this skill whenever a task adds, edits, debugs, or reviews an API endpoint, Zod request or response schema, typed API error, OpenAPI route, NestJS oRPC implementation, or web client call involving `packages/api-contract`, `@orpc/contract`, `@orpc/nest`, `OpenAPILink`, or `@petshop/api-contract`. Also use it for apparently small endpoint changes because the contract, server implementation, and client types must remain aligned."
+description: "Create and change contract-first oRPC v2 APIs in this monorepo. Use this skill whenever a task adds, edits, debugs, or reviews an API endpoint, Zod request or response schema, typed API error, OpenAPI route, NestJS oRPC implementation, or web client call involving `packages/api-contract`, `@orpc/contract`, `@orpc/nest`, `OpenAPILink`, or `@app/api-contract`. Also use it for apparently small endpoint changes because the contract, server implementation, and client types must remain aligned."
 ---
 
-# Petshop oRPC API Contract
+# oRPC API Contract
 
 Use the repository's contract-first oRPC v2 architecture. The shared contract is the source of truth; the server implements it, and the web app consumes its inferred client type.
 
-Plain CRUD over a table goes through `contract.crud` (see the `petshop-crud` skill); write a dedicated feature contract only when the endpoint has its own business rules.
+Plain CRUD over a table goes through `contract.crud` (see the `app-crud` skill); write a dedicated feature contract only when the endpoint has its own business rules.
 
 ## Architecture
 
@@ -25,16 +25,16 @@ Inspect the current files before editing. Preserve established naming, route lay
 
 ## Define the contract
 
-Put each feature in a dedicated file such as `pets.contract.ts`, `orders.contract.ts`, or `users.contract.ts`. Use `oc` from `@orpc/contract`, Zod, and `openapi` metadata inside that feature file.
+Put each feature in a dedicated file such as `projects.contract.ts`, `orders.contract.ts`, or `users.contract.ts`. Use `oc` from `@orpc/contract`, Zod, and `openapi` metadata inside that feature file.
 
 ```ts
-// packages/api-contract/src/pets.contract.ts
-export const petsContract = {
+// packages/api-contract/src/projects.contract.ts
+export const projectsContract = {
 	get: oc
-		.meta(openapi({ method: "GET", path: "/api/pets/{id}" }))
+		.meta(openapi({ method: "GET", path: "/api/projects/{id}" }))
 		.input(z.object({ id: z.string() }))
 		.errors({
-			NOT_FOUND: { message: "Pet not found" },
+			NOT_FOUND: { message: "Project not found" },
 		})
 		.output(
 			z.object({
@@ -49,10 +49,10 @@ Import the feature contract into the package entry point and compose the root ro
 
 ```ts
 // packages/api-contract/src/index.ts
-import { petsContract } from "./pets.contract";
+import { projectsContract } from "./projects.contract";
 
 export const contract = {
-	pets: petsContract,
+	projects: projectsContract,
 };
 
 export type AppRouterClient = JsonifiedClient<
@@ -82,16 +82,16 @@ Prefer nested routers when a feature has multiple related groups, but do not reo
 Mirror the exact contract node in `apps/server/src/api.controller.ts`:
 
 ```ts
-@Implement(contract.pets.get)
-getPet() {
-	return implement(contract.pets.get).handler(async ({ input, errors }) => {
-		const pet = await this.petService.findById(input.id);
+@Implement(contract.projects.get)
+getProject() {
+	return implement(contract.projects.get).handler(async ({ input, errors }) => {
+		const project = await this.projectService.findById(input.id);
 
-		if (!pet) {
+		if (!project) {
 			throw errors.NOT_FOUND();
 		}
 
-		return pet;
+		return project;
 	});
 }
 ```
@@ -133,7 +133,7 @@ If the requested behavior is unclear, preserve the narrowest compatible API shap
 Run the smallest checks that cover the changed layers, using the workspace package manager:
 
 ```bash
-pnpm --filter @petshop/api-contract check-types
+pnpm --filter @app/api-contract check-types
 pnpm --filter server check-types
 pnpm --filter web check-types
 ```

@@ -8,7 +8,7 @@ async function main(): Promise<void> {
 		return;
 	}
 
-	console.log(`Petshop CLI
+	console.log(`CLI
 
 Usage:
   pnpm generate:crud [feature] [--fields "name:string,..."]

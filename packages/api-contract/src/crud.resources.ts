@@ -1,4 +1,4 @@
-import { defineResource, defineResources } from "@petshop/crud";
+import { defineResource, defineResources } from "@app/crud";
 import { z } from "zod";
 
 // Contract-only shapes: the server binds them to Drizzle tables and type-checks the match.

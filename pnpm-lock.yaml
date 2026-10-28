@@ -63,12 +63,12 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
+      '@app/config':
+        specifier: workspace:*
+        version: link:packages/config
       '@biomejs/biome':
         specifier: ^2.6.2
         version: 2.6.3
-      '@petshop/config':
-        specifier: workspace:*
-        version: link:packages/config
       '@types/node':
         specifier: ^26.4.1
         version: 26.6.5
@@ -84,6 +84,18 @@ importers:
 
   apps/server:
     dependencies:
+      '@app/api-contract':
+        specifier: workspace:*
+        version: link:../../packages/api-contract
+      '@app/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@app/crud':
+        specifier: workspace:*
+        version: link:../../packages/crud
+      '@app/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@nestjs/common':
         specifier: 'catalog:'
         version: 12.3.2(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -111,18 +123,6 @@ importers:
       '@orpc/server':
         specifier: 'catalog:'
         version: 2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))
-      '@petshop/api-contract':
-        specifier: workspace:*
-        version: link:../../packages/api-contract
-      '@petshop/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      '@petshop/crud':
-        specifier: workspace:*
-        version: link:../../packages/crud
-      '@petshop/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@scalar/nestjs-api-reference':
         specifier: 1.2.31
         version: 1.2.31
@@ -151,7 +151,7 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
-      '@petshop/config':
+      '@app/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@types/express':
@@ -175,6 +175,12 @@ importers:
       '@ant-design/cssinjs':
         specifier: ^2.1.2
         version: 2.1.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@app/api-contract':
+        specifier: workspace:*
+        version: link:../../packages/api-contract
+      '@app/crud':
+        specifier: workspace:*
+        version: link:../../packages/crud
       '@hookform/resolvers':
         specifier: ^6.0.0
         version: 6.0.0(@standard-schema/spec@1.1.0)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.3.1))(zod@4.6.7)
@@ -187,12 +193,6 @@ importers:
       '@orpc/tanstack-query':
         specifier: 'catalog:'
         version: 2.0.0-beta.47(@tanstack/query-core@5.105.0)(crossws@0.4.16(srvx@1.0.8))
-      '@petshop/api-contract':
-        specifier: workspace:*
-        version: link:../../packages/api-contract
-      '@petshop/crud':
-        specifier: workspace:*
-        version: link:../../packages/crud
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
@@ -245,7 +245,7 @@ importers:
         specifier: ^5.0.16
         version: 5.0.16(@types/react@19.3.0)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
     devDependencies:
-      '@petshop/config':
+      '@app/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tanstack/react-query-devtools':
@@ -281,20 +281,20 @@ importers:
 
   packages/api-contract:
     dependencies:
+      '@app/crud':
+        specifier: workspace:*
+        version: link:../crud
       '@orpc/contract':
         specifier: 'catalog:'
         version: 2.0.0-beta.47
       '@orpc/openapi':
         specifier: 'catalog:'
         version: 2.0.0-beta.47(crossws@0.4.16(srvx@1.0.8))
-      '@petshop/crud':
-        specifier: workspace:*
-        version: link:../crud
       zod:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
-      '@petshop/config':
+      '@app/config':
         specifier: workspace:*
         version: link:../config
       typescript:
@@ -303,15 +303,15 @@ importers:
 
   packages/auth:
     dependencies:
+      '@app/db':
+        specifier: workspace:*
+        version: link:../db
       '@better-auth/core':
         specifier: 1.7.12
         version: 1.7.12(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/drizzle-adapter':
         specifier: 1.7.12
         version: 1.7.12(@better-auth/core@1.7.12(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(drizzle-orm@1.0.0-rc.5(@types/pg@8.23.1)(pg@8.23.1)(zod@4.6.7))
-      '@petshop/db':
-        specifier: workspace:*
-        version: link:../db
       better-auth:
         specifier: 'catalog:'
         version: 1.7.12(@tanstack/react-start@1.169.4(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)))(drizzle-kit@1.0.0-rc.5(drizzle-orm@1.0.0-rc.5(@types/pg@8.23.1)(pg@8.23.1)(zod@4.6.7)))(drizzle-orm@1.0.0-rc.5(@types/pg@8.23.1)(pg@8.23.1)(zod@4.6.7))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(solid-js@1.9.17)
@@ -322,7 +322,7 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
-      '@petshop/config':
+      '@app/config':
         specifier: workspace:*
         version: link:../config
       typescript:
@@ -335,7 +335,7 @@ importers:
         specifier: 2.4.2
         version: 2.4.2
     devDependencies:
-      '@petshop/config':
+      '@app/config':
         specifier: workspace:*
         version: link:../config
       '@types/node':
@@ -368,15 +368,15 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
+      '@app/config':
+        specifier: workspace:*
+        version: link:../config
       '@orpc/client':
         specifier: 'catalog:'
         version: 2.0.0-beta.47
       '@orpc/tanstack-query':
         specifier: 'catalog:'
         version: 2.0.0-beta.47(@tanstack/query-core@5.105.0)(crossws@0.4.16(srvx@1.0.8))
-      '@petshop/config':
-        specifier: workspace:*
-        version: link:../config
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -393,7 +393,7 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
-      '@petshop/config':
+      '@app/config':
         specifier: workspace:*
         version: link:../config
       '@types/pg':

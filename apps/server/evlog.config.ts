@@ -1,5 +1,5 @@
 import { defineEvlog } from "evlog";
 
 export default defineEvlog({
-	service: "petshop-server",
+	service: "app-server",
 });

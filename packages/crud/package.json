@@ -1,5 +1,5 @@
 {
-	"name": "@petshop/crud",
+	"name": "@app/crud",
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
@@ -20,7 +20,7 @@
 	"devDependencies": {
 		"@orpc/client": "catalog:",
 		"@orpc/tanstack-query": "catalog:",
-		"@petshop/config": "workspace:*",
+		"@app/config": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

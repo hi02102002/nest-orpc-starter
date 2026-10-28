@@ -1,6 +1,6 @@
+import type { Database } from "@app/db";
+import * as schema from "@app/db/schema/auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
-import type { Database } from "@petshop/db";
-import * as schema from "@petshop/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins/admin";
 import { openAPI } from "better-auth/plugins/open-api";

@@ -1,4 +1,4 @@
-# petshop
+# nest-orpc-starter
 
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack) and has since moved to a NestJS API with a contract-first oRPC layer, a TanStack Start web app, and a shared generic CRUD layer.
 
@@ -63,7 +63,7 @@ Apply the database migrations against that external PostgreSQL database before
 starting the applications:
 
 ```bash
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/petshop pnpm run db:migrate
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app pnpm run db:migrate
 ```
 
 Use the host-accessible database URL for this command. The example Docker env
@@ -101,7 +101,7 @@ There are two ways to add endpoints:
 
 - **Endpoints with business logic**: write a dedicated feature contract and NestJS feature module. `pnpm run generate:crud` scaffolds one (schema, contract, service, controller, module).
 
-Agent skills for both workflows live in `.agents/skills` (`petshop-crud`, `orpc-api-contract`, `petshop-server`).
+Agent skills for both workflows live in `.agents/skills` (`app-crud`, `orpc-api-contract`, `app-server`).
 
 ## UI
 
@@ -124,7 +124,7 @@ Run standalone Node/Bun tools that use Varlock from the owning app directory so 
 ## Project Structure
 
 ```
-petshop/
+nest-orpc-starter/
 ├── apps/
 │   ├── web/           # Frontend application (TanStack Start + Ant Design)
 │   └── server/        # Backend API (NestJS + oRPC), organized by feature

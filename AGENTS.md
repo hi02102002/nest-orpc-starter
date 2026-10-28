@@ -8,7 +8,7 @@ pnpm + Turborepo monorepo:
 
 - `apps/server`: NestJS API with a contract-first oRPC layer, organized by feature (`src/features/<feature>`).
 - `apps/web`: TanStack Start web app (Router, Query) using Ant Design and TailwindCSS.
-- `packages/api-contract`: the shared oRPC contract. **Zod only**: it ships to the browser and must never import `@petshop/db` or `drizzle-orm`.
+- `packages/api-contract`: the shared oRPC contract. **Zod only**: it ships to the browser and must never import `@app/db` or `drizzle-orm`.
 - `packages/crud`: generic typed CRUD layer (contract builder, server engine, client utils).
 - `packages/db`: Drizzle ORM `1.0.0-rc` schema, relations (RQB v2) and migrations, on PostgreSQL.
 - `packages/auth`: Better Auth configuration.
@@ -24,7 +24,7 @@ pnpm check-types               # all workspaces; builds api-contract and crud de
 pnpm exec biome check <paths>  # lint + format check; `pnpm check` writes fixes for the whole repo
 pnpm --filter server check-types
 pnpm --filter web check-types
-pnpm --filter @petshop/db exec drizzle-kit generate --name <name>   # root `pnpm db:generate` needs a TTY (turbo interactive task)
+pnpm --filter @app/db exec drizzle-kit generate --name <name>   # root `pnpm db:generate` needs a TTY (turbo interactive task)
 pnpm db:migrate | pnpm db:push | pnpm db:studio
 ```
 
@@ -36,9 +36,9 @@ Project skills live in `.agents/skills/` (also exposed to Claude Code via `.clau
 
 | Task                                             | Skill                                                                                                                           |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Plain list/get/create/update/delete over a table | `petshop-crud` (and `packages/crud/README.md`)                                                                                  |
-| A new or changed endpoint with business logic    | `orpc-api-contract` + `petshop-server`                                                                                          |
-| Server modules, auth, logging, DB access         | `petshop-server`                                                                                                                |
+| Plain list/get/create/update/delete over a table | `app-crud` (and `packages/crud/README.md`)                                                                                      |
+| A new or changed endpoint with business logic    | `orpc-api-contract` + `app-server`                                                                                              |
+| Server modules, auth, logging, DB access         | `app-server`                                                                                                                    |
 | Drizzle schema, relations, queries               | `drizzle-best-practices`                                                                                                        |
 | Web routing, data loading, queries               | `tanstack-start`, `tanstack-router`, `tanstack-query`, `tanstack-integration`                                                   |
 | UI components                                    | `antd`, `ant-design`                                                                                                            |

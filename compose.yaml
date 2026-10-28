@@ -1,8 +1,8 @@
-name: petshop
+name: nest-orpc-starter
 
 services:
   server:
-    image: ${SERVER_IMAGE:-petshop-server}
+    image: ${SERVER_IMAGE:-app-server}
     build:
       context: .
       dockerfile: apps/server/Dockerfile
@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ${WEB_IMAGE:-petshop-web}
+    image: ${WEB_IMAGE:-nest-orpc-starter-web}
     build:
       context: .
       dockerfile: apps/web/Dockerfile

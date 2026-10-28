@@ -1,6 +1,6 @@
+import { createCrudContract } from "@app/crud";
 import type { RouterContractClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi";
-import { createCrudContract } from "@petshop/crud";
 
 import { crudResources } from "./crud.resources";
 import { healthCheckContract } from "./health.contract";

@@ -1,5 +1,5 @@
 {
-	"extends": "@petshop/config/tsconfig.base.json",
+	"extends": "@app/config/tsconfig.base.json",
 	"compilerOptions": {
 		"noEmit": true
 	},

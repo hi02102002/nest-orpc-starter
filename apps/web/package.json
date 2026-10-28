@@ -17,8 +17,8 @@
 		"@orpc/client": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/tanstack-query": "catalog:",
-		"@petshop/api-contract": "workspace:*",
-		"@petshop/crud": "workspace:*",
+		"@app/api-contract": "workspace:*",
+		"@app/crud": "workspace:*",
 		"@tailwindcss/vite": "^4.3.3",
 		"@tanstack/react-query": "^5.104.2",
 		"@tanstack/react-router": "^1.170.44",
@@ -38,7 +38,7 @@
 		"zustand": "^5.0.16"
 	},
 	"devDependencies": {
-		"@petshop/config": "workspace:*",
+		"@app/config": "workspace:*",
 		"@tanstack/react-query-devtools": "^5.104.2",
 		"@tanstack/react-router-devtools": "^1.167.2",
 		"@types/node": "^26.6.5",

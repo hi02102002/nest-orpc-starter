@@ -1,9 +1,9 @@
+import type { Database } from "@app/db";
 import { Module } from "@nestjs/common";
 import { getDrizzleToken } from "@nestjs/drizzle";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ORPCModule } from "@orpc/nest";
 import { onError } from "@orpc/server";
-import type { Database } from "@petshop/db";
 import { AuthService } from "@thallesp/nestjs-better-auth";
 import { toMiddlewareOptions } from "evlog";
 import { EvlogModule, useLogger } from "evlog/nestjs";

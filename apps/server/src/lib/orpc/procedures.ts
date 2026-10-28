@@ -1,5 +1,5 @@
+import { contract } from "@app/api-contract";
 import { implement } from "@orpc/server";
-import { contract } from "@petshop/api-contract";
 
 import { requireAuth } from "./middlewares/require-auth.middleware";
 

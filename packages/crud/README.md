@@ -1,18 +1,18 @@
-# @petshop/crud
+# @app/crud
 
 A shared CRUD layer for the monorepo: **one oRPC router** serves every registered resource. You declare a resource once with zod. Clients get results typed per resource, and the server turns each request into a single Drizzle query (Relational Query API v2) with permissions and tenancy enforced.
 
 ```ts
 // web: no per-feature contract, controller or service needed
-const pets = useQuery(
+const projects = useQuery(
 	orpc.crud.list.queryOptions({
 		input: {
-			resource: "pets",
-			query: { where: { species: "cat" }, with: { owner: true }, limit: 20 },
+			resource: "projects",
+			query: { where: { status: "active" }, with: { owner: true }, limit: 20 },
 		},
 	}),
 );
-pets.data?.items[0].owner?.name; // string, fully typed
+projects.data?.items[0].owner?.name; // string, fully typed
 ```
 
 > **Only adding a resource?** You don't need to read the engine code. Follow [Adding a resource](#adding-a-resource). The rest of this document is for whoever maintains the engine.
@@ -35,18 +35,22 @@ pets.data?.items[0].owner?.name; // string, fully typed
 
 ## Adding a resource
 
-The example below adds a `pets` resource where each user only sees their own pets.
+The example below adds a `projects` resource where each user only sees their own projects.
 
 ### 1. Drizzle table (`packages/db`)
 
 ```ts
-// packages/db/src/schema/pets.ts
-export const petSpecies = pgEnum("pet_species", ["cat", "dog", "other"]);
+// packages/db/src/schema/projects.ts
+export const projectStatus = pgEnum("project_status", [
+	"active",
+	"paused",
+	"archived",
+]);
 
-export const pets = pgTable("pets", {
+export const projects = pgTable("projects", {
 	id: uuid("id").defaultRandom().primaryKey(), // required: single-column primary key named `id`
 	name: text("name").notNull(),
-	species: petSpecies("species").notNull(),
+	status: projectStatus("status").notNull(),
 	ownerId: text("owner_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
@@ -65,7 +69,7 @@ Export the table from `schema/index.ts` and declare its relations in `relations.
 
 ```ts
 const appRelations = defineRelationsPart(schema, (r) => ({
-	pets: { owner: r.one.user({ from: r.pets.ownerId, to: r.user.id }) },
+	projects: { owner: r.one.user({ from: r.projects.ownerId, to: r.user.id }) },
 }));
 
 export const relations = {
@@ -75,27 +79,27 @@ export const relations = {
 };
 ```
 
-> ⚠️ Don't declare a `user: {...}` key in `appRelations`. Spreading it would replace the `user` relations defined in `authRelations`. If you need `user.pets`, add it to `authRelations` directly.
+> ⚠️ Don't declare a `user: {...}` key in `appRelations`. Spreading it would replace the `user` relations defined in `authRelations`. If you need `user.projects`, add it to `authRelations` directly.
 
 Generate the migration:
 
 ```bash
-pnpm --filter @petshop/db exec drizzle-kit generate --name add-pets
+pnpm --filter @app/db exec drizzle-kit generate --name add-projects
 pnpm db:migrate
 ```
 
 ### 2. Register the resource (`packages/api-contract/src/crud.resources.ts`)
 
-This file is **zod only**. It ships to the browser, so never import `drizzle-orm` or `@petshop/db` here.
+This file is **zod only**. It ships to the browser, so never import `drizzle-orm` or `@app/db` here.
 
 ```ts
-const petSpeciesSchema = z.enum(["cat", "dog", "other"]);
+const projectStatusSchema = z.enum(["active", "paused", "archived"]);
 
-pets: defineResource({
+projects: defineResource({
 	select: z.object({                  // public columns: only these are selected
 		id: z.uuid(),
 		name: z.string(),
-		species: petSpeciesSchema,
+		status: projectStatusSchema,
 		ownerId: z.string(),
 		createdAt: z.date(),
 		updatedAt: z.date(),
@@ -103,10 +107,10 @@ pets: defineResource({
 	}),
 	create: z.object({                  // no id, ownerId or timestamps: the server sets those
 		name: z.string().trim().min(1).max(200),
-		species: petSpeciesSchema,
+		status: projectStatusSchema,
 	}),
 	// update: defaults to create.partial()
-	filterable: ["id", "name", "species", "createdAt"],
+	filterable: ["id", "name", "status", "createdAt"],
 	sortable: ["name", "createdAt"],
 	searchable: ["name"],
 	defaultOrderBy: { createdAt: "desc" },
@@ -118,7 +122,10 @@ pets: defineResource({
 ### 3. Bind the table (`apps/server/src/features/crud/crud.tables.ts`)
 
 ```ts
-export const crudTables = defineTables<CrudResources>()({ users: user, pets });
+export const crudTables = defineTables<CrudResources>()({
+	users: user,
+	projects,
+});
 ```
 
 This line **fails to compile** if `select` drifts from the table, for example a missing enum value, a key that isn't a column, or a nullability mismatch. Fix the schema; don't cast the error away.
@@ -126,7 +133,7 @@ This line **fails to compile** if `select` drifts from the table, for example a 
 ### 4. Policy (`apps/server/src/features/crud/crud.policies.ts`)
 
 ```ts
-pets: {
+projects: {
 	scope: ({ session }) => ({ ownerId: session.user.id }),
 	beforeCreate: (data, { session }) => ({ ...data, ownerId: session.user.id }),
 },
@@ -168,7 +175,7 @@ The design follows three principles:
 
 ## Request lifecycle
 
-The example request is `POST /api/crud/list` with body `{ resource: "pets", query: { where, with, search, page, limit } }`.
+The example request is `POST /api/crud/list` with body `{ resource: "projects", query: { where, with, search, page, limit } }`.
 
 1. **`contract.ts` + `query-schema.ts`**: oRPC validates the input against the discriminated union on `resource`. Non-allowlisted fields, `RAW`, `limit > 100` or an unknown relation -> **400**. ISO date strings are coerced to `Date`.
 2. **`require-auth.middleware.ts`**: No session -> **401**.
@@ -198,7 +205,7 @@ Writes:
 - **`src/client.ts`**: `createCrudUtils`: typed layer over oRPC's TanStack utils, with mutations bound to a resource. _Read it when:_ changing the web API.
 - **`src/index.ts`**: Shared exports (contract and types).
 
-Entry points: `@petshop/crud` is shared, `@petshop/crud/server` is server-only (it imports Drizzle), and `@petshop/crud/client` is for the web.
+Entry points: `@app/crud` is shared, `@app/crud/server` is server-only (it imports Drizzle), and `@app/crud/client` is for the web.
 
 App-side code that uses the engine:
 
@@ -283,7 +290,7 @@ orpc.crud.delete / restore.mutationOptions({ resource, ... })               // m
 orpc.crud.createMany / updateMany / deleteMany.mutationOptions(...)         // mutate({ data[] } | { ids, data } | { ids })
 
 orpc.crud.key()                       // invalidate every crud query
-orpc.crud.key({ resource: "pets" })   // invalidate every query for one resource
+orpc.crud.key({ resource: "projects" })   // invalidate every query for one resource
 ```
 
 Returned types:
@@ -334,7 +341,7 @@ The engine already does all of the following. Don't re-implement any of it in fe
 - **NestJS dev runs under `tsx`**, which doesn't emit decorator metadata. Constructor injection therefore uses explicit tokens: `@Inject(CrudService)` and `@Inject(getDrizzleToken())`.
 - **Dates in input** arrive as ISO strings. For date fields in `create` or `update`, use `z.iso.datetime().pipe(z.coerce.date())`. A bare `z.coerce.date()` can't be expressed in JSON Schema, so the request body disappears from the OpenAPI docs.
 - **The OpenAPI schema for `list` is large**, tens of KB per resource, because nested filters are fully expanded.
-- **Not for business workflows.** Payments, multi-step workflows and anything with side effects belong in a dedicated feature (see the `orpc-api-contract` and `petshop-server` skills). `pnpm generate:crud` still scaffolds that kind of feature.
+- **Not for business workflows.** Payments, multi-step workflows and anything with side effects belong in a dedicated feature (see the `orpc-api-contract` and `app-server` skills). `pnpm generate:crud` still scaffolds that kind of feature.
 
 ---
 

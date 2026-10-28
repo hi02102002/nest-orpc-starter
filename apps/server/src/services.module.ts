@@ -1,7 +1,7 @@
+import { createAuth } from "@app/auth";
+import { createDb, type Database } from "@app/db";
 import { Global, Module } from "@nestjs/common";
 import { DrizzleModule, getDrizzleToken } from "@nestjs/drizzle";
-import { createAuth } from "@petshop/auth";
-import { createDb, type Database } from "@petshop/db";
 import { AuthModule } from "@thallesp/nestjs-better-auth";
 
 import { ENV } from "./env.server";

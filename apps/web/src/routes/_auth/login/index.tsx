@@ -62,7 +62,7 @@ function RouteComponent() {
 	return (
 		<div className="w-full max-w-[432px] bg-white px-6 pt-8 pb-6 shadow-[0_24px_80px_rgb(0_0_0/25%)] [&_.ant-form-item]:mb-4!">
 			<div className="mb-8 text-center text-4xl leading-none font-semibold tracking-[0.02em] text-[#a50e3a] uppercase">
-				Petshop
+				Starter
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} noValidate>
 				<Form component={false} layout="vertical">

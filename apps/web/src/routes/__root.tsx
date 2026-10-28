@@ -31,11 +31,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "petshop",
+				title: "App",
 			},
 			{
 				name: "description",
-				content: "petshop is a web application",
+				content: "Full-stack NestJS + oRPC starter",
 			},
 		],
 		links: [

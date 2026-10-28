@@ -1,5 +1,5 @@
 {
-	"name": "@petshop/db",
+	"name": "@app/db",
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
@@ -20,7 +20,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@petshop/config": "workspace:*",
+		"@app/config": "workspace:*",
 		"@types/pg": "^8.23.1",
 		"drizzle-kit": "1.0.0-rc.5",
 		"typescript": "catalog:",

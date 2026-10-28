@@ -1,10 +1,10 @@
 ---
 
-name: petshop-crud
-description: "Add, change, debug, or review resources served by the generic CRUD layer (`@petshop/crud`, `contract.crud`, `orpc.crud`) in the Petshop monorepo. Use this skill whenever a task exposes a table through CRUD, lists/filters/joins records from the web with `orpc.crud.*`, adds tenancy scope, permissions or write hooks for a resource, enables soft delete, or touches `packages/crud`, `crud.resources.ts`, `crud.tables.ts`, or `crud.policies.ts`. Prefer it over hand-writing a per-feature contract, service and controller for plain CRUD; use `orpc-api-contract` and `petshop-server` for endpoints with real business logic."
+name: app-crud
+description: "Add, change, debug, or review resources served by the generic CRUD layer (`@app/crud`, `contract.crud`, `orpc.crud`) in this monorepo. Use this skill whenever a task exposes a table through CRUD, lists/filters/joins records from the web with `orpc.crud.*`, adds tenancy scope, permissions or write hooks for a resource, enables soft delete, or touches `packages/crud`, `crud.resources.ts`, `crud.tables.ts`, or `crud.policies.ts`. Prefer it over hand-writing a per-feature contract, service and controller for plain CRUD; use `orpc-api-contract` and `app-server` for endpoints with real business logic."
 ---
 
-# Petshop generic CRUD
+# Generic CRUD
 
 One oRPC router serves every registered resource. A resource is declared once with zod (shared, isomorphic), bound to a Drizzle table on the server, and optionally given a server-only policy. The web gets per-resource types for rows, filters and joins.
 
@@ -12,15 +12,15 @@ For engine internals (request lifecycle, source map, extending operators/operati
 
 ## Where things live
 
-| Layer                  | File                                             | Holds                                                                                                        |
-| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| Engine                 | `packages/crud/src/*`                            | `defineResource`, contract builder, RQB v2 engine, typed TanStack utils. Knows nothing about petshop tables. |
-| Registry (shared)      | `packages/api-contract/src/crud.resources.ts`    | zod `select` / `create` / `update`, allowlists, relations, soft delete, operations.                          |
-| Table binding (server) | `apps/server/src/features/crud/crud.tables.ts`   | `defineTables<CrudResources>()({ resource: table })`.                                                        |
-| Policies (server)      | `apps/server/src/features/crud/crud.policies.ts` | `scope`, `can`, `beforeCreate`, `beforeUpdate`.                                                              |
-| Web                    | `apps/web/src/utils/orpc.ts`                     | `orpc.crud = createCrudUtils<CrudResources>(utils.crud)`.                                                    |
+| Layer                  | File                                             | Holds                                                                                                    |
+| ---------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Engine                 | `packages/crud/src/*`                            | `defineResource`, contract builder, RQB v2 engine, typed TanStack utils. Knows nothing about app tables. |
+| Registry (shared)      | `packages/api-contract/src/crud.resources.ts`    | zod `select` / `create` / `update`, allowlists, relations, soft delete, operations.                      |
+| Table binding (server) | `apps/server/src/features/crud/crud.tables.ts`   | `defineTables<CrudResources>()({ resource: table })`.                                                    |
+| Policies (server)      | `apps/server/src/features/crud/crud.policies.ts` | `scope`, `can`, `beforeCreate`, `beforeUpdate`.                                                          |
+| Web                    | `apps/web/src/utils/orpc.ts`                     | `orpc.crud = createCrudUtils<CrudResources>(utils.crud)`.                                                |
 
-Keep the boundary: `@petshop/api-contract` must never import `@petshop/db`, `drizzle-orm` or table objects. It ships to the browser and must stay zod-only. Tables enter only in `crud.tables.ts`.
+Keep the boundary: `@app/api-contract` must never import `@app/db`, `drizzle-orm` or table objects. It ships to the browser and must stay zod-only. Tables enter only in `crud.tables.ts`.
 
 ## Add a resource
 
@@ -28,11 +28,11 @@ Keep the boundary: `@petshop/api-contract` must never import `@petshop/db`, `dri
 2. **Register the resource** in `crud.resources.ts`:
 
 ```ts
-pets: defineResource({
-	select: z.object({ id: z.uuid(), name: z.string(), species: speciesSchema, ownerId: z.string(), createdAt: z.date(), updatedAt: z.date(), deletedAt: z.date().nullable() }),
-	create: z.object({ name: z.string().trim().min(1).max(200), species: speciesSchema }), // omit id, ownerId, timestamps
+projects: defineResource({
+	select: z.object({ id: z.uuid(), name: z.string(), status: statusSchema, ownerId: z.string(), createdAt: z.date(), updatedAt: z.date(), deletedAt: z.date().nullable() }),
+	create: z.object({ name: z.string().trim().min(1).max(200), status: statusSchema }), // omit id, ownerId, timestamps
 	// update defaults to create.partial()
-	filterable: ["id", "name", "species", "createdAt"],
+	filterable: ["id", "name", "status", "createdAt"],
 	sortable: ["name", "createdAt"],
 	searchable: ["name"],             // query.search -> OR ilike, % and _ escaped
 	defaultOrderBy: { createdAt: "desc" },
@@ -46,11 +46,11 @@ pets: defineResource({
 - `create` must not contain server-managed fields such as `ownerId`, `id` or timestamps; set those in `beforeCreate`. Zod strips any extra keys a client sends.
 - Only list fields in `filterable` and `sortable` that the client is allowed to filter or sort on.
 
-3. **Bind the table** in `crud.tables.ts`: `pets`. This fails to compile when `select` drifts from the table, for example a missing enum value, a key that is not a column, or a nullable mismatch. Fix the schema; never cast the error away.
+3. **Bind the table** in `crud.tables.ts`: `projects`. This fails to compile when `select` drifts from the table, for example a missing enum value, a key that is not a column, or a nullable mismatch. Fix the schema; never cast the error away.
 4. **Add a policy** when rows belong to someone:
 
 ```ts
-pets: {
+projects: {
 	scope: ({ session }) => ({ ownerId: session.user.id }),   // AND-ed into every read/write, and into joins
 	beforeCreate: (data, { session }) => ({ ...data, ownerId: session.user.id }),
 	can: { deleteMany: ({ session }) => session.user.role === "admin" },
@@ -66,9 +66,9 @@ const { orpc } = Route.useRouteContext();
 
 useQuery(orpc.crud.list.queryOptions({
 	input: {
-		resource: "pets",
+		resource: "projects",
 		query: {
-			where: { species: { in: ["cat", "dog"] }, owner: { name: { ilike: "%an%" } }, OR: [...] },
+			where: { status: { in: ["active", "paused"] }, owner: { name: { ilike: "%an%" } }, OR: [...] },
 			orderBy: { createdAt: "desc" },
 			with: { owner: true },          // nested: { project: { with: { owner: true } } }; many: { where, orderBy, limit }
 			search: "tom", page: 1, limit: 20, // limit ≤ 100
@@ -76,9 +76,9 @@ useQuery(orpc.crud.list.queryOptions({
 	},
 }));
 
-const update = useMutation(orpc.crud.update.mutationOptions({ resource: "pets", with: { owner: true }, onSuccess: () =>
-	queryClient.invalidateQueries({ queryKey: orpc.crud.key({ resource: "pets" }) }) }));
-update.mutate({ id, data: { name: "Tom" } });
+const update = useMutation(orpc.crud.update.mutationOptions({ resource: "projects", with: { owner: true }, onSuccess: () =>
+	queryClient.invalidateQueries({ queryKey: orpc.crud.key({ resource: "projects" }) }) }));
+update.mutate({ id, data: { name: "Website" } });
 ```
 
 - Queries take `{ input: { resource, ... } }`. Mutations bind `resource` (and `with`) once in `mutationOptions`, then `mutate()` takes only `{ id, data }`, `{ data }`, `{ ids, data }` or `{ ids }`.
@@ -100,7 +100,7 @@ update.mutate({ id, data: { name: "Tom" } });
 - Date filters accept ISO date or datetime strings, coerced server-side. Write schemas that take dates should use `z.coerce.date()` or `z.iso.datetime().pipe(z.coerce.date())`, because clients send strings.
 - The `total` count uses Drizzle's `relationsFilterToSQL` (an internal of `drizzle-orm@1.0.0-rc`). After upgrading Drizzle, re-test a list that combines a relation filter with `meta.total`.
 - Every resource needs a single-column `id` primary key.
-- Not a fit for endpoints with real business rules (multi-step workflows, payments, side effects). Build those as a normal feature with the `orpc-api-contract` and `petshop-server` skills. `pnpm generate:crud` still scaffolds that per-feature style.
+- Not a fit for endpoints with real business rules (multi-step workflows, payments, side effects). Build those as a normal feature with the `orpc-api-contract` and `app-server` skills. `pnpm generate:crud` still scaffolds that per-feature style.
 
 ## Verify a change
 

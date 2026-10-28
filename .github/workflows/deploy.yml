@@ -47,8 +47,8 @@ jobs:
           build-args: ${{ matrix.build-args }}
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/petshop-${{ matrix.app }}:latest
-            ${{ secrets.DOCKER_USERNAME }}/petshop-${{ matrix.app }}:${{ github.event.workflow_run.head_sha }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}-${{ matrix.app }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}-${{ matrix.app }}:${{ github.event.workflow_run.head_sha }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
 

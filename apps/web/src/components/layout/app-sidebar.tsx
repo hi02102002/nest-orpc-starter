@@ -1,7 +1,7 @@
 import { Link, type LinkProps, useLocation } from "@tanstack/react-router";
 import type { MenuProps } from "antd";
 import { Layout, Menu, Typography } from "antd";
-import { LayoutDashboard, PawPrint } from "lucide-react";
+import { Boxes, LayoutDashboard } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { useSidebarCollapsed, useSidebarStore } from "@/stores/sidebar-store";
@@ -46,13 +46,13 @@ export function AppSidebar() {
 			className="sticky! top-0 z-30 h-screen border-e border-[rgb(128_102_80/20%)] [&_.ant-layout-sider-children]:overflow-y-auto [&_.ant-layout-sider-trigger]:border-e [&_.ant-layout-sider-trigger]:border-[rgb(128_102_80/20%)]"
 		>
 			<div className="flex h-[61px] items-center gap-2.5 px-6">
-				<PawPrint size={20} className="shrink-0" />
+				<Boxes size={20} className="shrink-0" />
 				{!collapsed && (
 					<Typography.Text
 						strong
 						className="text-[1.1rem]! leading-none! font-semibold! tracking-[0.08em]! whitespace-nowrap text-inherit! uppercase"
 					>
-						Petshop
+						Starter
 					</Typography.Text>
 				)}
 			</div>

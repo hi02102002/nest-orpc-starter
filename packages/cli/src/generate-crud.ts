@@ -501,9 +501,9 @@ function renderService(
 	return `import { Inject, Injectable } from "@nestjs/common";
 import { getDrizzleToken } from "@nestjs/drizzle";
 import type { InferContractRouterInputs } from "@orpc/contract";
-import type { contract } from "@petshop/api-contract";
-import type { Database } from "@petshop/db";
-import { ${featureCamel} } from "@petshop/db/schema/${feature}";
+import type { contract } from "@app/api-contract";
+import type { Database } from "@app/db";
+import { ${featureCamel} } from "@app/db/schema/${feature}";
 import { count, desc, eq } from "drizzle-orm";
 
 type ${featurePascal}Inputs = InferContractRouterInputs<
@@ -591,7 +591,7 @@ function renderController(
 	return `import { Controller } from "@nestjs/common";
 import { Implement } from "@orpc/nest";
 import { implement, ORPCError } from "@orpc/server";
-import { contract } from "@petshop/api-contract";
+import { contract } from "@app/api-contract";
 
 // biome-ignore lint/style/useImportType: NestJS needs the runtime class for dependency injection metadata.
 import { ${featurePascal}Service } from "./${feature}.service";

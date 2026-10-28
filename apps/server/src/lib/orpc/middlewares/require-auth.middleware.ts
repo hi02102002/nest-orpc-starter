@@ -1,5 +1,5 @@
+import { contract } from "@app/api-contract";
 import { implement, ORPCError } from "@orpc/server";
-import { contract } from "@petshop/api-contract";
 
 export const requireAuth = implement(contract).middleware(
 	({ context, next }) => {

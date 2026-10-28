@@ -1,5 +1,5 @@
 {
-	"name": "@petshop/config",
+	"name": "@app/config",
 	"version": "0.0.0",
 	"private": true
 }

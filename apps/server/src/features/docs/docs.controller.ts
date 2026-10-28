@@ -1,6 +1,6 @@
+import { contract } from "@app/api-contract";
 import { Controller, Get } from "@nestjs/common";
 import { OpenAPIGenerator } from "@orpc/openapi";
-import { contract } from "@petshop/api-contract";
 
 const generator = new OpenAPIGenerator();
 
@@ -12,7 +12,7 @@ export class DocsController {
 			version: "3.1.0",
 			base: {
 				info: {
-					title: "Petshop API",
+					title: "API",
 					version: "1.0.0",
 				},
 				servers: [{ url: "/" }],

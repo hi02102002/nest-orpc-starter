@@ -1,9 +1,9 @@
+import type { AppRouterClient, CrudResources } from "@app/api-contract";
+import { contract } from "@app/api-contract";
+import { createCrudUtils } from "@app/crud/client";
 import { createORPCClient } from "@orpc/client";
 import { OpenAPILink } from "@orpc/openapi/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import type { AppRouterClient, CrudResources } from "@petshop/api-contract";
-import { contract } from "@petshop/api-contract";
-import { createCrudUtils } from "@petshop/crud/client";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
 import { ENV } from "../env";

@@ -1,5 +1,5 @@
 {
-	"name": "petshop",
+	"name": "nest-orpc-starter",
 	"private": true,
 	"workspaces": [
 		"apps/*",
@@ -12,12 +12,12 @@
 		"check-types": "turbo run check-types",
 		"dev:web": "turbo run dev -F web --",
 		"dev:server": "turbo run dev -F server --",
-		"db:push": "turbo run db:push -F @petshop/db --",
-		"db:studio": "turbo run db:studio -F @petshop/db --",
-		"db:generate": "turbo run db:generate -F @petshop/db --",
-		"db:migrate": "turbo run db:migrate -F @petshop/db --",
+		"db:push": "turbo run db:push -F @app/db --",
+		"db:studio": "turbo run db:studio -F @app/db --",
+		"db:generate": "turbo run db:generate -F @app/db --",
+		"db:migrate": "turbo run db:migrate -F @app/db --",
 		"env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/",
-		"generate:crud": "pnpm --filter @petshop/cli generate:crud",
+		"generate:crud": "pnpm --filter @app/cli generate:crud",
 		"postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/",
 		"auth:generate": "cd apps/server && pnpm run auth:generate",
 		"check": "biome check --write ."
@@ -27,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.2",
-		"@petshop/config": "workspace:*",
+		"@app/config": "workspace:*",
 		"@types/node": "^26.4.1",
 		"turbo": "^2.11.7",
 		"typescript": "catalog:",

@@ -1,5 +1,5 @@
 {
-	"name": "@petshop/api-contract",
+	"name": "@app/api-contract",
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts"
@@ -11,11 +11,11 @@
 	"dependencies": {
 		"@orpc/contract": "catalog:",
 		"@orpc/openapi": "catalog:",
-		"@petshop/crud": "workspace:*",
+		"@app/crud": "workspace:*",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@petshop/config": "workspace:*",
+		"@app/config": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

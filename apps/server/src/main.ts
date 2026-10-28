@@ -23,10 +23,10 @@ async function bootstrap() {
 	app.use(
 		"/docs",
 		apiReference({
-			pageTitle: "Petshop API Reference",
+			pageTitle: "API Reference",
 			theme: "default",
 			sources: [
-				{ title: "Petshop API", url: "/api/openapi.json" },
+				{ title: "API", url: "/api/openapi.json" },
 				{
 					title: "Better Auth API",
 					url: "/api/auth/open-api/generate-schema",

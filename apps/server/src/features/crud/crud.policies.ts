@@ -1,5 +1,5 @@
-import type { CrudResources } from "@petshop/api-contract";
-import { definePolicies } from "@petshop/crud/server";
+import type { CrudResources } from "@app/api-contract";
+import { definePolicies } from "@app/crud/server";
 
 import type { Auth } from "@/services.module";
 

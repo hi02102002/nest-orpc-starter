@@ -1,16 +1,16 @@
 ---
 
-name: petshop-server
-description: "Build, refactor, debug, and review the Petshop NestJS server in `apps/server`. Use this skill whenever a task changes a server feature, Nest module, controller, service, oRPC handler implementation, authentication/session access, database access, EVLog logging or observability, CORS, environment configuration, startup wiring, or server folder structure. Use it even for a small endpoint change so code stays feature-based and aligned with the shared oRPC contract."
+name: app-server
+description: "Build, refactor, debug, and review the NestJS server in `apps/server`. Use this skill whenever a task changes a server feature, Nest module, controller, service, oRPC handler implementation, authentication/session access, database access, EVLog logging or observability, CORS, environment configuration, startup wiring, or server folder structure. Use it even for a small endpoint change so code stays feature-based and aligned with the shared oRPC contract."
 ---
 
-# Petshop Server
+# NestJS Server
 
 Work in `apps/server` using NestJS feature modules and the repository's contract-first oRPC architecture. Keep transport wiring thin, organize behavior by feature, and preserve the boundary between shared infrastructure and feature code.
 
 For changes to the public API shape, also use the `orpc-api-contract` skill. This skill owns the server implementation and folder structure; `orpc-api-contract` owns input/output schemas, routes, and typed API errors.
 
-For plain list/get/create/update/delete over a table, register a resource in the generic CRUD layer with the `petshop-crud` skill instead of writing a new feature controller.
+For plain list/get/create/update/delete over a table, register a resource in the generic CRUD layer with the `app-crud` skill instead of writing a new feature controller.
 
 ## Server structure
 
@@ -38,7 +38,7 @@ apps/server/
     └── env.server.ts
 ```
 
-Create one directory per business capability, not per technical layer. For example, use `features/pets` and `features/orders`; do not create global `controllers`, `services`, or `repositories` directories.
+Create one directory per business capability, not per technical layer. For example, use `features/projects` and `features/orders`; do not create global `controllers`, `services`, or `repositories` directories.
 
 Keep a file feature-local until another feature genuinely needs it. Promote shared code only after a real second consumer appears; premature `common` folders hide ownership.
 
@@ -49,14 +49,14 @@ Every feature owns a Nest module that registers its controllers and providers:
 ```ts
 import { Module } from "@nestjs/common";
 
-import { PetsController } from "./pets.controller";
-import { PetsService } from "./pets.service";
+import { ProjectsController } from "./projects.controller";
+import { ProjectsService } from "./projects.service";
 
 @Module({
-	controllers: [PetsController],
-	providers: [PetsService],
+	controllers: [ProjectsController],
+	providers: [ProjectsService],
 })
-export class PetsModule {}
+export class ProjectsModule {}
 ```
 
 Import feature modules from `app.module.ts`. Keep `AppModule` focused on application-wide infrastructure such as `ORPCModule.forRoot(...)` plus feature imports. Do not register feature controllers directly in `AppModule`.
@@ -71,19 +71,21 @@ Controllers adapt the transport to feature logic. For an oRPC procedure, the dec
 
 ```ts
 @Controller()
-export class PetsController {
-	constructor(private readonly petsService: PetsService) {}
+export class ProjectsController {
+	constructor(
+		@Inject(ProjectsService) private readonly projectsService: ProjectsService,
+	) {}
 
-	@Implement(contract.pets.get)
-	getPet() {
-		return pub.pets.get.handler(async ({ input, errors }) => {
-			const pet = await this.petsService.findById(input.id);
+	@Implement(contract.projects.get)
+	getProject() {
+		return pub.projects.get.handler(async ({ input, errors }) => {
+			const project = await this.projectsService.findById(input.id);
 
-			if (!pet) {
+			if (!project) {
 				throw errors.NOT_FOUND();
 			}
 
-			return pet;
+			return project;
 		});
 	}
 }
@@ -91,7 +93,7 @@ export class PetsController {
 
 Apply these rules:
 
-- Keep request validation, output schemas, routes, and typed error declarations in `@petshop/api-contract`; do not redeclare DTOs in the server.
+- Keep request validation, output schemas, routes, and typed error declarations in `@app/api-contract`; do not redeclare DTOs in the server.
 - Use `@Implement(contract.x)` with `pub.x` or `authed.x` from `lib/orpc/procedures.ts`, on the same contract node, so TypeScript catches drift.
 - Keep small mapping and authorization checks in the handler, but move reusable business logic and database operations into a feature service.
 - Return only the public output shape. Do not return raw database rows when they contain internal fields.
@@ -102,7 +104,7 @@ When a controller grows beyond a coherent feature boundary, split the feature by
 
 ## Services and data access
 
-Create `<feature>.service.ts` once a handler performs business rules, database queries, multiple operations, or logic reused by more than one procedure. Inject the service through the controller constructor and register it in the feature module.
+Create `<feature>.service.ts` once a handler performs business rules, database queries, multiple operations, or logic reused by more than one procedure. Inject the service through the controller constructor and register it in the feature module. Always pass an explicit token (`@Inject(ProjectsService)`, `@Inject(getDrizzleToken())`): the dev server runs under `tsx`, which emits no decorator metadata, so bare constructor types resolve to `undefined`.
 
 Use the database from the established server infrastructure. Follow nearby code before introducing a new provider abstraction. If direct global imports become difficult to test or multiple implementations are required, introduce a Nest provider deliberately rather than wrapping every dependency by default.
 
@@ -117,13 +119,13 @@ Keep transaction boundaries around the complete business operation, usually in t
 - `db`: the configured database instance.
 - `session`: the Better Auth session or `null`.
 
-For procedures that require a signed-in user, build the contract from `authedContract` (`@petshop/api-contract`, declares `UNAUTHORIZED`) and implement it with `authed` from `lib/orpc/procedures.ts`. The `authed` middleware rejects requests without a session and gives the handler a non-null `context.session`:
+For procedures that require a signed-in user, build the contract from `authedContract` (`@app/api-contract`, declares `UNAUTHORIZED`) and implement it with `authed` from `lib/orpc/procedures.ts`. The `authed` middleware rejects requests without a session and gives the handler a non-null `context.session`:
 
 ```ts
-@Implement(contract.pets.list)
-listPets() {
-	return authed.pets.list.handler(({ context }) => {
-		return this.petsService.listForUser(context.session.user.id);
+@Implement(contract.projects.list)
+listProjects() {
+	return authed.projects.list.handler(({ context }) => {
+		return this.projectsService.listForUser(context.session.user.id);
 	});
 }
 ```
@@ -162,7 +164,7 @@ import evlogConfig from "../evlog.config";
 initLogger(toLoggerConfig(evlogConfig));
 ```
 
-Keep EVLog options in `evlog.config.ts` using `defineEvlog({ service: "petshop-server" })`. Put sampling, drains, enrichers, route filters, and retention rules in that config rather than scattering them across features.
+Keep EVLog options in `evlog.config.ts` using `defineEvlog({ service: "app-server" })`. Put sampling, drains, enrichers, route filters, and retention rules in that config rather than scattering them across features.
 
 The Nest middleware creates one request-scoped wide event. Add feature context progressively from controllers and services with `useLogger()` from `evlog/nestjs`:
 
@@ -170,7 +172,7 @@ The Nest middleware creates one request-scoped wide event. Add feature context p
 import { useLogger } from "evlog/nestjs";
 
 const log = useLogger();
-log.set({ pet: { id } });
+log.set({ project: { id } });
 ```
 
 Log identifiers, counts, state transitions, timings, and safe business context that help explain the request. Avoid logging full request bodies, credentials, session cookies, access tokens, or sensitive customer fields.

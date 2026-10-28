@@ -3,13 +3,13 @@
 	"evals": [
 		{
 			"id": 1,
-			"prompt": "Add a GET /api/pets/{id} oRPC endpoint that returns a pet by ID and exposes a typed NOT_FOUND error. Implement the NestJS handler and keep the web client types inferred from the shared contract.",
-			"expected_output": "Creates or updates pets.contract.ts with inline one-off input/output schemas, composes it from index.ts, and adds the matching NestJS implementation with OpenAPI metadata and a typed NOT_FOUND error without duplicating client types.",
+			"prompt": "Add a GET /api/projects/{id} oRPC endpoint that returns a project by ID and exposes a typed NOT_FOUND error. Implement the NestJS handler and keep the web client types inferred from the shared contract.",
+			"expected_output": "Creates or updates projects.contract.ts with inline one-off input/output schemas, composes it from index.ts, and adds the matching NestJS implementation with OpenAPI metadata and a typed NOT_FOUND error without duplicating client types.",
 			"files": []
 		},
 		{
 			"id": 2,
-			"prompt": "Create an authenticated PATCH endpoint for updating the current user's pet profile. It should accept only name and image, reject missing sessions with the existing typed auth pattern, and be usable through the existing TanStack oRPC client.",
+			"prompt": "Create an authenticated PATCH endpoint for updating the current user's project profile. It should accept only name and image, reject missing sessions with the existing typed auth pattern, and be usable through the existing TanStack oRPC client.",
 			"expected_output": "Defines the narrow PATCH procedure in the relevant feature contract file, keeps one-off schemas inline, composes it through index.ts, implements it through the existing session context and typed UNAUTHORIZED error, and preserves the existing OpenAPILink/TanStack Query setup.",
 			"files": []
 		},
