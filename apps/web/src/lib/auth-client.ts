@@ -7,3 +7,6 @@ export const authClient = createAuthClient({
 	baseURL: ENV.VITE_SERVER_URL,
 	plugins: [adminClient()],
 });
+
+export const isAdmin = (user?: { role?: string | null } | null) =>
+	user?.role?.split(",").includes("admin") ?? false;

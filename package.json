@@ -16,6 +16,7 @@
 		"db:down": "docker compose -f compose.dev.yaml down",
 		"db:push": "turbo run db:push -F @app/db --",
 		"db:studio": "turbo run db:studio -F @app/db --",
+		"db:seed-admin": "pnpm --filter @app/db db:seed-admin",
 		"db:generate": "turbo run db:generate -F @app/db --",
 		"db:migrate": "turbo run db:migrate -F @app/db --",
 		"env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/",

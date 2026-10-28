@@ -27,6 +27,7 @@ pnpm --filter web check-types
 pnpm --filter @app/db exec drizzle-kit generate --name <name>   # root `pnpm db:generate` needs a TTY (turbo interactive task)
 pnpm db:up | pnpm db:down      # local Postgres from compose.dev.yaml (compose.yaml is production images only)
 pnpm db:migrate | pnpm db:push | pnpm db:studio
+pnpm db:seed-admin <email>     # promote an existing user to admin (needed to open /admin/users)
 ```
 
 CI (`.github/workflows/ci.yml`) runs `biome ci .` and `pnpm check-types`. Run both before declaring work done.
@@ -52,6 +53,7 @@ Project skills live in `.agents/skills/` (also exposed to Claude Code via `.clau
 - **Feature-based server.** One folder per capability under `apps/server/src/features/`, each with its own module, and every module imported by `AppModule`. Inside `src`, import with the `@/` alias; use `./` only within a folder.
 - **Explicit DI tokens.** The dev server runs under `tsx`, which emits no decorator metadata. Inject with `@Inject(Token)` (for example `@Inject(CrudService)`, `@Inject(getDrizzleToken())`). Relying on bare constructor types leaves dependencies `undefined` in dev.
 - **Authentication.** Read the session from `context.session` (resolved once in `lib/orpc/context.ts`). Don't parse cookies or call Better Auth from feature code.
+- **Web code placement.** Code used by one route lives next to it in `_components/`, `_hooks/`, `_utils/` or `_types/` (for example `src/routes/_authed/admin/users/_hooks/`). `vite.config.ts` sets `routeFileIgnorePattern` so the router doesn't treat these folders as pathless routes; add any new folder name there. Once a second route needs the code, move it to `src/features/<feature>/{components,hooks,utils}`. Only app-wide pieces belong in `src/components`, `src/hooks` or `src/lib`.
 - **Drizzle relations.** Define app relations with `defineRelationsPart` in `packages/db/src/relations.ts`. Never add a `user` key there: spreading it replaces `authRelations.user`.
 
 ## Conventions

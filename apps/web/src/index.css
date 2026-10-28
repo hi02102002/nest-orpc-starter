@@ -1,5 +1,8 @@
+@import "@fontsource-variable/inter";
 @import "tailwindcss";
 
 @theme {
-	--font-sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+	--font-sans:
+		"Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+		Roboto, "Helvetica Neue", Arial, sans-serif;
 }

@@ -43,6 +43,12 @@ pnpm db:up     # postgres:17 on localhost:5432, waits until healthy; `pnpm db:do
 pnpm run db:push
 ```
 
+4. After signing up, promote your account so you can open the user management page (`/admin/users`):
+
+```bash
+pnpm db:seed-admin you@example.com
+```
+
 Then, run the development server:
 
 ```bash

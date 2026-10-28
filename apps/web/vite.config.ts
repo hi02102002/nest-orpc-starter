@@ -18,7 +18,12 @@ export default defineConfig({
 			ssrInjectMode: "resolved-env",
 		}),
 		tailwindcss(),
-		tanstackStart(),
+		tanstackStart({
+			router: {
+				// Route-local folders (_components, _hooks, ...) sit next to routes but are not routes.
+				routeFileIgnorePattern: "^_(components|hooks|utils|types)$",
+			},
+		}),
 		nitro(),
 		react(),
 	],

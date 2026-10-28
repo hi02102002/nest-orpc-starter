@@ -6,8 +6,8 @@ export function AntdProvider({ children }: PropsWithChildren) {
 		<ConfigProvider
 			theme={{
 				token: {
-					borderRadius: 0,
-					fontFamily: '"Avenir Next", Avenir, "Segoe UI", sans-serif',
+					borderRadius: 4,
+					fontFamily: "var(--font-sans)",
 				},
 			}}
 		>

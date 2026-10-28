@@ -1,12 +1,12 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import type { MenuProps } from "antd";
-import { App, Button, Dropdown, Skeleton } from "antd";
+import { Button, Dropdown, Skeleton } from "antd";
 
+import { useSignOut } from "@/hooks/use-sign-out";
 import { authClient } from "@/lib/auth-client";
 
 export default function UserMenu() {
-	const { message } = App.useApp();
-	const navigate = useNavigate();
+	const signOut = useSignOut();
 	const { data: session, isPending } = authClient.useSession();
 
 	if (isPending) {
@@ -39,17 +39,7 @@ export default function UserMenu() {
 						return;
 					}
 
-					authClient.signOut({
-						fetchOptions: {
-							onSuccess: () => {
-								message.success("Signed out");
-								navigate({ to: "/" });
-							},
-							onError: () => {
-								message.error("Unable to sign out");
-							},
-						},
-					});
+					signOut();
 				},
 			}}
 		>

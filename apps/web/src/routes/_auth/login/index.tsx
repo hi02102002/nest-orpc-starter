@@ -50,7 +50,6 @@ function RouteComponent() {
 					} else {
 						navigate({ to: "/" });
 					}
-					message.success("Đăng nhập thành công");
 				},
 				onError: (error) => {
 					message.error(error.error.message || error.error.statusText);
