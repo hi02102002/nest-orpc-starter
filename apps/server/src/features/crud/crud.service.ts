@@ -4,7 +4,11 @@ import type { Database } from "@app/db";
 import { Inject, Injectable } from "@nestjs/common";
 import { getDrizzleToken } from "@nestjs/drizzle";
 
-import { type CrudContext, crudPolicies } from "./crud.policies";
+import {
+	type CrudContext,
+	crudPolicies,
+	isAuthenticated,
+} from "./crud.policies";
 import { crudTables } from "./crud.tables";
 
 @Injectable()
@@ -17,6 +21,7 @@ export class CrudService {
 			resources: crudResources,
 			tables: crudTables,
 			policies: crudPolicies,
+			isAuthenticated,
 		});
 	}
 }

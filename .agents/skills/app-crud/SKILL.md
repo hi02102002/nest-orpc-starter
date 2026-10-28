@@ -51,11 +51,21 @@ projects: defineResource({
 
 ```ts
 projects: {
-	scope: ({ session }) => ({ ownerId: session.user.id }),   // AND-ed into every read/write, and into joins
-	beforeCreate: (data, { session }) => ({ ...data, ownerId: session.user.id }),
-	can: { deleteMany: ({ session }) => session.user.role === "admin" },
+	scope: (ctx) => ({ ownerId: requireUser(ctx).id }),   // AND-ed into every read/write, and into joins
+	beforeCreate: (data, ctx) => ({ ...data, ownerId: requireUser(ctx).id }),
+	can: { deleteMany: (ctx) => requireUser(ctx).role === "admin" },
 },
 ```
+
+`session` is typed `Session | null` because of public operations; `requireUser(ctx)` (from `crud.policies.ts`) narrows it. For private operations the engine already returned 401 before any policy runs.
+
+**Public resources.** Everything is private by default: an anonymous call gets 401. Open specific operations with `public`:
+
+```ts
+users: { public: ["list", "get"] },
+```
+
+Anonymous `with` joins and relation filters may only reach resources whose `public` includes `"list"` (else 401), and `withDeleted` needs a session. Prefer public reads only; public writes invite spam.
 
 5. Run `pnpm check-types` and `pnpm exec biome check packages/crud packages/api-contract apps/server/src apps/web/src`.
 

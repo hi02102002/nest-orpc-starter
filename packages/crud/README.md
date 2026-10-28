@@ -139,7 +139,7 @@ projects: {
 },
 ```
 
-Without a policy, every signed-in user can see the whole table.
+Without a policy, every signed-in user can see the whole table. Anonymous callers get 401 unless the policy opens an operation with `public: ["list", "get"]`. The session is then `null` inside `scope`/`can`/hooks, so use `requireUser(ctx)` there.
 
 ### 5. Verify
 
@@ -234,12 +234,13 @@ App-side code that uses the engine:
 
 ### Policy (`ResourcePolicy`)
 
-| Key                       | Description                                                           |
-| ------------------------- | --------------------------------------------------------------------- |
-| `scope(ctx)`              | An RQB `where` object, AND-ed into every read, write, join and count. |
-| `can[op](ctx)`            | Return `false` to reject with 403.                                    |
-| `beforeCreate(data, ctx)` | Transforms `data` before insert, for example to set `ownerId`.        |
-| `beforeUpdate(data, ctx)` | Transforms `data` before update.                                      |
+| Key                       | Description                                                                                                                                                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public`                  | Operations allowed without a session, e.g. `["list", "get"]`. Requires the engine's `isAuthenticated(ctx)`. Anonymous `with` joins and relation filters may only reach resources whose `public` includes `"list"`, and anonymous `withDeleted` is rejected. |
+| `scope(ctx)`              | An RQB `where` object, AND-ed into every read, write, join and count.                                                                                                                                                                                       |
+| `can[op](ctx)`            | Return `false` to reject with 403.                                                                                                                                                                                                                          |
+| `beforeCreate(data, ctx)` | Transforms `data` before insert, for example to set `ownerId`.                                                                                                                                                                                              |
+| `beforeUpdate(data, ctx)` | Transforms `data` before update.                                                                                                                                                                                                                            |
 
 ### Query (`list`)
 

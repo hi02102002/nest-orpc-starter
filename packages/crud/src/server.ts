@@ -29,6 +29,11 @@ export interface ResourcePolicy<
 	TCreate = Record<string, unknown>,
 	TUpdate = Record<string, unknown>,
 > {
+	/**
+	 * Operations allowed without a session (see `isAuthenticated` on the engine). Everything else is private.
+	 * Anonymous `with` joins and relation filters may only reach resources whose `public` includes "list".
+	 */
+	public?: readonly CrudOperation[];
 	/** RQB `where` object AND-ed into every read and write, including when the resource is joined via `with` (many relations). */
 	scope?: (context: TContext) => Filter | undefined;
 	/** Return false to reject the operation with FORBIDDEN. */
@@ -146,6 +151,14 @@ export interface CrudEngineOptions<T extends AnyResources, TContext> {
 	resources: T;
 	tables: CrudTables<T>;
 	policies?: CrudPolicies<T, TContext>;
+	/** Returns false for anonymous callers, who may then only use `public` operations. Omit to treat every caller as authenticated. */
+	isAuthenticated?: (context: TContext) => boolean;
+}
+
+interface Reach {
+	where?: unknown;
+	with?: unknown;
+	withDeleted?: unknown;
 }
 
 const and = (...filters: (Filter | undefined)[]): Filter => {
@@ -266,6 +279,7 @@ export function createCrudEngine<const T extends AnyResources, TContext>(
 		target: ResolvedResource,
 		operation: CrudOperation,
 		context: TContext,
+		reach: Reach = {},
 	) {
 		if (!target.config.operations.includes(operation)) {
 			throw new ORPCError("FORBIDDEN", {
@@ -273,8 +287,74 @@ export function createCrudEngine<const T extends AnyResources, TContext>(
 			});
 		}
 
+		if (options.isAuthenticated && !options.isAuthenticated(context)) {
+			if (!isPublic(target, operation)) {
+				throw new ORPCError("UNAUTHORIZED", {
+					message: "Authentication required",
+				});
+			}
+			if (reach.withDeleted) {
+				throw new ORPCError("UNAUTHORIZED", {
+					message: "Authentication required to read deleted records",
+				});
+			}
+			assertPublicWhere(target, reach.where);
+			assertPublicWith(target, reach.with);
+		}
+
 		const check = policies[target.name]?.can?.[operation];
 		if (check && !(await check(context))) throw new ORPCError("FORBIDDEN");
+	}
+
+	const isPublic = (target: ResolvedResource, operation: CrudOperation) =>
+		policies[target.name]?.public?.includes(operation) ?? false;
+
+	const isFilter = (value: unknown): value is Filter =>
+		typeof value === "object" && value !== null && !Array.isArray(value);
+
+	function publicRelation(target: ResolvedResource, relation: string) {
+		const relationConfig = target.config.relations[relation];
+		if (!relationConfig) return undefined;
+
+		const related = resource(relationConfig.resource);
+		if (!isPublic(related, "list")) {
+			throw new ORPCError("UNAUTHORIZED", {
+				message: `Authentication required to access "${relation}"`,
+			});
+		}
+		return related;
+	}
+
+	// Anonymous relation filters must not probe private resources (an exists filter is an oracle).
+	function assertPublicWhere(target: ResolvedResource, where: unknown) {
+		if (!isFilter(where)) return;
+
+		for (const [key, value] of Object.entries(where)) {
+			if (key === "AND" || key === "OR") {
+				for (const nested of Array.isArray(value) ? value : []) {
+					assertPublicWhere(target, nested);
+				}
+			} else if (key === "NOT") {
+				assertPublicWhere(target, value);
+			} else {
+				const related = publicRelation(target, key);
+				if (related) assertPublicWhere(related, value);
+			}
+		}
+	}
+
+	function assertPublicWith(target: ResolvedResource, withArg: unknown) {
+		if (!isFilter(withArg)) return;
+
+		for (const [relation, value] of Object.entries(withArg)) {
+			if (!value) continue;
+
+			const related = publicRelation(target, relation);
+			if (related && isFilter(value)) {
+				assertPublicWhere(related, value.where);
+				assertPublicWith(related, value.with);
+			}
+		}
 	}
 
 	function baseFilter(
@@ -436,9 +516,9 @@ export function createCrudEngine<const T extends AnyResources, TContext>(
 			context: TContext,
 		): Promise<ListOutput<Row>> {
 			const target = resource(input.resource);
-			await authorize(target, "list", context);
-
 			const query = (input.query ?? {}) as Filter;
+			await authorize(target, "list", context, query);
+
 			const page = (query.page as number | undefined) ?? 1;
 			const limit = (query.limit as number | undefined) ?? 20;
 			const search = query.search as string | undefined;
@@ -484,7 +564,7 @@ export function createCrudEngine<const T extends AnyResources, TContext>(
 
 		async get(input: CrudInputs<T>["get"], context: TContext) {
 			const target = resource(input.resource);
-			await authorize(target, "get", context);
+			await authorize(target, "get", context, { with: input.with });
 			return findOne(
 				db,
 				target,
@@ -496,7 +576,7 @@ export function createCrudEngine<const T extends AnyResources, TContext>(
 
 		async create(input: CrudInputs<T>["create"], context: TContext) {
 			const target = resource(input.resource);
-			await authorize(target, "create", context);
+			await authorize(target, "create", context, { with: input.with });
 
 			const values = await prepareCreate(
 				db,
@@ -521,7 +601,7 @@ export function createCrudEngine<const T extends AnyResources, TContext>(
 
 		async update(input: CrudInputs<T>["update"], context: TContext) {
 			const target = resource(input.resource);
-			await authorize(target, "update", context);
+			await authorize(target, "update", context, { with: input.with });
 
 			await db.transaction(async (tx) => {
 				await findOne(tx, target, input.id, context);
