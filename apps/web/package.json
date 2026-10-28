@@ -7,7 +7,7 @@
 		"dev": "vite dev",
 		"build": "tsc -b ../../packages/api-contract && vite build",
 		"preview": "vite preview",
-		"start": "node .output/server/index.mjs",
+		"start": "NITRO_PORT=${NITRO_PORT:-3333} node .output/server/index.mjs",
 		"check-types": "tsc -b ../../packages/api-contract && vite build && tsc --noEmit",
 		"env:generate": "varlock codegen"
 	},

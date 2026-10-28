@@ -1,10 +1,11 @@
 import { useQueryErrorResetBoundary } from "@tanstack/react-query";
 import {
 	type ErrorComponentProps,
-	Link,
+	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { Button, Result, Typography } from "antd";
+import { Button, Flex, Result, Typography } from "antd";
+import { House, RotateCcw } from "lucide-react";
 import { type ReactNode, useEffect } from "react";
 
 function Centered({ children }: { children: ReactNode }) {
@@ -15,11 +16,18 @@ function Centered({ children }: { children: ReactNode }) {
 	);
 }
 
-const homeButton = (
-	<Link to="/">
-		<Button type="primary">Về trang chủ</Button>
-	</Link>
-);
+function HomeButton() {
+	const navigate = useNavigate();
+	return (
+		<Button
+			type="primary"
+			icon={<House size={16} />}
+			onClick={() => navigate({ to: "/" })}
+		>
+			Về trang chủ
+		</Button>
+	);
+}
 
 export function NotFoundPage() {
 	return (
@@ -28,7 +36,7 @@ export function NotFoundPage() {
 				status="404"
 				title="404"
 				subTitle="Trang bạn tìm không tồn tại hoặc đã bị di chuyển."
-				extra={homeButton}
+				extra={<HomeButton />}
 			/>
 		</Centered>
 	);
@@ -48,12 +56,17 @@ export function ErrorPage({ error }: ErrorComponentProps) {
 				status="500"
 				title="500"
 				subTitle="Đã có lỗi xảy ra. Vui lòng thử lại sau."
-				extra={[
-					<Button key="retry" onClick={() => router.invalidate()}>
-						Thử lại
-					</Button>,
-					<span key="home">{homeButton}</span>,
-				]}
+				extra={
+					<Flex justify="center" gap="small" wrap>
+						<Button
+							icon={<RotateCcw size={16} />}
+							onClick={() => router.invalidate()}
+						>
+							Thử lại
+						</Button>
+						<HomeButton />
+					</Flex>
+				}
 			>
 				{import.meta.env.DEV && (
 					<Typography.Paragraph type="danger" className="mb-0! font-mono">

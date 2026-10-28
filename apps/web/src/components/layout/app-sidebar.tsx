@@ -64,7 +64,7 @@ export function AppSidebar() {
 				}
 			}}
 			onBreakpoint={setIsMobile}
-			className="sticky! top-0 z-30 h-screen [&_.ant-layout-sider-children]:flex [&_.ant-layout-sider-children]:flex-col [&_.ant-layout-sider-children]:overflow-y-auto"
+			className="sticky! top-0 z-30 h-screen [&_.ant-layout-sider-children]:flex [&_.ant-layout-sider-children]:flex-col [&_.ant-layout-sider-children]:overflow-x-hidden [&_.ant-layout-sider-children]:overflow-y-auto"
 		>
 			<div className="flex h-[61px] items-center gap-2.5 px-6">
 				<Boxes size={20} className="shrink-0" />
