@@ -10,6 +10,8 @@ Work in `apps/server` using NestJS feature modules and the repository's contract
 
 For changes to the public API shape, also use the `orpc-api-contract` skill. This skill owns the server implementation and folder structure; `orpc-api-contract` owns input/output schemas, routes, and typed API errors.
 
+For plain list/get/create/update/delete over a table, register a resource in the generic CRUD layer with the `petshop-crud` skill instead of writing a new feature controller.
+
 ## Server structure
 
 Keep the server organized like this:

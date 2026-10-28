@@ -8,6 +8,8 @@ description: "Create and change contract-first oRPC v2 APIs in this Petshop mono
 
 Use the repository's contract-first oRPC v2 architecture. The shared contract is the source of truth; the server implements it, and the web app consumes its inferred client type.
 
+Plain CRUD over a table goes through `contract.crud` (see the `petshop-crud` skill); write a dedicated feature contract only when the endpoint has its own business rules.
+
 ## Architecture
 
 Trace every API change through these layers:
