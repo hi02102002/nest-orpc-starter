@@ -2,6 +2,7 @@ name: petshop
 
 services:
   server:
+    image: ${SERVER_IMAGE:-petshop-server}
     build:
       context: .
       dockerfile: apps/server/Dockerfile
@@ -31,6 +32,7 @@ services:
     restart: unless-stopped
 
   web:
+    image: ${WEB_IMAGE:-petshop-web}
     build:
       context: .
       dockerfile: apps/web/Dockerfile
