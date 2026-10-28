@@ -21,6 +21,7 @@
 		"@petshop/auth": "workspace:*",
 		"@petshop/db": "workspace:*",
 		"better-auth": "catalog:",
+		"evlog": "^2.34.0",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.2",
 		"varlock": "catalog:",

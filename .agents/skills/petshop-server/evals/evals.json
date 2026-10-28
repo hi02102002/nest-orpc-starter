@@ -18,6 +18,18 @@
 			"prompt": "Add an authenticated endpoint that updates a pet and writes an audit record in one transaction. Organize the server code by feature and do not duplicate the contract schemas in apps/server.",
 			"expected_output": "Keeps schemas in the shared contract, adds feature-local controller and service code, reads auth from oRPC context, places the transaction around the complete update and audit operation, and returns only the contract output shape.",
 			"files": []
+		},
+		{
+			"id": 4,
+			"prompt": "Integrate EVLog into this NestJS + @orpc/nest server and add useful logging to the private-data feature. The repo uses oRPC v2, and logging must not leak session data or produce duplicate request events.",
+			"expected_output": "Uses EvlogModule and initLogger at the Nest application boundary, keeps configuration centralized, enriches the request-wide event through evlog/nestjs useLogger, records oRPC failures on the same event, avoids the documented oRPC v1 wrappers, and excludes secrets and raw session data.",
+			"files": []
+		},
+		{
+			"id": 5,
+			"prompt": "Add Better Auth user identification to EVLog for authenticated oRPC calls. The existing orpc-context.ts already calls auth.api.getSession, so do not perform another session lookup or log the raw session object.",
+			"expected_output": "Uses identifyUser from evlog/better-auth with the session already resolved in orpc-context.ts, accesses the Nest request logger through useLogger, preserves the existing oRPC context return value, avoids createAuthMiddleware on the same route, and does not log cookies, tokens, secrets, or raw session data.",
+			"files": []
 		}
 	]
 }
