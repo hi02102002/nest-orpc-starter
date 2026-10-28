@@ -2,14 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, Space, Typography } from "antd";
 
-import { orpc } from "@/utils/orpc";
-
 export const Route = createFileRoute("/_auth/dashboard")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { session } = Route.useRouteContext();
+	const { orpc, session } = Route.useRouteContext();
 	const privateData = useQuery(orpc.privateData.queryOptions());
 
 	return (

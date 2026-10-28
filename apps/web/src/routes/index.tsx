@@ -2,13 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, Space, Typography } from "antd";
 
-import { orpc } from "@/utils/orpc";
-
 export const Route = createFileRoute("/")({
+	loader: async ({ context }) => {
+		try {
+			await context.queryClient.query(context.orpc.healthCheck.queryOptions());
+		} catch {
+			// The home page remains available while the API is starting or offline.
+		}
+	},
 	component: HomeComponent,
 });
 
 function HomeComponent() {
+	const { orpc } = Route.useRouteContext();
 	const healthCheck = useQuery(orpc.healthCheck.queryOptions());
 
 	return (
