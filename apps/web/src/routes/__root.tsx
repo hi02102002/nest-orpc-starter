@@ -10,7 +10,6 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { ReactNode } from "react";
 
 import { AntdProvider } from "@/components/antd-provider";
-import { ThemeProvider } from "@/components/theme-provider";
 import type { OrpcUtils } from "@/utils/orpc";
 
 import appCss from "../index.css?url";
@@ -55,16 +54,9 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 function RootComponent() {
 	return (
 		<RootDocument>
-			<ThemeProvider
-				attribute="class"
-				defaultTheme="system"
-				disableTransitionOnChange
-				storageKey="vite-ui-theme"
-			>
-				<AntdProvider>
-					<Outlet />
-				</AntdProvider>
-			</ThemeProvider>
+			<AntdProvider>
+				<Outlet />
+			</AntdProvider>
 			<TanStackRouterDevtools position="bottom-left" />
 			<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
 		</RootDocument>
@@ -73,15 +65,11 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 	return (
-		<html
-			lang="en"
-			suppressHydrationWarning
-			className="bg-[#f4efe7] scheme-light dark:bg-[#15120f] dark:scheme-dark"
-		>
+		<html lang="en" className="bg-slate-50">
 			<head>
 				<HeadContent />
 			</head>
-			<body className="min-h-screen min-w-80 bg-[image:radial-gradient(circle_at_15%_0%,rgb(196_102_47/14%),transparent_34rem),linear-gradient(180deg,rgb(255_255_255/40%),transparent_28rem)]">
+			<body className="min-h-screen">
 				{children}
 				<Scripts />
 			</body>
