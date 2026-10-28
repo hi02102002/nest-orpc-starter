@@ -422,7 +422,36 @@ const notFoundError = {
 export const ${featureCamel}Contract = {
 	list: oc
 		.meta(
-			openapi({ method: "GET", path: "/api/${feature}", tags: ["${entityPascal}"] }),
+			openapi({
+				method: "GET",
+				path: "/api/${feature}",
+				tags: ["${entityPascal}"],
+			}),
+		)
+		.input(
+			z.object({
+				page: z.coerce.number().int().min(1).default(1),
+				limit: z.coerce.number().int().min(1).max(100).default(20),
+			}),
+		)
+		.output(
+			z.object({
+				items: z.array(${entityCamel}Schema),
+				meta: z.object({
+					page: z.number().int(),
+					limit: z.number().int(),
+					total: z.number().int(),
+					totalPages: z.number().int(),
+				}),
+			}),
+		),
+	getAll: oc
+		.meta(
+			openapi({
+				method: "GET",
+				path: "/api/${feature}/all",
+				tags: ["${entityPascal}"],
+			}),
 		)
 		.output(z.array(${entityCamel}Schema)),
 	get: oc
@@ -484,16 +513,45 @@ import type { InferContractRouterInputs } from "@orpc/contract";
 import type { contract } from "@petshop/api-contract";
 import type { Database } from "@petshop/db";
 import { ${featureCamel} } from "@petshop/db/schema/${feature}";
-import { eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 
-type ${featurePascal}Inputs = InferContractRouterInputs<typeof contract.${featureCamel}>;
+type ${featurePascal}Inputs = InferContractRouterInputs<
+	typeof contract.${featureCamel}
+>;
 
 @Injectable()
 export class ${featurePascal}Service {
 	constructor(@Inject(getDrizzleToken()) private readonly db: Database) {}
 
-	list() {
-		return this.db.select().from(${featureCamel});
+	async list(page: number, limit: number) {
+		const offset = (page - 1) * limit;
+		const [items, totalRows] = await Promise.all([
+			this.db
+				.select()
+				.from(${featureCamel})
+				.orderBy(desc(${featureCamel}.createdAt))
+				.limit(limit)
+				.offset(offset),
+			this.db.select({ value: count() }).from(${featureCamel}),
+		]);
+		const total = totalRows[0]?.value ?? 0;
+
+		return {
+			items,
+			meta: {
+				page,
+				limit,
+				total,
+				totalPages: Math.ceil(total / limit),
+			},
+		};
+	}
+
+	getAll() {
+		return this.db
+			.select()
+			.from(${featureCamel})
+			.orderBy(desc(${featureCamel}.createdAt));
 	}
 
 	async get(id: string) {
@@ -506,7 +564,10 @@ export class ${featurePascal}Service {
 	}
 
 	async create(input: ${featurePascal}Inputs["create"]) {
-		const [item] = await this.db.insert(${featureCamel}).values(input).returning();
+		const [item] = await this.db
+			.insert(${featureCamel})
+			.values(input)
+			.returning();
 		if (!item) throw new Error("Failed to create ${featureCamel}");
 		return item;
 	}
@@ -541,16 +602,26 @@ import { Implement } from "@orpc/nest";
 import { implement } from "@orpc/server";
 import { contract } from "@petshop/api-contract";
 
+// biome-ignore lint/style/useImportType: NestJS needs the runtime class for dependency injection metadata.
 import { ${featurePascal}Service } from "./${feature}.service";
 
 @Controller()
 export class ${featurePascal}Controller {
-	constructor(private readonly ${featureCamel}Service: ${featurePascal}Service) {}
+	constructor(
+		private readonly ${featureCamel}Service: ${featurePascal}Service,
+	) {}
 
 	@Implement(contract.${featureCamel}.list)
 	list() {
-		return implement(contract.${featureCamel}.list).handler(() =>
-			this.${featureCamel}Service.list(),
+		return implement(contract.${featureCamel}.list).handler(({ input }) =>
+			this.${featureCamel}Service.list(input.page, input.limit),
+		);
+	}
+
+	@Implement(contract.${featureCamel}.getAll)
+	getAll() {
+		return implement(contract.${featureCamel}.getAll).handler(() =>
+			this.${featureCamel}Service.getAll(),
 		);
 	}
 
@@ -738,7 +809,10 @@ async function buildChanges(
 		.map((match) => match[0].trim())
 		.concat(dbExport)
 		.sort();
-	const remainingDbIndex = dbIndex.replace(dbExportPattern, "").trim();
+	const remainingDbIndex = dbIndex
+		.replace(dbExportPattern, "")
+		.replace(/^export \{\};\n?/gm, "")
+		.trim();
 	const nextDbIndex = `${sortedDbExports.join("\n")}\n${remainingDbIndex ? `${remainingDbIndex}\n` : ""}`;
 	let nextContractIndex = addSortedRelativeImport(
 		contractIndex,
