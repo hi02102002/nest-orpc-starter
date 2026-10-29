@@ -1,17 +1,29 @@
 import "reflect-metadata";
 
 import { NestFactory } from "@nestjs/core";
+import type { NestExpressApplication } from "@nestjs/platform-express";
 import { apiReference } from "@scalar/nestjs-api-reference";
 import { initLogger, toLoggerConfig } from "evlog";
 
 import evlogConfig from "../evlog.config";
 import { AppModule } from "./app.module";
 import { ENV } from "./env.server";
+import { clientIpMiddleware } from "./lib/client-ip.middleware";
 
 initLogger(toLoggerConfig(evlogConfig));
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule, { bodyParser: false });
+	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+		bodyParser: false,
+	});
+
+	if (ENV.TRUST_PROXY) {
+		app.set(
+			"trust proxy",
+			/^\d+$/.test(ENV.TRUST_PROXY) ? Number(ENV.TRUST_PROXY) : ENV.TRUST_PROXY,
+		);
+	}
+	app.use(clientIpMiddleware);
 
 	app.enableShutdownHooks();
 	app.enableCors({

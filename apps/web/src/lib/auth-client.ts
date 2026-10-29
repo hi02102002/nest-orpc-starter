@@ -10,6 +10,15 @@ export const authClient = createAuthClient({
 	plugins: [adminClient()],
 });
 
+export const authErrorMessage = (error: {
+	status: number;
+	message?: string;
+	statusText: string;
+}) =>
+	error.status === 429
+		? "Bạn thao tác quá nhiều lần. Vui lòng thử lại sau ít phút."
+		: error.message || error.statusText;
+
 export const isAdmin = (user?: { role?: string | null } | null) =>
 	user?.role?.split(",").includes("admin") ?? false;
 

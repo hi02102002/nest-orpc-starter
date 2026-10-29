@@ -5,7 +5,11 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 
-import { authClient, authFetchOptions } from "@/lib/auth-client";
+import {
+	authClient,
+	authErrorMessage,
+	authFetchOptions,
+} from "@/lib/auth-client";
 
 export type UserRole = "admin" | "user";
 
@@ -31,11 +35,11 @@ const adminUsersKey = ["admin", "users"] as const;
 async function unwrap<T>(
 	promise: Promise<{
 		data: T | null;
-		error: { message?: string; statusText: string } | null;
+		error: { status: number; message?: string; statusText: string } | null;
 	}>,
 ): Promise<T> {
 	const { data, error } = await promise;
-	if (error) throw new Error(error.message || error.statusText);
+	if (error) throw new Error(authErrorMessage(error));
 	return data as T;
 }
 

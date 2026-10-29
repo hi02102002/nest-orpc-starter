@@ -22,6 +22,8 @@ const banExpiryTime = new Intl.DateTimeFormat("vi-VN", {
 const formatBanExpiry = (date: Date) =>
 	`${banExpiryDate.format(date)} ${banExpiryTime.format(date)}`;
 
+export const CLIENT_IP_HEADER = "x-app-client-ip";
+
 export type AuthConfig = {
 	BETTER_AUTH_URL: string;
 	BETTER_AUTH_SECRET: string;
@@ -42,7 +44,15 @@ export function createAuth(
 		emailAndPassword: { enabled: true },
 		secret: env.BETTER_AUTH_SECRET,
 		baseURL: env.BETTER_AUTH_URL,
+		rateLimit: {
+			storage: "memory",
+			customRules: {
+				"/sign-in/email": { window: 60, max: 10 },
+				"/sign-up/email": { window: 60, max: 10 },
+			},
+		},
 		advanced: {
+			ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
 			defaultCookieAttributes: {
 				sameSite: "none",
 				secure: true,

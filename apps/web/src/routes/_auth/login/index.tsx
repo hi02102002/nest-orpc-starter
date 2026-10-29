@@ -5,7 +5,7 @@ import z from "zod";
 
 import { FormField } from "@/components/form/form-field";
 import { useZodForm } from "@/hooks/use-zod-form";
-import { authClient } from "@/lib/auth-client";
+import { authClient, authErrorMessage } from "@/lib/auth-client";
 import { sessionQueryKey } from "@/lib/session";
 
 const signInSchema = z.object({
@@ -58,7 +58,7 @@ function RouteComponent() {
 				onError: (error) => {
 					message.error({
 						key: "sign-in-error",
-						content: error.error.message || error.error.statusText,
+						content: authErrorMessage(error.error),
 					});
 				},
 			},

@@ -13,6 +13,7 @@ services:
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:8080}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3333}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      TRUST_PROXY: ${TRUST_PROXY:-}
     ports:
       - "${SERVER_PORT:-8080}:8080"
     extra_hosts:
