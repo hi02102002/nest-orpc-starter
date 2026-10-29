@@ -25,7 +25,7 @@ pnpm exec biome check <paths>  # lint + format check; `pnpm check` writes fixes 
 pnpm --filter server check-types
 pnpm --filter web check-types
 pnpm --filter @app/db exec drizzle-kit generate --name <name>   # root `pnpm db:generate` needs a TTY (turbo interactive task)
-pnpm db:up | pnpm db:down      # local Postgres from compose.dev.yaml (compose.yaml is production images only)
+pnpm db:up | pnpm db:down      # local Postgres + RustFS (S3, bucket created by db:up) from compose.dev.yaml (compose.yaml is production images only)
 pnpm db:migrate | pnpm db:push | pnpm db:studio
 pnpm db:seed-admin <email>     # promote an existing user to admin (needed to open /admin/users)
 ```
