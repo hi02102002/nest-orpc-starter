@@ -5,6 +5,23 @@ import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins/admin";
 import { openAPI } from "better-auth/plugins/open-api";
 
+import { viI18n } from "./i18n";
+
+const banExpiryDate = new Intl.DateTimeFormat("vi-VN", {
+	day: "2-digit",
+	month: "2-digit",
+	year: "numeric",
+	timeZone: "Asia/Ho_Chi_Minh",
+});
+const banExpiryTime = new Intl.DateTimeFormat("vi-VN", {
+	hour: "2-digit",
+	minute: "2-digit",
+	hourCycle: "h23",
+	timeZone: "Asia/Ho_Chi_Minh",
+});
+const formatBanExpiry = (date: Date) =>
+	`${banExpiryDate.format(date)} ${banExpiryTime.format(date)}`;
+
 export type AuthConfig = {
 	BETTER_AUTH_URL: string;
 	BETTER_AUTH_SECRET: string;
@@ -32,7 +49,17 @@ export function createAuth(
 				httpOnly: true,
 			},
 		},
-		plugins: [admin(), openAPI()],
+		plugins: [
+			admin({
+				defaultBanReason: "Không có lý do",
+				bannedUserMessage: (user) =>
+					user.banExpires
+						? `Tài khoản của bạn đã bị khoá đến ${formatBanExpiry(user.banExpires)}.`
+						: "Tài khoản của bạn đã bị khoá. Vui lòng liên hệ quản trị viên.",
+			}),
+			openAPI(),
+			viI18n,
+		],
 	});
 }
 

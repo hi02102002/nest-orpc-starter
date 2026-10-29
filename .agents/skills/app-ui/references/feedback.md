@@ -5,6 +5,7 @@
 - Always `const { message, modal, notification } = App.useApp()`. Never the static `message.success(...)` import: it ignores the theme and breaks under SSR.
 - Success, past tense with "Đã": "Đã tạo người dùng", "Đã cập nhật …", "Đã xoá …", "Đã đăng xuất".
 - Errors: show the API's message when there is one (`error instanceof Error ? error.message : "Có lỗi xảy ra"`). Don't swallow errors silently.
+- A toast the user can trigger repeatedly (submitting the login form, retrying an action) gets a fixed `key` (`message.error({ key: "sign-in-error", content })`), so it replaces the previous one instead of stacking. `AntdProvider` also caps toasts at `maxCount: 3`.
 
 ## Loading
 

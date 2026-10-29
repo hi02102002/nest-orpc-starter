@@ -48,7 +48,6 @@ function RouteComponent() {
 			},
 			{
 				onSuccess: () => {
-					// Otherwise the root beforeLoad keeps the cached "signed out" session.
 					queryClient.removeQueries({ queryKey: sessionQueryKey });
 					if (redirect?.startsWith("/") && !redirect.startsWith("//")) {
 						navigate({ href: redirect });
@@ -57,7 +56,10 @@ function RouteComponent() {
 					}
 				},
 				onError: (error) => {
-					message.error(error.error.message || error.error.statusText);
+					message.error({
+						key: "sign-in-error",
+						content: error.error.message || error.error.statusText,
+					});
 				},
 			},
 		);

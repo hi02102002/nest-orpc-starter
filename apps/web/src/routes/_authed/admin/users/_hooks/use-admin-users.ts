@@ -106,6 +106,35 @@ export function useUpdateUser() {
 	});
 }
 
+export function isBanned(user: AdminUser) {
+	if (!user.banned) return false;
+	return !user.banExpires || new Date(user.banExpires) > new Date();
+}
+
+export interface BanUserInput {
+	userId: string;
+	banReason?: string;
+	banExpiresIn?: number;
+}
+
+export function useBanUser() {
+	const invalidate = useInvalidateUsers();
+	return useMutation({
+		mutationFn: (input: BanUserInput) =>
+			unwrap(authClient.admin.banUser(input)),
+		onSuccess: invalidate,
+	});
+}
+
+export function useUnbanUser() {
+	const invalidate = useInvalidateUsers();
+	return useMutation({
+		mutationFn: (userId: string) =>
+			unwrap(authClient.admin.unbanUser({ userId })),
+		onSuccess: invalidate,
+	});
+}
+
 export function useRemoveUser() {
 	const invalidate = useInvalidateUsers();
 	return useMutation({

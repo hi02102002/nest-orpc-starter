@@ -10,9 +10,10 @@
 		"check-types": "tsc -b"
 	},
 	"dependencies": {
+		"@app/db": "workspace:*",
 		"@better-auth/core": "1.7.12",
 		"@better-auth/drizzle-adapter": "1.7.12",
-		"@app/db": "workspace:*",
+		"@better-auth/i18n": "1.7.12",
 		"better-auth": "catalog:",
 		"drizzle-orm": "catalog:",
 		"zod": "catalog:"

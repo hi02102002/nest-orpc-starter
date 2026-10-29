@@ -12,9 +12,10 @@ import {
 	Space,
 	Table,
 	Tag,
+	Tooltip,
 	Typography,
 } from "antd";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Ban, LockOpen, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import z from "zod";
 import { ColumnVisibilityButton } from "@/components/data-table/column-visibility-button";
@@ -23,12 +24,15 @@ import { TableEmpty } from "@/components/data-table/table-empty";
 import { useColumnVisibility } from "@/components/data-table/use-column-visibility";
 import { authClient } from "@/lib/auth-client";
 import dayjs from "@/lib/dayjs";
+import { BanUserModal } from "./_components/ban-user-modal";
 import { roleOptions, UserFormModal } from "./_components/user-form-modal";
 import {
 	type AdminUser,
 	type AdminUsersSearch,
 	adminUsersQueryOptions,
+	isBanned,
 	useRemoveUser,
+	useUnbanUser,
 } from "./_hooks/use-admin-users";
 
 const searchSchema = z.object({
@@ -64,7 +68,12 @@ function RouteComponent() {
 
 	const { data, isLoading, error } = useQuery(usersQueryOptions);
 	const removeUser = useRemoveUser();
+	const unbanUser = useUnbanUser();
 	const [modal, setModal] = useState<ModalState>({ open: false });
+	const [banModal, setBanModal] = useState<{
+		open: boolean;
+		user?: AdminUser;
+	}>({ open: false });
 	const [searchText, setSearchText] = useState(search.search ?? "");
 
 	const setSearch = (patch: Partial<AdminUsersSearch>) =>
@@ -118,6 +127,29 @@ function RouteComponent() {
 				),
 		},
 		{
+			title: "Trạng thái",
+			key: "status",
+			render: (_, user) =>
+				isBanned(user) ? (
+					<Tooltip
+						title={
+							<>
+								<div>Lý do: {user.banReason || "Không có lý do"}</div>
+								<div>
+									{user.banExpires
+										? `Đến ${dayjs(user.banExpires).format(DATE_FORMAT)}`
+										: "Vĩnh viễn"}
+								</div>
+							</>
+						}
+					>
+						<Tag color="red">Đã khoá</Tag>
+					</Tooltip>
+				) : (
+					<Tag>Hoạt động</Tag>
+				),
+		},
+		{
 			title: "Ngày tạo",
 			dataIndex: "createdAt",
 			key: "createdAt",
@@ -137,6 +169,41 @@ function RouteComponent() {
 					>
 						Sửa
 					</Button>
+					{isBanned(user) ? (
+						<Popconfirm
+							title="Mở khoá tài khoản?"
+							description={`${user.email} sẽ đăng nhập lại được ngay.`}
+							okText="Mở khoá"
+							cancelText="Huỷ"
+							okButtonProps={{ loading: unbanUser.isPending }}
+							onConfirm={async () => {
+								try {
+									await unbanUser.mutateAsync(user.id);
+									message.success("Đã mở khoá tài khoản");
+								} catch (unbanError) {
+									message.error(
+										unbanError instanceof Error
+											? unbanError.message
+											: "Không thể mở khoá tài khoản",
+									);
+								}
+							}}
+						>
+							<Button size="small" icon={<LockOpen size={14} />}>
+								Mở khoá
+							</Button>
+						</Popconfirm>
+					) : (
+						<Button
+							size="small"
+							danger
+							icon={<Ban size={14} />}
+							disabled={user.id === currentUserId}
+							onClick={() => setBanModal({ open: true, user })}
+						>
+							Khoá
+						</Button>
+					)}
 					<Popconfirm
 						title="Xoá người dùng?"
 						description={`${user.email} sẽ bị xoá cùng mọi phiên đăng nhập.`}
@@ -313,6 +380,11 @@ function RouteComponent() {
 				user={modal.open ? modal.user : undefined}
 				isSelf={modal.open && modal.user?.id === currentUserId}
 				onClose={() => setModal({ open: false })}
+			/>
+			<BanUserModal
+				open={banModal.open}
+				user={banModal.user}
+				onClose={() => setBanModal((prev) => ({ ...prev, open: false }))}
 			/>
 		</ListPage>
 	);

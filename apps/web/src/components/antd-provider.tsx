@@ -5,7 +5,6 @@ import type { PropsWithChildren } from "react";
 export function AntdProvider({ children }: PropsWithChildren) {
 	return (
 		<ConfigProvider
-			// Vietnamese built-in texts (empty state, pagination, pickers); dayjs uses "vi" too.
 			locale={viVN}
 			theme={{
 				token: {
@@ -14,7 +13,7 @@ export function AntdProvider({ children }: PropsWithChildren) {
 				},
 			}}
 		>
-			<App>{children}</App>
+			<App message={{ maxCount: 3 }}>{children}</App>
 		</ConfigProvider>
 	);
 }
